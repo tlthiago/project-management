@@ -4,9 +4,9 @@ import { Avatar, AvatarFallback } from '../ui/avatar';
 
 export function Profile() {
   return (
-    <div className="grid-cols-profile grid items-center gap-3">
+    <div className="grid grid-cols-profile items-center gap-3">
       <Avatar>
-        <AvatarFallback className="dark:bg-muted bg-zinc-200">
+        <AvatarFallback className="bg-zinc-200 dark:bg-muted">
           TA
         </AvatarFallback>
       </Avatar>
@@ -20,7 +20,7 @@ export function Profile() {
       </div>
       <button
         type="button"
-        className="dark:hover:bg-muted ml-auto rounded-md p-2 hover:bg-zinc-200"
+        className="ml-auto rounded-md p-2 hover:bg-zinc-200 dark:hover:bg-muted"
       >
         <LogOut className="h-5 w-5 text-zinc-500" />
       </button>

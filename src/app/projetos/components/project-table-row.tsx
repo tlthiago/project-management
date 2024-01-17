@@ -29,7 +29,7 @@ export function ProjectTableRow() {
       <TableCell>
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-slate-400"></span>
-          <span className="text-muted-foreground font-medium">Pendente</span>
+          <span className="font-medium text-muted-foreground">Pendente</span>
         </div>
       </TableCell>
       <TableCell className="font-medium">Thiago Luiz Machado Alves</TableCell>

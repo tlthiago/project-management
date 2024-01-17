@@ -20,7 +20,7 @@ export function Sidebar() {
       <div className="flex items-center">
         <div className="flex flex-col truncate">
           <h1>Mart Minas</h1>
-          <span className="text-muted-foreground truncate pr-4 text-sm">
+          <span className="truncate pr-4 text-sm text-muted-foreground">
             Tecnologia da Informação
           </span>
         </div>

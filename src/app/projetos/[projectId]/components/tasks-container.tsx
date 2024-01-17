@@ -1,4 +1,6 @@
-import { Avatar, AvatarFallback } from '../../../../components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { TaskCard } from './task-card';
 
 interface TasksContainerProps {
@@ -9,7 +11,7 @@ interface TasksContainerProps {
 export function TasksContainer({ borderColor, title }: TasksContainerProps) {
   return (
     <div
-      className={`space-y-3 rounded-xl border-t-4 ${borderColor} bg-zinc-100 p-5 shadow-md`}
+      className={`space-y-3 rounded-xl border-t-4 ${borderColor} max-w-96 bg-zinc-100 p-4 shadow-md`}
     >
       <div className="flex items-center gap-3 rounded">
         <div className="flex items-center gap-3">
@@ -19,12 +21,15 @@ export function TasksContainer({ borderColor, title }: TasksContainerProps) {
           </Avatar>
         </div>
       </div>
-      <div className="max-h-[38rem] space-y-3 overflow-auto">
-        <TaskCard />
-        <TaskCard />
-        <TaskCard />
-        <TaskCard />
-      </div>
+      <ScrollArea className="h-[36rem]">
+        {Array.from({ length: 5 }).map((_, i) => {
+          return (
+            <div className="mb-2" key={i}>
+              <TaskCard />
+            </div>
+          );
+        })}
+      </ScrollArea>
     </div>
   );
 }
