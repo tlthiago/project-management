@@ -27,6 +27,12 @@ export function TaskTableRow() {
       <TableCell className="font-medium">
         Project X dashboard UI design
       </TableCell>
+      <TableCell className="line-clamp-1 text-xs">
+        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quo,
+        reprehenderit tempore eum voluptatem sequi corrupti libero provident
+        neque magni dolorum dicta alias modi commodi magnam ducimus laborum
+        nobis accusantium fugiat?
+      </TableCell>
       <TableCell className="text-muted-foreground">
         <div className="flex items-center gap-2">
           <Badge className="bg-zinc-200 text-zinc-500">Pendente</Badge>

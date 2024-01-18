@@ -1,7 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import {
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
@@ -20,7 +19,7 @@ export function ProjectDetails() {
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Project X dashboard UI design</DialogTitle>
+        <DialogTitle>Projeto</DialogTitle>
       </DialogHeader>
       <div className="space-y-6">
         <Table>

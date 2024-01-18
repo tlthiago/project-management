@@ -12,7 +12,7 @@ import { ProjectTableRow } from './components/project-table-row';
 
 export default function Projects() {
   return (
-    <>
+    <div className="p-5">
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Projetos</h1>
         <div className="space-y-2.5">
@@ -42,6 +42,6 @@ export default function Projects() {
           {/* <Pagination pageIndex={0} perPage={10} totalCount={105} /> */}
         </div>
       </div>
-    </>
+    </div>
   );
 }

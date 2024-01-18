@@ -1,35 +1,39 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { TaskCard } from './task-card';
 
 interface TasksContainerProps {
-  borderColor: string;
+  circleColor: string;
   title: string;
 }
 
-export function TasksContainer({ borderColor, title }: TasksContainerProps) {
+export function TasksContainer({ circleColor, title }: TasksContainerProps) {
   return (
-    <div
-      className={`space-y-3 rounded-xl border-t-4 ${borderColor} max-w-96 bg-zinc-100 p-4 shadow-md`}
-    >
-      <div className="flex items-center gap-3 rounded">
-        <div className="flex items-center gap-3">
-          <span className="ml-2 font-semibold">{title}</span>
-          <Avatar className="h-6 w-6">
-            <AvatarFallback className="bg-slate-200 text-sm">3</AvatarFallback>
+    <Card className="w-96 border-0">
+      <CardHeader className="flex">
+        <CardTitle className="flex justify-between text-base">
+          <div className="flex items-center gap-3">
+            <span className={`h-2 w-2 rounded-full ${circleColor}`}></span>
+            <span>{title}</span>
+          </div>
+          <Avatar className="h-6 w-6 shadow-sm">
+            <AvatarFallback className="bg-muted text-sm">3</AvatarFallback>
           </Avatar>
-        </div>
-      </div>
-      <ScrollArea className="h-[36rem]">
-        {Array.from({ length: 5 }).map((_, i) => {
-          return (
-            <div className="mb-2" key={i}>
-              <TaskCard />
-            </div>
-          );
-        })}
-      </ScrollArea>
-    </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ScrollArea className="lg:h-[36rem]">
+          {Array.from({ length: 5 }).map((_, i) => {
+            return (
+              <div className="mb-2" key={i}>
+                <TaskCard />
+              </div>
+            );
+          })}
+        </ScrollArea>
+      </CardContent>
+    </Card>
   );
 }

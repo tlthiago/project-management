@@ -44,7 +44,7 @@ export function TaskDetails() {
               </TableCell>
               <TableCell className="flex justify-end">
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-green-200 text-green-500">Baixa</Badge>
+                  <Badge className="bg-green-500 text-green-50">Baixa</Badge>
                 </div>
               </TableCell>
             </TableRow>

@@ -16,7 +16,7 @@ export function ProjectTableRow() {
           <DialogTrigger asChild>
             <Button variant="outline" size="xs">
               <Search className="h-3 w-3" />
-              <span className="sr-only">Detalhes do pedido</span>
+              <span className="sr-only">Detalhes do projeto</span>
             </Button>
           </DialogTrigger>
           <ProjectDetails />

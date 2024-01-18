@@ -7,7 +7,7 @@ interface UserAvatarProps {
 export function UserAvatar({ userInitials }: UserAvatarProps) {
   return (
     <Avatar className="h-7 w-7">
-      <AvatarFallback className="bg-slate-200 text-xs">
+      <AvatarFallback className="bg-muted text-xs">
         {userInitials}
       </AvatarFallback>
     </Avatar>

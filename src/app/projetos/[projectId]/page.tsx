@@ -1,112 +1,110 @@
-import { KanbanSquare, Table as TableIcon } from 'lucide-react';
+import {
+  Kanban,
+  MoreVertical,
+  Plus,
+  PlusCircle,
+  Star,
+  Table
+} from 'lucide-react';
 
 import { TasksContainer } from '@/app/projetos/[projectId]/components/tasks-container';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { Progress } from '@/components/ui/progress';
+import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs } from '@/components/ui/tabs';
 
-import { TaskTableRow } from './components/task-table-row';
+import { ProjectDetails } from '../components/project-details';
+import TasksTable from './components/task-table';
 import { UserAvatar } from './components/user-avatar';
 
 export default function Page({ params }: { params: { projectId: string } }) {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between px-5 py-8">
-        <div className="space-y-3">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              My Project: {params.projectId}
-            </h1>
-          </div>
-          <div className="space-x-3">
-            <Badge className="bg-zinc-200 text-zinc-500">Pendente</Badge>
-            <Badge className="bg-green-200 text-green-500">Baixa</Badge>
-            <span className="text-sm text-muted-foreground">
-              16/01/2024 a 20/01/2024
+    <div className="space-y-3 p-5">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="line-clamp-1 max-w-7xl">
+              Projeto {params.projectId}
             </span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Progress className="h-2 w-96" value={33} />
-            <span className="text-xs text-muted-foreground">33% completo</span>
-          </div>
-        </div>
-        <div className="flex">
-          <Avatar>
-            <AvatarFallback>TA</AvatarFallback>
-          </Avatar>
-          <Avatar>
-            <AvatarFallback>TA</AvatarFallback>
-          </Avatar>
-          <Avatar>
-            <AvatarFallback>TA</AvatarFallback>
-          </Avatar>
-          <Avatar>
-            <AvatarFallback>TA</AvatarFallback>
-          </Avatar>
-          <Avatar>
-            <AvatarFallback>+2</AvatarFallback>
-          </Avatar>
-        </div>
-      </div>
-      <div className="space-y-3 px-5">
-        <Tabs defaultValue="kanban">
-          <TabsList className="space-x-2">
-            <Button>Criar tarefa</Button>
-            <TabsTrigger value="kanban">
-              <KanbanSquare />
-              <span>Kanban</span>
-            </TabsTrigger>
-            <TabsTrigger value="table">
-              <TableIcon />
-              <span>Tabela</span>
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="kanban">
-            <div className="flex space-x-4">
-              <TasksContainer borderColor="border-zinc-400" title="A fazer" />
-              <TasksContainer
-                borderColor="border-blue-400"
-                title="Em andamento"
-              />
-              <TasksContainer
-                borderColor="border-emerald-400"
-                title="Finalizado"
-              />
+            <div>
+              <Button variant="ghost" size="icon">
+                <Star className="h-5 w-5" />
+              </Button>
+              <Dialog>
+                <DialogTrigger>
+                  <Button variant="ghost" size="icon">
+                    <MoreVertical className="h-5 w-5" />
+                  </Button>
+                </DialogTrigger>
+                <ProjectDetails />
+              </Dialog>
             </div>
-          </TabsContent>
-          <TabsContent value="table">
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead></TableHead>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Prioridade</TableHead>
-                    <TableHead>Datas</TableHead>
-                    <TableHead>Equipes</TableHead>
-                    <TableHead>Responsáveis</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {Array.from({ length: 10 }).map((_, i) => {
-                    return <TaskTableRow key={i} />;
-                  })}
-                </TableBody>
-              </Table>
+          </CardTitle>
+          <CardDescription className="flex items-center justify-between">
+            <span className="line-clamp-1 max-w-6xl">
+              Desenvolvimento de Sistemas
+            </span>
+            <div className="flex gap-1">
+              <UserAvatar userInitials="TA" />
+              <UserAvatar userInitials="TA" />
+              <UserAvatar userInitials="TA" />
+              <UserAvatar userInitials="TA" />
+              <Avatar className="h-7 w-7">
+                <AvatarFallback className="bg-muted text-xs">
+                  <Plus className="h-5 w-5" />
+                </AvatarFallback>
+              </Avatar>
             </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+          </CardDescription>
+        </CardHeader>
+      </Card>
+      <Card className="lg:h-[48rem]">
+        <CardHeader>
+          <Tabs defaultValue="kanban" className="">
+            <div className="mx-5 flex items-start justify-between">
+              <Button variant="secondary">Nova tarefa</Button>
+              <TabsList className="bg-muted">
+                <TabsTrigger value="kanban">
+                  <Kanban />
+                  <span className="ml-1">Kanban</span>
+                </TabsTrigger>
+                <TabsTrigger value="table">
+                  <Table />
+                  <span className="ml-1">Tabela</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+            <TabsContent value="kanban">
+              <div className="flex overflow-x-auto">
+                <TasksContainer circleColor="bg-rose-400" title="ATRASADO" />
+                <TasksContainer circleColor="bg-zinc-400" title="A FAZER" />
+                <TasksContainer
+                  circleColor="bg-blue-400"
+                  title="EM ANDAMENTO"
+                />
+                <TasksContainer
+                  circleColor="bg-emerald-400"
+                  title="FINALIZADO"
+                />
+              </div>
+            </TabsContent>
+            <TabsContent value="table">
+              <div>
+                <TasksTable />
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardHeader>
+      </Card>
     </div>
   );
 }

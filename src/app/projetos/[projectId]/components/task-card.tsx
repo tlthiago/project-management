@@ -2,6 +2,13 @@ import { MessageCircleMore } from 'lucide-react';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 
 import { TaskDetails } from './task-details';
@@ -11,39 +18,38 @@ export function TaskCard() {
   return (
     <Dialog>
       <DialogTrigger>
-        <div className="space-y-3 rounded-xl border bg-white p-3 shadow-sm">
-          <div className="flex justify-between">
-            <span className="text-left font-semibold">
+        <Card>
+          <CardHeader className="text-left">
+            <CardTitle className="line-clamp-1 text-base">
               Project X dashboard UI design
-            </span>
-          </div>
-          <div>
-            <p className="text-left text-xs text-muted-foreground">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate
-              neque voluptas, alias aut eaque quisquam itaque amet est minus
-              recusandae dolorum necessitatibus officiis beatae quam nostrum
-              exercitationem numquam, quos sint?
-            </p>
-          </div>
-          <div className="flex justify-between">
-            <Badge className="h-4 bg-green-200 text-green-500">Baixa</Badge>
-            <span className="text-right text-xs text-muted-foreground">
-              16/01/2024 - 20/01/2024
-            </span>
-          </div>
-          <div className="flex items-center gap-0.5">
-            <UserAvatar userInitials="TA" />
-            <UserAvatar userInitials="TA" />
-            <UserAvatar userInitials="TA" />
-            <Avatar className="h-7 w-7">
-              <AvatarFallback className="text-xs">+2</AvatarFallback>
-            </Avatar>
+            </CardTitle>
+            <CardDescription className="line-clamp-2">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat,
+              iure provident, qui eaque ipsa, exercitationem reiciendis quod
+              quam ipsum dolorum vitae unde alias laborum quaerat sequi nam
+              dolorem minima sunt!
+            </CardDescription>
+          </CardHeader>
+          <CardFooter className="grid grid-cols-3">
+            <div className="flex">
+              <UserAvatar userInitials="TA" />
+              <UserAvatar userInitials="TA" />
+              <UserAvatar userInitials="TA" />
+              <Avatar className="h-7 w-7">
+                <AvatarFallback className="text-xs">+2</AvatarFallback>
+              </Avatar>
+            </div>
+            <div className="flex justify-end">
+              <Badge className="bg-rose-500 text-rose-50 hover:bg-rose-500/80">
+                Alta
+              </Badge>
+            </div>
             <div className="ml-auto flex gap-0.5">
               <MessageCircleMore className="h-5 w-5" />
               <span className="text-xs">2</span>
             </div>
-          </div>
-        </div>
+          </CardFooter>
+        </Card>
       </DialogTrigger>
       <TaskDetails></TaskDetails>
     </Dialog>

@@ -30,9 +30,9 @@ export function Sidebar() {
       </div>
       <Separator />
       <nav>
-        <NavItem link="#" title="Dashboard" icon={LayoutDashboard} />
+        <NavItem link="/dashboard" title="Dashboard" icon={LayoutDashboard} />
         <NavItem link="/projetos" title="Projetos" icon={SquareStackIcon} />
-        <NavItem link="#" title="Membros" icon={Users} />
+        <NavItem link="membros" title="Membros" icon={Users} />
         <NavItem link="#" title="Configurações" icon={Settings} />
       </nav>
       <Separator />
