@@ -1,15 +1,29 @@
-import { Avatar, AvatarFallback } from '../../../../components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 interface UserAvatarProps {
+  userName: string;
   userInitials: string;
 }
 
-export function UserAvatar({ userInitials }: UserAvatarProps) {
+export function UserAvatar({ userInitials, userName }: UserAvatarProps) {
   return (
-    <Avatar className="h-7 w-7">
-      <AvatarFallback className="bg-muted text-xs">
-        {userInitials}
-      </AvatarFallback>
-    </Avatar>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger>
+          <Avatar className="h-7 w-7">
+            <AvatarFallback className="bg-muted text-xs">
+              {userInitials}
+            </AvatarFallback>
+          </Avatar>
+        </TooltipTrigger>
+        <TooltipContent>{userName}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

@@ -9,7 +9,7 @@ interface TasksContainerProps {
   title: string;
 }
 
-export function TasksContainer({ circleColor, title }: TasksContainerProps) {
+export function TaskContainer({ circleColor, title }: TasksContainerProps) {
   return (
     <Card className="border-0 shadow-none">
       <CardHeader className="flex">
@@ -24,7 +24,7 @@ export function TasksContainer({ circleColor, title }: TasksContainerProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-96">
+        <ScrollArea className="h-[35rem] max-h-[35rem]">
           {Array.from({ length: 5 }).map((_, i) => {
             return (
               <div className="mb-2" key={i}>

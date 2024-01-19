@@ -11,8 +11,8 @@ import {
 } from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 
-import { TaskDetails } from './task-details';
-import { UserAvatar } from './user-avatar';
+import { TaskDetails } from '../task-details';
+import { UserAvatar } from '../user-avatar';
 
 export function TaskCard() {
   return (
@@ -30,20 +30,18 @@ export function TaskCard() {
               dolorem minima sunt!
             </CardDescription>
           </CardHeader>
-          <CardFooter className="flex justify-between">
+          <CardFooter className="flex justify-between gap-2">
             <div className="flex">
-              <UserAvatar userInitials="TA" />
-              <UserAvatar userInitials="TA" />
-              <UserAvatar userInitials="TA" />
+              <UserAvatar userInitials="TA" userName="Thiago Alves" />
+              <UserAvatar userInitials="TA" userName="Thiago Alves" />
+              <UserAvatar userInitials="TA" userName="Thiago Alves" />
               <Avatar className="h-7 w-7">
                 <AvatarFallback className="text-xs">+2</AvatarFallback>
               </Avatar>
             </div>
-            <div className="">
-              <Badge className="bg-rose-500 text-rose-50 hover:bg-rose-500/80">
-                Alta
-              </Badge>
-            </div>
+            <Badge className="bg-rose-500 text-rose-50 hover:bg-rose-500/80">
+              Alta
+            </Badge>
             <div className="flex gap-0.5">
               <MessageCircleMore className="h-5 w-5" />
               <span className="text-xs">2</span>

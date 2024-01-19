@@ -32,7 +32,7 @@ export function Sidebar() {
       <nav>
         <NavItem link="/dashboard" title="Dashboard" icon={LayoutDashboard} />
         <NavItem link="/projetos" title="Projetos" icon={SquareStackIcon} />
-        <NavItem link="membros" title="Membros" icon={Users} />
+        <NavItem link="/membros" title="Membros" icon={Users} />
         <NavItem link="#" title="Configurações" icon={Settings} />
       </nav>
       <Separator />
@@ -42,7 +42,7 @@ export function Sidebar() {
           <PlusCircle className="ml-auto h-5 w-5 text-zinc-600 hover:cursor-pointer hover:text-zinc-800" />
         </div>
         <NavItem link="#" title="Arquivados" icon={Archive} />
-        <ScrollArea className="h-96">
+        <ScrollArea className="xl:h-28 2xl:h-96">
           <ProjectItem link="/projetos/1" title="Projeto 1" />
           <ProjectItem link="/projetos/2" title="Projeto 2" />
           <ProjectItem link="/projetos/3" title="Projeto 3" />

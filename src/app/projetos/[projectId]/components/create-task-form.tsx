@@ -3,33 +3,29 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUp,
+  CalendarDays,
+  ChevronsUpDown,
+  X
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { useForm } from 'react-hook-form';
-import {
-  RxArrowDown,
-  RxArrowRight,
-  RxArrowUp,
-  RxCalendar,
-  RxCaretSort,
-  RxCross2,
-  RxPlus
-} from 'react-icons/rx';
 import * as z from 'zod';
 
 import { departments } from '@/app/projetos/data/data';
 import { taskSchema } from '@/app/projetos/data/schema';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
-  Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -140,213 +136,202 @@ export function CreateTaskForm({ projectId, projectTeams }: TaskFormProps) {
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-9 w-9">
-            <AvatarFallback>
-              <RxPlus />
-            </AvatarFallback>
-          </Avatar>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-auto">
-        <DialogHeader>
-          <DialogTitle>Criar tarefa</DialogTitle>
-          <DialogDescription>
-            Preencha os campos abaixo com as informações da tarefa
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome da tarefa</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="text"
-                      placeholder="Digite o nome da tarefa"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="dateRange"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Datas</FormLabel>
-                  <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={'outline'}
-                          className={cn(
-                            'w-60 justify-start text-left font-normal',
-                            !range && 'text-muted-foreground'
-                          )}
-                        >
-                          <RxCalendar className="mr-2 h-4 w-4" />
-                          {range?.from && range?.to
-                            ? `${format(range.from, 'P', {
-                                locale: ptBR
-                              })} a ${format(range.to, 'P', {
-                                locale: ptBR
-                              })}`
-                            : 'Selecione as datas'}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="flex w-auto p-0">
-                        <Calendar
-                          mode="range"
-                          selected={{
-                            from: field.value.from,
-                            to: field.value.to
-                          }}
-                          onSelect={(range) => {
-                            field.onChange({
-                              from: range?.from,
-                              to: range?.to
-                            });
-                            setRange({
-                              from: range?.from,
-                              to: range?.to
-                            });
-                          }}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Descreva a tarefa" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormItem>
-              <FormLabel>Equipes</FormLabel>
-              <FormControl>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className="w-full justify-between font-normal"
-                  disabled
-                >
-                  <div className="flex flex-wrap items-center gap-1">
-                    {teamsList.map((item) => (
-                      <Badge variant="outline" key={item} className="mb-1 mr-1">
-                        {item}
-                        <span className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                          <RxCross2 className="h-3 w-3 text-muted-foreground hover:text-foreground" />
-                        </span>
-                      </Badge>
-                    ))}
-                  </div>
-                  <RxCaretSort className="h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-            <FormField
-              control={form.control}
-              name="members"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Responsáveis</FormLabel>
-                  <FormControl>
-                    <div>
-                      <MultiSelect
-                        options={membersList.map((memberName, index) => ({
-                          value: memberName,
-                          label: memberName,
-                          key: index
-                        }))}
-                        selected={members}
-                        onChange={(members) => {
-                          field.onChange(members);
-                          setMembers(members);
+    <DialogContent className="max-h-[90vh] overflow-auto">
+      <DialogHeader>
+        <DialogTitle>Criar tarefa</DialogTitle>
+        <DialogDescription>
+          Preencha os campos abaixo com as informações da tarefa
+        </DialogDescription>
+      </DialogHeader>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nome da tarefa</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="text"
+                    placeholder="Digite o nome da tarefa"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="dateRange"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Datas</FormLabel>
+                <FormControl>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={'outline'}
+                        className={cn(
+                          'w-60 justify-start text-left font-normal',
+                          !range && 'text-muted-foreground'
+                        )}
+                      >
+                        <CalendarDays className="mr-2 h-4 w-4" />
+                        {range?.from && range?.to
+                          ? `${format(range.from, 'P', {
+                              locale: ptBR
+                            })} a ${format(range.to, 'P', {
+                              locale: ptBR
+                            })}`
+                          : 'Selecione as datas'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="flex w-auto p-0">
+                      <Calendar
+                        mode="range"
+                        selected={{
+                          from: field.value.from,
+                          to: field.value.to
                         }}
-                        className="w-[523px]"
-                        placeholder="Selecione os responsáveis"
+                        onSelect={(range) => {
+                          field.onChange({
+                            from: range?.from,
+                            to: range?.to
+                          });
+                          setRange({
+                            from: range?.from,
+                            to: range?.to
+                          });
+                        }}
+                        initialFocus
                       />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="priority"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Prioridade</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-60">
-                          <SelectValue placeholder="Selecione a prioridade" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="low">
-                          <div className="flex gap-3">
-                            <div className="flex items-center">
-                              <RxArrowDown />
-                            </div>
-                            <span>Baixa</span>
+                    </PopoverContent>
+                  </Popover>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Descrição</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Descreva a tarefa" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormItem>
+            <FormLabel>Equipes</FormLabel>
+            <FormControl>
+              <Button
+                variant="outline"
+                role="combobox"
+                className="w-full justify-between font-normal"
+                disabled
+              >
+                <div className="flex flex-wrap items-center gap-1">
+                  {teamsList.map((item) => (
+                    <Badge variant="outline" key={item} className="mb-1 mr-1">
+                      {item}
+                      <span className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                        <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                      </span>
+                    </Badge>
+                  ))}
+                </div>
+                <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+          <FormField
+            control={form.control}
+            name="members"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Responsáveis</FormLabel>
+                <FormControl>
+                  <div>
+                    <MultiSelect
+                      options={membersList.map((memberName, index) => ({
+                        value: memberName,
+                        label: memberName,
+                        key: index
+                      }))}
+                      selected={members}
+                      onChange={(members) => {
+                        field.onChange(members);
+                        setMembers(members);
+                      }}
+                      className="w-96"
+                      placeholder="Selecione os responsáveis"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="priority"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Prioridade</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-60">
+                        <SelectValue placeholder="Selecione a prioridade" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="low">
+                        <div className="flex gap-3">
+                          <div className="flex items-center">
+                            <ArrowDown />
                           </div>
-                        </SelectItem>
-                        <SelectItem value="medium">
-                          <div className="flex gap-3">
-                            <div className="flex items-center">
-                              <RxArrowRight />
-                            </div>
-                            <span>Média</span>
+                          <span>Baixa</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="medium">
+                        <div className="flex gap-3">
+                          <div className="flex items-center">
+                            <ArrowRight />
                           </div>
-                        </SelectItem>
-                        <SelectItem value="high">
-                          <div className="flex gap-3">
-                            <div className="flex items-center">
-                              <RxArrowUp />
-                            </div>
-                            <span>Alta</span>
+                          <span>Média</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="high">
+                        <div className="flex gap-3">
+                          <div className="flex items-center">
+                            <ArrowUp />
                           </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-center">
-              <Button type="submit">Criar tarefa</Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+                          <span>Alta</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex justify-center">
+            <Button type="submit">Criar tarefa</Button>
+          </div>
+        </form>
+      </Form>
+    </DialogContent>
   );
 }

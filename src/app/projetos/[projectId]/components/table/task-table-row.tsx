@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { TableCell, TableRow } from '@/components/ui/table';
 
-import { TaskDetails } from './task-details';
-import { UserAvatar } from './user-avatar';
+import { TaskDetails } from '../task-details';
+import { UserAvatar } from '../user-avatar';
 
 // export interface OrderTableRowProps {}
 
