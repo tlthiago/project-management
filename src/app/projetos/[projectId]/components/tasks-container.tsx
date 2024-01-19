@@ -11,7 +11,7 @@ interface TasksContainerProps {
 
 export function TasksContainer({ circleColor, title }: TasksContainerProps) {
   return (
-    <Card className="w-96 border-0">
+    <Card className="border-0 shadow-none">
       <CardHeader className="flex">
         <CardTitle className="flex justify-between text-base">
           <div className="flex items-center gap-3">
@@ -24,7 +24,7 @@ export function TasksContainer({ circleColor, title }: TasksContainerProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="lg:h-[36rem]">
+        <ScrollArea className="h-96">
           {Array.from({ length: 5 }).map((_, i) => {
             return (
               <div className="mb-2" key={i}>

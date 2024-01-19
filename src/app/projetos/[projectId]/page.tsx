@@ -1,15 +1,6 @@
-import {
-  Kanban,
-  MoreVertical,
-  Plus,
-  PlusCircle,
-  Star,
-  Table
-} from 'lucide-react';
+import { Kanban, MoreVertical, Plus, Star, Table } from 'lucide-react';
 
 import { TasksContainer } from '@/app/projetos/[projectId]/components/tasks-container';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,7 +9,6 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { Progress } from '@/components/ui/progress';
 import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tabs } from '@/components/ui/tabs';
 
@@ -28,7 +18,7 @@ import { UserAvatar } from './components/user-avatar';
 
 export default function Page({ params }: { params: { projectId: string } }) {
   return (
-    <div className="space-y-3 p-5">
+    <div className="h-screen space-y-3 p-5">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -40,7 +30,7 @@ export default function Page({ params }: { params: { projectId: string } }) {
                 <Star className="h-5 w-5" />
               </Button>
               <Dialog>
-                <DialogTrigger>
+                <DialogTrigger asChild>
                   <Button variant="ghost" size="icon">
                     <MoreVertical className="h-5 w-5" />
                   </Button>
@@ -53,21 +43,23 @@ export default function Page({ params }: { params: { projectId: string } }) {
             <span className="line-clamp-1 max-w-6xl">
               Desenvolvimento de Sistemas
             </span>
-            <div className="flex gap-1">
+            <span className="flex gap-1">
               <UserAvatar userInitials="TA" />
               <UserAvatar userInitials="TA" />
               <UserAvatar userInitials="TA" />
               <UserAvatar userInitials="TA" />
-              <Avatar className="h-7 w-7">
-                <AvatarFallback className="bg-muted text-xs">
-                  <Plus className="h-5 w-5" />
-                </AvatarFallback>
-              </Avatar>
-            </div>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7 w-7 rounded-full"
+              >
+                <Plus className="h-5 w-5" />
+              </Button>
+            </span>
           </CardDescription>
         </CardHeader>
       </Card>
-      <Card className="lg:h-[48rem]">
+      <Card>
         <CardHeader>
           <Tabs defaultValue="kanban" className="">
             <div className="mx-5 flex items-start justify-between">
