@@ -1,3 +1,6 @@
+import { CheckCircle2, Circle, HelpCircle, Timer } from 'lucide-react';
+import { ReactNode } from 'react';
+
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -5,18 +8,36 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { TaskCard } from './task-card';
 
 interface TasksContainerProps {
-  circleColor: string;
   title: string;
 }
 
-export function TaskContainer({ circleColor, title }: TasksContainerProps) {
+export function TaskContainer({ title }: TasksContainerProps) {
+  let titleIcon: ReactNode = undefined;
+
+  switch (title) {
+    case 'ATRASADO':
+      titleIcon = <HelpCircle className="h-5 w-5 text-rose-600" />;
+      break;
+    case 'PENDENTE':
+      titleIcon = <Circle className="h-5 w-5" />;
+      break;
+    case 'EM PROGRESSO':
+      titleIcon = <Timer className="h-5 w-5" />;
+      break;
+    case 'FINALIZADO':
+      titleIcon = <CheckCircle2 className="h-5 w-5" />;
+      break;
+  }
+
   return (
     <Card className="border-0 shadow-none">
       <CardHeader className="flex">
         <CardTitle className="flex justify-between text-base">
           <div className="flex items-center gap-3">
-            <span className={`h-2 w-2 rounded-full ${circleColor}`}></span>
-            <span>{title}</span>
+            <span className="mr-2">{titleIcon}</span>
+            <span className={title === 'ATRASADO' ? 'text-rose-600' : ''}>
+              {title}
+            </span>
           </div>
           <Avatar className="h-6 w-6 shadow-sm">
             <AvatarFallback className="bg-muted text-sm">3</AvatarFallback>

@@ -5,8 +5,8 @@ export const projectSchema = z.object({
   name: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }),
   dateRange: z
     .object({
-      from: z.coerce.date(),
-      to: z.coerce.date()
+      from: z.coerce.string(),
+      to: z.coerce.string()
     })
     .refine((data) => data.to > data.from, {
       message: 'A de início e a data de entrega não podem ser iguais.'

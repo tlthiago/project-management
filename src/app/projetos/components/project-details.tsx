@@ -9,11 +9,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { UserAvatar } from '../[projectId]/components/user-avatar';
 
-export function ProjectDetails() {
+interface TaskDetailsProps {
+  projectId: string;
+}
+
+export function ProjectDetails({ projectId }: TaskDetailsProps) {
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Projeto</DialogTitle>
+        <DialogTitle>Projeto - {projectId}</DialogTitle>
       </DialogHeader>
       <Table>
         <TableBody>

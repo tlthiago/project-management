@@ -15,7 +15,7 @@ export function UserAvatar({ userInitials, userName }: UserAvatarProps) {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger>
+        <TooltipTrigger asChild>
           <Avatar className="h-7 w-7">
             <AvatarFallback className="bg-muted text-xs">
               {userInitials}

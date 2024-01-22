@@ -16,8 +16,8 @@ import { DateRange } from 'react-day-picker';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { departments } from '@/app/projetos/data/data';
-import { taskSchema } from '@/app/projetos/data/schema';
+import { departments } from '@/app/api/data/data';
+import { taskSchema } from '@/app/api/data/schema';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';

@@ -12,11 +12,11 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tabs } from '@/components/ui/tabs';
 
+import { Task } from '../../api/data/schema';
 import { ProjectDetails } from '../components/project-details';
-import { Task } from '../data/schema';
 import { CreateTaskForm } from './components/create-task-form';
 import { columns } from './components/table/columns';
-import { TaskTable } from './components/table/task-table';
+import { DataTable } from './components/table/data-table';
 import { UserAvatar } from './components/user-avatar';
 
 async function getData(): Promise<Task[]> {
@@ -60,13 +60,97 @@ async function getData(): Promise<Task[]> {
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
       members: ['Gabriel Souza', 'Lucas Dias'],
-      status: 'completed',
+      status: 'done',
       priority: 'high'
     },
     {
       id: '4',
       projectId: '1',
       name: 'Tarefa 4',
+      // dateRange: {
+      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
+      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
+      // },
+      description:
+        "You can't compress the program without quantifying the open-source SSD pixel!",
+      members: ['Gabriel Souza', 'Lucas Dias'],
+      status: 'backlog',
+      priority: 'low'
+    },
+    {
+      id: '5',
+      projectId: '1',
+      name: 'Tarefa 5',
+      // dateRange: {
+      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
+      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
+      // },
+      description:
+        "You can't compress the program without quantifying the open-source SSD pixel!",
+      members: ['Gabriel Souza', 'Lucas Dias'],
+      status: 'done',
+      priority: 'medium'
+    },
+    {
+      id: '6',
+      projectId: '1',
+      name: 'Tarefa 6',
+      // dateRange: {
+      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
+      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
+      // },
+      description:
+        "You can't compress the program without quantifying the open-source SSD pixel!",
+      members: ['Gabriel Souza', 'Lucas Dias'],
+      status: 'todo',
+      priority: 'high'
+    },
+    {
+      id: '7',
+      projectId: '1',
+      name: 'Tarefa 7',
+      // dateRange: {
+      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
+      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
+      // },
+      description:
+        "You can't compress the program without quantifying the open-source SSD pixel!",
+      members: ['Gabriel Souza', 'Lucas Dias'],
+      status: 'todo',
+      priority: 'medium'
+    },
+    {
+      id: '8',
+      projectId: '1',
+      name: 'Tarefa 8',
+      // dateRange: {
+      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
+      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
+      // },
+      description:
+        "You can't compress the program without quantifying the open-source SSD pixel!",
+      members: ['Gabriel Souza', 'Lucas Dias'],
+      status: 'in progress',
+      priority: 'low'
+    },
+    {
+      id: '9',
+      projectId: '1',
+      name: 'Tarefa 9',
+      // dateRange: {
+      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
+      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
+      // },
+      description:
+        "You can't compress the program without quantifying the open-source SSD pixel!",
+      members: ['Gabriel Souza', 'Lucas Dias'],
+      status: 'done',
+      priority: 'low'
+    },
+    {
+      id: '10',
+      projectId: '1',
+      name: 'Tarefa 10',
       // dateRange: {
       //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
       //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
@@ -106,15 +190,15 @@ export default async function Page({
                     <MoreVertical className="h-5 w-5" />
                   </Button>
                 </DialogTrigger>
-                <ProjectDetails />
+                <ProjectDetails projectId={params.projectId} />
               </Dialog>
             </div>
           </CardTitle>
-          <CardDescription className="flex items-center justify-between">
-            <span className="line-clamp-1 max-w-6xl">
+          <div className="flex items-center justify-between">
+            <CardDescription className="line-clamp-1 max-w-6xl">
               Desenvolvimento de Sistemas
-            </span>
-            <span className="flex gap-1">
+            </CardDescription>
+            <div className="flex gap-1">
               <UserAvatar userInitials="TA" userName="Thiago Alves" />
               <UserAvatar userInitials="TA" userName="Thiago Alves" />
               <UserAvatar userInitials="TA" userName="Thiago Alves" />
@@ -126,8 +210,8 @@ export default async function Page({
               >
                 <Plus className="h-5 w-5" />
               </Button>
-            </span>
-          </CardDescription>
+            </div>
+          </div>
         </CardHeader>
       </Card>
       <Card>
@@ -155,15 +239,13 @@ export default async function Page({
               </TabsList>
             </div>
             <TabsContent value="kanban" className="flex">
-              <TaskContainer circleColor="bg-rose-400" title="ATRASADO" />
-              <TaskContainer circleColor="bg-zinc-400" title="A FAZER" />
-              <TaskContainer circleColor="bg-blue-400" title="EM ANDAMENTO" />
-              <TaskContainer circleColor="bg-emerald-400" title="FINALIZADO" />
+              <TaskContainer title="ATRASADO" />
+              <TaskContainer title="PENDENTE" />
+              <TaskContainer title="EM PROGRESSO" />
+              <TaskContainer title="FINALIZADO" />
             </TabsContent>
-            <TabsContent value="table">
-              <div className="px-5">
-                <TaskTable columns={columns} data={data} />
-              </div>
+            <TabsContent value="table" className="px-5">
+              <DataTable columns={columns} data={data} />
             </TabsContent>
           </Tabs>
         </CardHeader>

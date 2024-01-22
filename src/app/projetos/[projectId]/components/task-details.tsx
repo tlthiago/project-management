@@ -12,11 +12,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TaskComment } from './task-comment';
 import { UserAvatar } from './user-avatar';
 
-export function TaskDetails() {
+interface TaskDetailsProps {
+  taskId: string;
+}
+
+export function TaskDetails({ taskId }: TaskDetailsProps) {
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Project X dashboard UI design</DialogTitle>
+        <DialogTitle>Project X dashboard UI design {taskId}</DialogTitle>
       </DialogHeader>
       <Table>
         <TableBody>

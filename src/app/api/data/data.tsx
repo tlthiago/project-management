@@ -9,7 +9,7 @@ import {
   XCircle
 } from 'lucide-react';
 
-import tasks from '@/app/projetos/data/tasks.json';
+import tasks from '@/app/api/data/tasks.json';
 
 interface Member {
   name: string;
@@ -217,14 +217,14 @@ export const statuses = [
   },
   {
     value: 'done',
-    label: 'Concluído',
+    label: 'Finalizado',
     icon: CheckCircle2
-  },
-  {
-    value: 'canceled',
-    label: 'Cancelado',
-    icon: XCircle
   }
+  // {
+  //   value: 'canceled',
+  //   label: 'Cancelado',
+  //   icon: XCircle
+  // }
 ];
 
 export const priorities = [

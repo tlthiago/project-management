@@ -1,6 +1,6 @@
 import { Column } from '@tanstack/react-table';
+import { Check, PlusCircle } from 'lucide-react';
 import * as React from 'react';
-import { RxCheck, RxPlusCircled } from 'react-icons/rx';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -43,7 +43,7 @@ export function DataTableFacetedFilter<TData, TValue>({
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-8 border-dashed">
-          <RxPlusCircled className="mr-2 h-4 w-4" />
+          <PlusCircle className="mr-2 h-4 w-4" />
           {title}
           {selectedValues?.size > 0 && (
             <>
@@ -55,7 +55,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                 {selectedValues.size}
               </Badge>
               <div className="hidden space-x-1 lg:flex">
-                {selectedValues.size > 1 ? (
+                {selectedValues.size > 2 ? (
                   <Badge
                     variant="secondary"
                     className="rounded-sm px-1 font-normal"
@@ -84,7 +84,7 @@ export function DataTableFacetedFilter<TData, TValue>({
         <Command>
           <CommandInput placeholder={title} />
           <CommandList>
-            <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
+            <CommandEmpty>Nenhum resultado.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
                 const isSelected = selectedValues.has(option.value);
@@ -111,7 +111,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                           : 'opacity-50 [&_svg]:invisible'
                       )}
                     >
-                      <RxCheck className={cn('h-4 w-4')} />
+                      <Check className={cn('h-4 w-4')} />
                     </div>
                     {option.icon && (
                       <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
