@@ -11,8 +11,8 @@ import {
 } from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 
+import { UserAvatar } from '../../../../../components/user-avatar';
 import { TaskDetails } from '../task-details';
-import { UserAvatar } from '../user-avatar';
 
 export function TaskCard() {
   return (

@@ -16,6 +16,8 @@ import {
 } from '@tanstack/react-table';
 import * as React from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -25,6 +27,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 
+import { CreateProjectForm } from '../create-project-form';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
 
@@ -111,9 +114,17 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-44 text-center"
                 >
-                  Nenhuma tarefa encontrada.
+                  <div>Nenhum projeto encontrado.</div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="secondary" className="mt-5">
+                        Novo projeto
+                      </Button>
+                    </DialogTrigger>
+                    <CreateProjectForm />
+                  </Dialog>
                 </TableCell>
               </TableRow>
             )}

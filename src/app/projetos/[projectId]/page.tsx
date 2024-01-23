@@ -14,10 +14,10 @@ import { Tabs } from '@/components/ui/tabs';
 
 import { Task } from '../../api/data/schema';
 import { ProjectDetails } from '../components/project-details';
+import { UserAvatar } from '../../../components/user-avatar';
 import { CreateTaskForm } from './components/create-task-form';
 import { columns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
-import { UserAvatar } from './components/user-avatar';
 
 async function getData(): Promise<Task[]> {
   return [
@@ -25,10 +25,10 @@ async function getData(): Promise<Task[]> {
       id: '1',
       projectId: '1',
       name: 'Tarefa 1',
-      // dateRange: {
-      //   from: 'Tue Jan 09 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-      //   to: 'Tue Jan 11 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
-      // },
+      dateRange: {
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
+      },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
       members: ['Thiago Alves', 'Paulo Gonçalves'],
@@ -39,10 +39,10 @@ async function getData(): Promise<Task[]> {
       id: '2',
       projectId: '1',
       name: 'Tarefa 2',
-      // dateRange: {
-      //   from: 'Tue Jan 2 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-      //   to: 'Tue Jan 8 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
-      // },
+      dateRange: {
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
+      },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
       members: ['Pedro Bomfim', 'Dantom Rodrigues'],
@@ -53,10 +53,10 @@ async function getData(): Promise<Task[]> {
       id: '3',
       projectId: '1',
       name: 'Tarefa 3',
-      // dateRange: {
-      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
-      // },
+      dateRange: {
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
+      },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
       members: ['Gabriel Souza', 'Lucas Dias'],
@@ -67,10 +67,10 @@ async function getData(): Promise<Task[]> {
       id: '4',
       projectId: '1',
       name: 'Tarefa 4',
-      // dateRange: {
-      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
-      // },
+      dateRange: {
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
+      },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
       members: ['Gabriel Souza', 'Lucas Dias'],
@@ -81,10 +81,10 @@ async function getData(): Promise<Task[]> {
       id: '5',
       projectId: '1',
       name: 'Tarefa 5',
-      // dateRange: {
-      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
-      // },
+      dateRange: {
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
+      },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
       members: ['Gabriel Souza', 'Lucas Dias'],
@@ -95,10 +95,10 @@ async function getData(): Promise<Task[]> {
       id: '6',
       projectId: '1',
       name: 'Tarefa 6',
-      // dateRange: {
-      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
-      // },
+      dateRange: {
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
+      },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
       members: ['Gabriel Souza', 'Lucas Dias'],
@@ -109,10 +109,10 @@ async function getData(): Promise<Task[]> {
       id: '7',
       projectId: '1',
       name: 'Tarefa 7',
-      // dateRange: {
-      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
-      // },
+      dateRange: {
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
+      },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
       members: ['Gabriel Souza', 'Lucas Dias'],
@@ -123,10 +123,10 @@ async function getData(): Promise<Task[]> {
       id: '8',
       projectId: '1',
       name: 'Tarefa 8',
-      // dateRange: {
-      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
-      // },
+      dateRange: {
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
+      },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
       members: ['Gabriel Souza', 'Lucas Dias'],
@@ -137,10 +137,10 @@ async function getData(): Promise<Task[]> {
       id: '9',
       projectId: '1',
       name: 'Tarefa 9',
-      // dateRange: {
-      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
-      // },
+      dateRange: {
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
+      },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
       members: ['Gabriel Souza', 'Lucas Dias'],
@@ -151,10 +151,10 @@ async function getData(): Promise<Task[]> {
       id: '10',
       projectId: '1',
       name: 'Tarefa 10',
-      // dateRange: {
-      //   from: 'Tue Jan 13 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-      //   to: 'Tue Jan 22 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
-      // },
+      dateRange: {
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
+      },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
       members: ['Gabriel Souza', 'Lucas Dias'],
@@ -181,9 +181,9 @@ export default async function Page({
               Projeto {params.projectId}
             </span>
             <div>
-              <Button variant="ghost" size="icon">
+              {/* <Button variant="ghost" size="icon">
                 <Star className="h-5 w-5" />
-              </Button>
+              </Button> */}
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="icon">
@@ -245,7 +245,12 @@ export default async function Page({
               <TaskContainer title="FINALIZADO" />
             </TabsContent>
             <TabsContent value="table" className="px-5">
-              <DataTable columns={columns} data={data} />
+              <DataTable
+                columns={columns}
+                data={data}
+                projectId={params.projectId}
+                projectTeams={teamsList}
+              />
             </TabsContent>
           </Tabs>
         </CardHeader>

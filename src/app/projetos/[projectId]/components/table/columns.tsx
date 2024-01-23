@@ -6,9 +6,9 @@ import { CheckCircle2, Circle, HelpCircle, Timer } from 'lucide-react';
 import { Task } from '@/app/api/data/schema';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { UserAvatar } from '@/components/user-avatar';
 
 import { TaskDetails } from '../task-details';
-import { UserAvatar } from '../user-avatar';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 
@@ -53,6 +53,24 @@ export const columns: ColumnDef<Task>[] = [
       return (
         <div className="line-clamp-1 max-w-96">
           {row.getValue('description')}
+        </div>
+      );
+    }
+  },
+  {
+    accessorKey: 'dateRange',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Datas" />
+    ),
+    cell: ({ row }) => {
+      const dateRange = row.getValue('dateRange') as {
+        from: Date;
+        to: Date;
+      };
+      return (
+        <div>
+          {dateRange.from.toLocaleDateString('pt-BR')} a{' '}
+          {dateRange.to.toLocaleDateString('pt-BR')}
         </div>
       );
     }

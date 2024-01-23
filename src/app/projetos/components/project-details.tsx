@@ -1,3 +1,5 @@
+import { Row } from '@tanstack/react-table';
+
 import { Badge } from '@/components/ui/badge';
 import {
   DialogContent,
@@ -7,17 +9,17 @@ import {
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { UserAvatar } from '../[projectId]/components/user-avatar';
+import { UserAvatar } from '../../../components/user-avatar';
 
-interface TaskDetailsProps {
-  projectId: string;
+interface TaskDetailsProps<TData> {
+  row: Row<TData>;
 }
 
-export function ProjectDetails({ projectId }: TaskDetailsProps) {
+export function ProjectDetails<TData>({ row }: TaskDetailsProps<TData>) {
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Projeto - {projectId}</DialogTitle>
+        <DialogTitle>{row.getValue('NOME')}</DialogTitle>
       </DialogHeader>
       <Table>
         <TableBody>
@@ -25,7 +27,9 @@ export function ProjectDetails({ projectId }: TaskDetailsProps) {
             <TableCell className="text-muted-foreground">Status</TableCell>
             <TableCell className="flex justify-end">
               <div className="flex items-center gap-2">
-                <Badge className="bg-zinc-200 text-zinc-500">Pendente</Badge>
+                <Badge className="bg-zinc-200 text-zinc-500">
+                  {row.getValue('STATUS')}
+                </Badge>
               </div>
             </TableCell>
           </TableRow>
@@ -34,7 +38,9 @@ export function ProjectDetails({ projectId }: TaskDetailsProps) {
             <TableCell className="text-muted-foreground">Prioridade</TableCell>
             <TableCell className="flex justify-end">
               <div className="flex items-center gap-2">
-                <Badge className="bg-green-200 text-green-500">Baixa</Badge>
+                <Badge className="bg-green-200 text-green-500">
+                  {row.getValue('PRIORIDADE')}
+                </Badge>
               </div>
             </TableCell>
           </TableRow>
@@ -42,14 +48,16 @@ export function ProjectDetails({ projectId }: TaskDetailsProps) {
           <TableRow>
             <TableCell className="text-muted-foreground">Datas</TableCell>
             <TableCell className="text-right">
-              <span>16/01/2024 a 20/01/2024</span>
+              <span>
+                {row.getValue('DATA_INICIO')} - {row.getValue('DATA_FIM')}
+              </span>
             </TableCell>
           </TableRow>
 
           <TableRow>
             <TableCell className="text-muted-foreground">Equipes</TableCell>
             <TableCell className="text-right">
-              <span>Desenvolvimento de Sistemas, Suporte e Automação</span>
+              <span>{row.getValue('EQUIPES')}</span>
             </TableCell>
           </TableRow>
 
@@ -58,11 +66,7 @@ export function ProjectDetails({ projectId }: TaskDetailsProps) {
               Responsáveis
             </TableCell>
             <TableCell className="flex justify-end gap-1">
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
+              {row.getValue('RESPONSAVEIS')}
             </TableCell>
           </TableRow>
         </TableBody>
@@ -78,13 +82,7 @@ export function ProjectDetails({ projectId }: TaskDetailsProps) {
           value="description"
           className="mt-0 p-4 align-middle text-sm hover:bg-muted/50"
         >
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio non
-          maxime deserunt, dolore ullam corrupti hic assumenda at, quae nobis
-          nemo praesentium inventore ut impedit, natus ducimus quo! Ab,
-          consequatur. Lorem ipsum dolor sit amet consectetur adipisicing elit.
-          Iure deserunt perferendis asperiores sed. Hic temporibus aspernatur,
-          quasi nulla veritatis, distinctio asperiores labore odio non eum error
-          commodi natus similique minima!
+          {row.getValue('DESCRICAO')}
         </TabsContent>
       </Tabs>
     </DialogContent>

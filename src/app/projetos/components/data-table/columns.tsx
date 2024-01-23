@@ -5,78 +5,93 @@ import { CheckCircle2, Circle, HelpCircle, Timer } from 'lucide-react';
 import Link from 'next/link';
 
 import { Project } from '@/app/api/data/schema';
+import { GetProjectsResponse } from '@/app/api/get-projects';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { UserAvatar } from '@/components/user-avatar';
 
 import { ProjectDetails } from '../project-details';
-// import { UserAvatar } from '../user-avatar';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 
-// function getInitials(fullName: string): string {
-//   const parts = fullName.split(' ');
-//   const firstName = parts[0];
-//   const lastName = parts.length > 1 ? parts[parts.length - 1] : '';
+function getInitials(fullName: string): string {
+  const parts = fullName.split(' ');
+  const firstName = parts[0];
+  const lastName = parts.length > 1 ? parts[parts.length - 1] : '';
 
-//   const initials = firstName.charAt(0) + lastName.charAt(0);
+  const initials = firstName.charAt(0) + lastName.charAt(0);
 
-//   return initials;
-// }
+  return initials;
+}
 
-export const columns: ColumnDef<Project>[] = [
+export const columns: ColumnDef<GetProjectsResponse>[] = [
   {
-    accessorKey: 'id',
+    accessorKey: 'ID',
     header: () => <div>ID</div>,
-    cell: ({ row }) => <span>{row.getValue('id')}</span>,
+    cell: ({ row }) => <span>{row.getValue('ID')}</span>,
     enableSorting: false,
     enableHiding: false
   },
   {
-    accessorKey: 'name',
+    accessorKey: 'NOME',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Nome" />
     ),
     cell: ({ row }) => (
-      <Link href={`projetos/${row.getValue('id')}`}>
-        <span className="font-semibold">{row.getValue('name')}</span>
+      <Link href={`projetos/${row.getValue('ID')}`}>
+        <span className="font-semibold">{row.getValue('NOME')}</span>
       </Link>
     )
   },
   {
-    accessorKey: 'description',
-    header: () => <div>Descrição</div>,
+    accessorKey: 'DATA_INICIO',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Data Início" />
+    ),
     cell: ({ row }) => {
-      return (
-        <div className="line-clamp-1 max-w-96">
-          {row.getValue('description')}
-        </div>
-      );
+      const dataInicioString: string = row.getValue('DATA_INICIO');
+      const dataInicio = new Date(dataInicioString);
+      return <div>{dataInicio.toLocaleDateString('pt-BR')}</div>;
     }
   },
-  // {
-  //   accessorKey: 'members',
-  //   header: () => <div>Responsáveis</div>,
-  //   cell: ({ row }) => {
-  //     const members: string[] = row.getValue('members');
-
-  //     const avatars = members.map((member, index) => {
-  //       const initials = getInitials(member);
-
-  //       return (
-  //         <UserAvatar key={index} userInitials={initials} userName={member} />
-  //       );
-  //     });
-
-  //     return <div className="flex gap-1">{avatars}</div>;
-  //   }
-  // },
   {
-    accessorKey: 'status',
+    accessorKey: 'DATA_FIM',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Data Fim" />
+    ),
+    cell: ({ row }) => {
+      const dataFimString: string = row.getValue('DATA_FIM');
+      const dataFim = new Date(dataFimString);
+      return <div>{dataFim.toLocaleDateString('pt-BR')}</div>;
+    }
+  },
+  {
+    accessorKey: 'RESPONSAVEIS',
+    header: () => <div>Responsáveis</div>,
+    cell: ({ row }) => {
+      const members: string = row.getValue('RESPONSAVEIS');
+      const membersNames: string[] = members
+        .split(',')
+        .map((name) => name.trim());
+
+      const avatars = membersNames.map((member, index) => {
+        const initials = getInitials(member);
+
+        return (
+          <UserAvatar key={index} userInitials={initials} userName={member} />
+        );
+      });
+
+      return <div className="flex gap-1">{avatars}</div>;
+    }
+  },
+  {
+    accessorKey: 'STATUS',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
-      const status: string = row.getValue('status');
+      const status: string = row.getValue('STATUS');
 
       switch (status) {
         case 'backlog':
@@ -114,12 +129,12 @@ export const columns: ColumnDef<Project>[] = [
     }
   },
   {
-    accessorKey: 'priority',
+    accessorKey: 'PRIORIDADE',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Prioridade" />
     ),
     cell: ({ row }) => {
-      const priority: string = row.getValue('priority');
+      const priority: string = row.getValue('PRIORIDADE');
 
       switch (priority) {
         case 'low':

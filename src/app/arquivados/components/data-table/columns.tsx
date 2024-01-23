@@ -2,26 +2,24 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { Archive } from 'lucide-react';
-import Link from 'next/link';
 
 import { Project } from '@/app/api/data/schema';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { UserAvatar } from '@/components/user-avatar';
 
-import { ProjectDetails } from '../project-details';
-// import { UserAvatar } from '../user-avatar';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 
-// function getInitials(fullName: string): string {
-//   const parts = fullName.split(' ');
-//   const firstName = parts[0];
-//   const lastName = parts.length > 1 ? parts[parts.length - 1] : '';
+function getInitials(fullName: string): string {
+  const parts = fullName.split(' ');
+  const firstName = parts[0];
+  const lastName = parts.length > 1 ? parts[parts.length - 1] : '';
 
-//   const initials = firstName.charAt(0) + lastName.charAt(0);
+  const initials = firstName.charAt(0) + lastName.charAt(0);
 
-//   return initials;
-// }
+  return initials;
+}
 
 export const columns: ColumnDef<Project>[] = [
   {
@@ -37,39 +35,44 @@ export const columns: ColumnDef<Project>[] = [
       <DataTableColumnHeader column={column} title="Nome" />
     ),
     cell: ({ row }) => (
-      <Link href={`projetos/${row.getValue('id')}`}>
-        <span className="font-semibold">{row.getValue('name')}</span>
-      </Link>
+      <span className="font-semibold">{row.getValue('name')}</span>
     )
   },
   {
-    accessorKey: 'description',
-    header: () => <div>Descrição</div>,
+    accessorKey: 'dateRange',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Datas" />
+    ),
     cell: ({ row }) => {
+      const dateRange = row.getValue('dateRange') as {
+        from: Date;
+        to: Date;
+      };
       return (
-        <div className="line-clamp-1 max-w-96">
-          {row.getValue('description')}
+        <div>
+          {dateRange.from.toLocaleDateString('pt-BR')} a{' '}
+          {dateRange.to.toLocaleDateString('pt-BR')}
         </div>
       );
     }
   },
-  // {
-  //   accessorKey: 'members',
-  //   header: () => <div>Responsáveis</div>,
-  //   cell: ({ row }) => {
-  //     const members: string[] = row.getValue('members');
+  {
+    accessorKey: 'members',
+    header: () => <div>Responsáveis</div>,
+    cell: ({ row }) => {
+      const members: string[] = row.getValue('members');
 
-  //     const avatars = members.map((member, index) => {
-  //       const initials = getInitials(member);
+      const avatars = members.map((member, index) => {
+        const initials = getInitials(member);
 
-  //       return (
-  //         <UserAvatar key={index} userInitials={initials} userName={member} />
-  //       );
-  //     });
+        return (
+          <UserAvatar key={index} userInitials={initials} userName={member} />
+        );
+      });
 
-  //     return <div className="flex gap-1">{avatars}</div>;
-  //   }
-  // },
+      return <div className="flex gap-1">{avatars}</div>;
+    }
+  },
   {
     accessorKey: 'status',
     header: ({ column }) => (

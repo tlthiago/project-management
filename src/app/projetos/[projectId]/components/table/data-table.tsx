@@ -16,6 +16,8 @@ import {
 } from '@tanstack/react-table';
 import * as React from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -25,17 +27,22 @@ import {
   TableRow
 } from '@/components/ui/table';
 
+import { CreateTaskForm } from '../create-task-form';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  projectId: string;
+  projectTeams: string[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
-  data
+  data,
+  projectId,
+  projectTeams
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -116,9 +123,20 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-44 text-center"
                 >
-                  Nenhuma tarefa encontrada.
+                  <div>Nenhuma tarefa encontrada.</div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="secondary" className="mt-5">
+                        Nova tarefa
+                      </Button>
+                    </DialogTrigger>
+                    <CreateTaskForm
+                      projectId={projectId}
+                      projectTeams={projectTeams}
+                    />
+                  </Dialog>
                 </TableCell>
               </TableRow>
             )}

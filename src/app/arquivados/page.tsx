@@ -10,8 +10,8 @@ async function getData(): Promise<Project[]> {
       id: '1',
       name: 'Projeto 1',
       dateRange: {
-        from: 'Tue Jan 09 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-        to: 'Tue Jan 11 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
       },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
@@ -33,8 +33,8 @@ async function getData(): Promise<Project[]> {
       id: '2',
       name: 'Projeto 2',
       dateRange: {
-        from: 'Tue Jan 09 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-        to: 'Tue Jan 11 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
       },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
@@ -47,8 +47,8 @@ async function getData(): Promise<Project[]> {
       id: '3',
       name: 'Projeto 3',
       dateRange: {
-        from: 'Tue Jan 09 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-        to: 'Tue Jan 11 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
       },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",
@@ -61,8 +61,8 @@ async function getData(): Promise<Project[]> {
       id: '4',
       name: 'Projeto 4',
       dateRange: {
-        from: 'Tue Jan 09 2024 10:45:59 GMT-0300 (Horário Padrão de Brasília)',
-        to: 'Tue Jan 11 2024 15:45:59 GMT-0300 (Horário Padrão de Brasília)'
+        from: new Date('2024-01-09T10:45:59-03:00'),
+        to: new Date('2024-01-11T15:45:59-03:00')
       },
       description:
         "You can't compress the program without quantifying the open-source SSD pixel!",

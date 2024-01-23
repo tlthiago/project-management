@@ -6,8 +6,10 @@ import { MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
+  DialogHeader,
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
@@ -26,36 +28,39 @@ export function DataTableRowActions<TData>({
   row
 }: DataTableRowActionsProps<TData>) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-        >
-          <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Abrir menu</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Abrir</DropdownMenuItem>
-        <DropdownMenuItem>Restaurar</DropdownMenuItem>
-        <Dialog>
-          <DialogTrigger>
+    <Dialog>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+            <span className="sr-only">Abrir menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-[160px]">
+          <DropdownMenuItem>Restaurar</DropdownMenuItem>
+          <DialogTrigger asChild>
             <DropdownMenuItem>Excluir</DropdownMenuItem>
           </DialogTrigger>
-          <DialogContent>
-            <DialogTitle>Excluir projeto</DialogTitle>
-            <DialogContent>
-              Tem certeza que deseja excluir o contrato? Essa ação não pode ser
-              desfeita.
-            </DialogContent>
-            <DialogFooter>
-              <Button variant="secondary">Cancelar</Button>
-              <Button variant="destructive">Excluir</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Excluir projeto</DialogTitle>
+        </DialogHeader>
+        Tem certeza que deseja excluir o projeto? Essa ação não pode ser
+        desfeita.
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="secondary">Cancelar</Button>
+          </DialogClose>
+          <Button variant="destructive" type="submit">
+            Excluir
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

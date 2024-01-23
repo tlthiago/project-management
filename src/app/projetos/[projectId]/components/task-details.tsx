@@ -9,8 +9,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+import { UserAvatar } from '../../../../components/user-avatar';
 import { TaskComment } from './task-comment';
-import { UserAvatar } from './user-avatar';
 
 interface TaskDetailsProps {
   taskId: string;
