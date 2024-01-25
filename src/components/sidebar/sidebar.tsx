@@ -7,7 +7,7 @@ import {
   Users
 } from 'lucide-react';
 
-import { CreateProjectForm } from '@/app/projetos/components/create-project-form';
+import { CreateProjectForm } from '@/app/(projetos)/projetos/components/create-project-form';
 
 import { Dialog, DialogTrigger } from '../ui/dialog';
 import { ScrollArea } from '../ui/scroll-area';
