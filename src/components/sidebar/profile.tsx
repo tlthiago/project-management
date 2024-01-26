@@ -1,8 +1,18 @@
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
 import { LogOut } from 'lucide-react';
+
+import { getProfile } from '@/app/api/get-profile';
 
 import { Avatar, AvatarFallback } from '../ui/avatar';
 
 export function Profile() {
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: getProfile
+  });
+
   return (
     <div className="grid grid-cols-profile items-center gap-3">
       <Avatar>
@@ -12,10 +22,10 @@ export function Profile() {
       </Avatar>
       <div className="flex flex-1 flex-col truncate">
         <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-100">
-          TL_THIAGO
+          {profile?.codUsuario}
         </span>
         <span className="truncate text-sm text-zinc-500 dark:text-zinc-100">
-          Thiago Alves
+          {profile?.nome}
         </span>
       </div>
       <button

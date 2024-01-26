@@ -1,6 +1,7 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -29,13 +30,22 @@ export default function Login() {
     mutationFn: signIn
   });
 
+  const router = useRouter();
+
   async function handleSignIn(data: SignInForm) {
     try {
-      console.log(data);
+      const transformedData: SignInForm = {
+        username: data.username.toUpperCase(),
+        password: data.password.toUpperCase()
+      };
 
-      await login({ username: data.username, password: data.password });
+      console.log(transformedData);
+
+      await login(transformedData);
 
       toast.success('Usuário autenticado');
+
+      router.replace('/dashboard');
     } catch {
       toast.error('Credenciais inválidas');
     }
@@ -62,6 +72,7 @@ export default function Login() {
                 <Input
                   id="username"
                   type="text"
+                  className="uppercase"
                   {...register('username')}
                 ></Input>
               </div>
