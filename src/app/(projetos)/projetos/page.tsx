@@ -10,10 +10,10 @@ import { columns } from './components/data-table/columns';
 import { DataTable } from './components/data-table/data-table';
 
 export default async function Projects() {
-  const { data: projects } = useQuery({
-    queryKey: ['projects'],
-    queryFn: getProjects
-  });
+  // const { data: projects } = useQuery({
+  //   queryKey: ['projects'],
+  //   queryFn: getProjects
+  // });
 
   // const allProjects: [] = projects;
 
@@ -30,7 +30,7 @@ export default async function Projects() {
       </div>
       <Card>
         <CardContent className="pt-5">
-          <DataTable columns={columns} data={projects} />
+          {/* <DataTable columns={columns} data={projects} /> */}
         </CardContent>
       </Card>
     </div>

@@ -1,17 +1,44 @@
 'use client';
 
-import { SyntheticEvent, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export default async function Login() {
-  const [usuario, setUsuario] useState<string>('')
-  const [senha, setSenha] useState<password>('')
+import { signIn } from './api/sign-in';
 
-  async function handleSubmit(event: SyntheticEvent) {
-    event.preventDefault();
+const signInForm = z.object({
+  username: z.string(),
+  password: z.string()
+});
+
+type SignInForm = z.infer<typeof signInForm>;
+
+export default function Login() {
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting }
+  } = useForm<SignInForm>();
+
+  const { mutateAsync: login } = useMutation({
+    mutationFn: signIn
+  });
+
+  async function handleSignIn(data: SignInForm) {
+    try {
+      console.log(data);
+
+      await login({ username: data.username, password: data.password });
+
+      toast.success('Usuário autenticado');
+    } catch {
+      toast.error('Credenciais inválidas');
+    }
   }
 
   return (
@@ -22,24 +49,34 @@ export default async function Login() {
         </div>
       </div>
       <div className="flex flex-col items-center justify-center">
-        <div className="rounded-lg border p-10">
-          <div className="flex w-52 flex-col justify-center gap-6">
+        <div className="">
+          <div className="flex flex-col justify-center gap-6">
             <div className="flex flex-col gap-2 text-center">
               <h1 className="text-2xl font-semibold tracking-tight">
                 SISTEMAS WEB
               </h1>
             </div>
-            <form action="" className="space-y-4" onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(handleSignIn)} className="space-y-4">
               <div>
-                <Label htmlFor="usuario">Usuário:</Label>
-                <Input id="usuario" type="text"></Input>
+                <Label htmlFor="username">Usuário:</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  {...register('username')}
+                ></Input>
               </div>
               <div>
-                <Label htmlFor="senha">Senha:</Label>
-                <Input id="senha" type="password"></Input>
+                <Label htmlFor="password">Senha:</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  {...register('password')}
+                ></Input>
               </div>
               <div className="flex justify-center">
-                <Button type="submit">Entrar</Button>
+                <Button disabled={isSubmitting} type="submit">
+                  Entrar
+                </Button>
               </div>
             </form>
           </div>
