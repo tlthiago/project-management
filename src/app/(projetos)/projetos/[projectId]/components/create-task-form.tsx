@@ -72,8 +72,8 @@ interface Department {
 }
 
 interface TaskFormProps {
-  projectId: string;
-  projectTeams: string[];
+  projectId?: string;
+  projectTeams?: string;
 }
 
 export function CreateTaskForm({ projectId, projectTeams }: TaskFormProps) {
@@ -84,7 +84,7 @@ export function CreateTaskForm({ projectId, projectTeams }: TaskFormProps) {
   const [membersList, setMembersList] = useState<string[]>([]);
   const [members, setMembers] = useState<string[]>([]);
 
-  const teamsList: string[] = projectTeams;
+  const teamsList: string[] = projectTeams?.split(", ");
 
   const updateMembersList = (newMembers: string[]) => {
     setMembersList((prevMembersList) => [...prevMembersList, ...newMembers]);

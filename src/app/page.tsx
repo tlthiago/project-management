@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import { signIn } from './api/sign-in';
+import { Loader2 } from 'lucide-react';
 
 const signInForm = z.object({
   username: z.string(),
@@ -38,8 +39,6 @@ export default function Login() {
         username: data.username.toUpperCase(),
         password: data.password.toUpperCase()
       };
-
-      console.log(transformedData);
 
       await login(transformedData);
 
@@ -85,9 +84,16 @@ export default function Login() {
                 ></Input>
               </div>
               <div className="flex justify-center">
-                <Button disabled={isSubmitting} type="submit">
+                {!isSubmitting ? (
+                  <Button type="submit">
                   Entrar
-                </Button>
+                  </Button>
+                ) : (
+                  <Button disabled>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Carregando
+                  </Button>
+                )}
               </div>
             </form>
           </div>

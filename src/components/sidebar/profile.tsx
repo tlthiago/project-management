@@ -1,14 +1,15 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { LogOut } from 'lucide-react';
+import { User, LogOut } from 'lucide-react';
 
 import { getProfile } from '@/app/api/get-profile';
 
 import { Avatar, AvatarFallback } from '../ui/avatar';
+import { Skeleton } from '../ui/skeleton';
 
 export function Profile() {
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: getProfile
   });
@@ -17,15 +18,15 @@ export function Profile() {
     <div className="grid grid-cols-profile items-center gap-3">
       <Avatar>
         <AvatarFallback className="bg-zinc-200 dark:bg-muted">
-          TA
+          <User className='text-muted-foreground' />
         </AvatarFallback>
       </Avatar>
-      <div className="flex flex-1 flex-col truncate">
+      <div className="flex flex-1 flex-col truncate gap-1">
         <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-100">
-          {profile?.codUsuario}
+          {isLoading ? <Skeleton className="h-4 w-36" /> : profile?.codUsuario}
         </span>
         <span className="truncate text-sm text-zinc-500 dark:text-zinc-100">
-          {profile?.nome}
+          {isLoading ? <Skeleton className="h-4 w-8" /> : profile?.nroEmpresa}
         </span>
       </div>
       <button

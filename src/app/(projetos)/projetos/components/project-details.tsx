@@ -9,17 +9,24 @@ import {
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { UserAvatar } from '../../../components/user-avatar';
+// import { UserAvatar } from '../../../components/user-avatar';
+import { useQuery } from '@tanstack/react-query';
+import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
 
-interface TaskDetailsProps<TData> {
-  row: Row<TData>;
+interface ProjectDetailsProps {
+  projectId?: string
 }
 
-export function ProjectDetails<TData>({ row }: TaskDetailsProps<TData>) {
+export function ProjectDetails({ projectId }: ProjectDetailsProps) {
+  const { data: project } = useQuery<GetProjectByIdResponse>({
+    queryKey: ['project', projectId],
+    queryFn: () => getProjectById({ projectId })
+  })
+
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>{row.getValue('NOME')}</DialogTitle>
+        <DialogTitle>{project?.NOME}</DialogTitle>
       </DialogHeader>
       <Table>
         <TableBody>
@@ -28,7 +35,7 @@ export function ProjectDetails<TData>({ row }: TaskDetailsProps<TData>) {
             <TableCell className="flex justify-end">
               <div className="flex items-center gap-2">
                 <Badge className="bg-zinc-200 text-zinc-500">
-                  {row.getValue('STATUS')}
+                  {project?.STATUS}
                 </Badge>
               </div>
             </TableCell>
@@ -39,7 +46,7 @@ export function ProjectDetails<TData>({ row }: TaskDetailsProps<TData>) {
             <TableCell className="flex justify-end">
               <div className="flex items-center gap-2">
                 <Badge className="bg-green-200 text-green-500">
-                  {row.getValue('PRIORIDADE')}
+                  {project?.PRIORIDADE}
                 </Badge>
               </div>
             </TableCell>
@@ -49,7 +56,7 @@ export function ProjectDetails<TData>({ row }: TaskDetailsProps<TData>) {
             <TableCell className="text-muted-foreground">Datas</TableCell>
             <TableCell className="text-right">
               <span>
-                {row.getValue('DATA_INICIO')} - {row.getValue('DATA_FIM')}
+                {project?.DATA_INICIO} - {project?.DATA_FIM}
               </span>
             </TableCell>
           </TableRow>
@@ -57,7 +64,7 @@ export function ProjectDetails<TData>({ row }: TaskDetailsProps<TData>) {
           <TableRow>
             <TableCell className="text-muted-foreground">Equipes</TableCell>
             <TableCell className="text-right">
-              <span>{row.getValue('EQUIPES')}</span>
+              <span>{project?.EQUIPES}</span>
             </TableCell>
           </TableRow>
 
@@ -66,7 +73,7 @@ export function ProjectDetails<TData>({ row }: TaskDetailsProps<TData>) {
               Responsáveis
             </TableCell>
             <TableCell className="flex justify-end gap-1">
-              {row.getValue('RESPONSAVEIS')}
+              {project?.RESPONSAVEIS}
             </TableCell>
           </TableRow>
         </TableBody>
@@ -82,7 +89,7 @@ export function ProjectDetails<TData>({ row }: TaskDetailsProps<TData>) {
           value="description"
           className="mt-0 p-4 align-middle text-sm hover:bg-muted/50"
         >
-          {row.getValue('DESCRICAO')}
+          {project?.DESCRICAO}
         </TabsContent>
       </Tabs>
     </DialogContent>

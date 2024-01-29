@@ -5,7 +5,7 @@ import { CheckCircle2, Circle, HelpCircle, Timer } from 'lucide-react';
 import Link from 'next/link';
 
 import { Project } from '@/app/api/data/schema';
-import { GetProjectsResponse } from '@/app/api/get-projects';
+import { GetProjectsResponse } from '@/app/api/projetos/get-projects';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { UserAvatar } from '@/components/user-avatar';
@@ -64,6 +64,18 @@ export const columns: ColumnDef<GetProjectsResponse>[] = [
       const dataFim = new Date(dataFimString);
       return <div>{dataFim.toLocaleDateString('pt-BR')}</div>;
     }
+  },
+  {
+    accessorKey: 'DESCRICAO',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Descrição" />
+    )
+  },
+  {
+    accessorKey: 'EQUIPES',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Equipes" />
+    )
   },
   {
     accessorKey: 'RESPONSAVEIS',

@@ -1,6 +1,8 @@
+'use client'
+
 import { Kanban, MoreVertical, Plus, Star, Table } from 'lucide-react';
 
-import { TaskContainer } from '@/app/projetos/[projectId]/components/kanban/task-container';
+import { TaskContainer } from '@/app/(projetos)/projetos/[projectId]/components/kanban/task-container';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,163 +16,26 @@ import { Tabs } from '@/components/ui/tabs';
 
 import { Task } from '../../api/data/schema';
 import { ProjectDetails } from '../components/project-details';
-import { UserAvatar } from '../../../components/user-avatar';
+import { UserAvatar } from '@/components/user-avatar';
 import { CreateTaskForm } from './components/create-task-form';
 import { columns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
+import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
+import { useQuery } from '@tanstack/react-query';
 
-async function getData(): Promise<Task[]> {
-  return [
-    {
-      id: '1',
-      projectId: '1',
-      name: 'Tarefa 1',
-      dateRange: {
-        from: new Date('2024-01-09T10:45:59-03:00'),
-        to: new Date('2024-01-11T15:45:59-03:00')
-      },
-      description:
-        "You can't compress the program without quantifying the open-source SSD pixel!",
-      members: ['Thiago Alves', 'Paulo Gonçalves'],
-      status: 'todo',
-      priority: 'low'
-    },
-    {
-      id: '2',
-      projectId: '1',
-      name: 'Tarefa 2',
-      dateRange: {
-        from: new Date('2024-01-09T10:45:59-03:00'),
-        to: new Date('2024-01-11T15:45:59-03:00')
-      },
-      description:
-        "You can't compress the program without quantifying the open-source SSD pixel!",
-      members: ['Pedro Bomfim', 'Dantom Rodrigues'],
-      status: 'in progress',
-      priority: 'medium'
-    },
-    {
-      id: '3',
-      projectId: '1',
-      name: 'Tarefa 3',
-      dateRange: {
-        from: new Date('2024-01-09T10:45:59-03:00'),
-        to: new Date('2024-01-11T15:45:59-03:00')
-      },
-      description:
-        "You can't compress the program without quantifying the open-source SSD pixel!",
-      members: ['Gabriel Souza', 'Lucas Dias'],
-      status: 'done',
-      priority: 'high'
-    },
-    {
-      id: '4',
-      projectId: '1',
-      name: 'Tarefa 4',
-      dateRange: {
-        from: new Date('2024-01-09T10:45:59-03:00'),
-        to: new Date('2024-01-11T15:45:59-03:00')
-      },
-      description:
-        "You can't compress the program without quantifying the open-source SSD pixel!",
-      members: ['Gabriel Souza', 'Lucas Dias'],
-      status: 'backlog',
-      priority: 'low'
-    },
-    {
-      id: '5',
-      projectId: '1',
-      name: 'Tarefa 5',
-      dateRange: {
-        from: new Date('2024-01-09T10:45:59-03:00'),
-        to: new Date('2024-01-11T15:45:59-03:00')
-      },
-      description:
-        "You can't compress the program without quantifying the open-source SSD pixel!",
-      members: ['Gabriel Souza', 'Lucas Dias'],
-      status: 'done',
-      priority: 'medium'
-    },
-    {
-      id: '6',
-      projectId: '1',
-      name: 'Tarefa 6',
-      dateRange: {
-        from: new Date('2024-01-09T10:45:59-03:00'),
-        to: new Date('2024-01-11T15:45:59-03:00')
-      },
-      description:
-        "You can't compress the program without quantifying the open-source SSD pixel!",
-      members: ['Gabriel Souza', 'Lucas Dias'],
-      status: 'todo',
-      priority: 'high'
-    },
-    {
-      id: '7',
-      projectId: '1',
-      name: 'Tarefa 7',
-      dateRange: {
-        from: new Date('2024-01-09T10:45:59-03:00'),
-        to: new Date('2024-01-11T15:45:59-03:00')
-      },
-      description:
-        "You can't compress the program without quantifying the open-source SSD pixel!",
-      members: ['Gabriel Souza', 'Lucas Dias'],
-      status: 'todo',
-      priority: 'medium'
-    },
-    {
-      id: '8',
-      projectId: '1',
-      name: 'Tarefa 8',
-      dateRange: {
-        from: new Date('2024-01-09T10:45:59-03:00'),
-        to: new Date('2024-01-11T15:45:59-03:00')
-      },
-      description:
-        "You can't compress the program without quantifying the open-source SSD pixel!",
-      members: ['Gabriel Souza', 'Lucas Dias'],
-      status: 'in progress',
-      priority: 'low'
-    },
-    {
-      id: '9',
-      projectId: '1',
-      name: 'Tarefa 9',
-      dateRange: {
-        from: new Date('2024-01-09T10:45:59-03:00'),
-        to: new Date('2024-01-11T15:45:59-03:00')
-      },
-      description:
-        "You can't compress the program without quantifying the open-source SSD pixel!",
-      members: ['Gabriel Souza', 'Lucas Dias'],
-      status: 'done',
-      priority: 'low'
-    },
-    {
-      id: '10',
-      projectId: '1',
-      name: 'Tarefa 10',
-      dateRange: {
-        from: new Date('2024-01-09T10:45:59-03:00'),
-        to: new Date('2024-01-11T15:45:59-03:00')
-      },
-      description:
-        "You can't compress the program without quantifying the open-source SSD pixel!",
-      members: ['Gabriel Souza', 'Lucas Dias'],
-      status: 'backlog',
-      priority: 'high'
-    }
-  ];
-}
-
-export default async function Page({
+export default function Project({
   params
 }: {
   params: { projectId: string };
 }) {
-  const data = await getData();
-  const teamsList = ['Desenvolvimento de Sistemas'];
+  const projectId = params.projectId;
+
+  const { data: project } = useQuery<GetProjectByIdResponse>({
+    queryKey: ['project', projectId],
+    queryFn: () => getProjectById({ projectId })
+  })
+
+  console.log(project);
 
   return (
     <div className="space-y-3 p-5">
@@ -178,7 +43,7 @@ export default async function Page({
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span className="line-clamp-1 max-w-7xl">
-              Projeto {params.projectId}
+              {project?.NOME}
             </span>
             <div>
               {/* <Button variant="ghost" size="icon">
@@ -190,19 +55,16 @@ export default async function Page({
                     <MoreVertical className="h-5 w-5" />
                   </Button>
                 </DialogTrigger>
-                <ProjectDetails projectId={params.projectId} />
+                <ProjectDetails projectId={project?.ID} />
               </Dialog>
             </div>
           </CardTitle>
           <div className="flex items-center justify-between">
             <CardDescription className="line-clamp-1 max-w-6xl">
-              Desenvolvimento de Sistemas
+              {project?.DESCRICAO}
             </CardDescription>
             <div className="flex gap-1">
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
+              {project?.RESPONSAVEIS}
               <Button
                 variant="outline"
                 size="icon"
@@ -222,12 +84,12 @@ export default async function Page({
                 <DialogTrigger asChild>
                   <Button variant="secondary">Nova tarefa</Button>
                 </DialogTrigger>
-                <CreateTaskForm
-                  projectId={params.projectId}
-                  projectTeams={teamsList}
-                />
+                {/* <CreateTaskForm
+                  projectId={project?.ID}
+                  projectTeams={project?.RESPONSAVEIS}
+                /> */}
               </Dialog>
-              <TabsList className="bg-muted">
+              {/* <TabsList className="bg-muted">
                 <TabsTrigger value="kanban">
                   <Kanban />
                   <span className="ml-1">Kanban</span>
@@ -236,22 +98,22 @@ export default async function Page({
                   <Table />
                   <span className="ml-1">Tabela</span>
                 </TabsTrigger>
-              </TabsList>
+              </TabsList> */}
             </div>
-            <TabsContent value="kanban" className="flex">
+            {/* <TabsContent value="kanban" className="flex">
               <TaskContainer title="ATRASADO" />
               <TaskContainer title="PENDENTE" />
               <TaskContainer title="EM PROGRESSO" />
               <TaskContainer title="FINALIZADO" />
-            </TabsContent>
-            <TabsContent value="table" className="px-5">
+            </TabsContent> */}
+            {/* <TabsContent value="table" className="px-5">
               <DataTable
                 columns={columns}
-                data={data}
+                data={tasks}
                 projectId={params.projectId}
-                projectTeams={teamsList}
+                projectTeams={}
               />
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </CardHeader>
       </Card>
