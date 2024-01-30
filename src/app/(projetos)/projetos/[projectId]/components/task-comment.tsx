@@ -1,10 +1,10 @@
-import { UserAvatar } from '../../../../components/user-avatar';
+import { UserAvatar } from '@/components/users-avatar';
 
 export function TaskComment() {
   return (
     <div className="flex gap-2">
       <div>
-        <UserAvatar userInitials="TA" userName="Thiago Alves" />
+        {/* <UserAvatar userInitials="TA" userName="Thiago Alves" /> */}
       </div>
       <div className="flex flex-col gap-2">
         <div className="flex gap-1">

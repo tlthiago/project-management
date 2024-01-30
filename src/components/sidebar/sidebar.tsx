@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Archive,
   LayoutDashboard,
@@ -17,7 +19,16 @@ import { Profile } from './profile';
 import { ProjectItem } from './project-item';
 import { ThemeToggle } from './theme-toggle';
 
+import { useQuery } from '@tanstack/react-query';
+
+import { GetProjectsResponse, getProjects } from '@/app/api/projetos/get-projects';
+
 export function Sidebar() {
+  const { data: projects = [] } = useQuery<GetProjectsResponse[]>({
+    queryKey: ['projects'],
+    queryFn: getProjects
+  });
+
   return (
     <aside className="flex flex-col gap-6 border-r border-zinc-200 px-5 py-8">
       <div className="flex items-center">
@@ -51,15 +62,9 @@ export function Sidebar() {
         </div>
         <NavItem link="/arquivados" title="Arquivados" icon={Archive} />
         <ScrollArea className="rounded border xl:h-28 2xl:h-96">
-          <ProjectItem link="/projetos/1" title="Projeto 1" />
-          <ProjectItem link="/projetos/2" title="Projeto 2" />
-          <ProjectItem link="/projetos/3" title="Projeto 3" />
-          <ProjectItem link="/projetos/4" title="Projeto 4" />
-          <ProjectItem link="/projetos/5" title="Projeto 5" />
-          <ProjectItem link="/projetos/6" title="Projeto 6" />
-          <ProjectItem link="/projetos/7" title="Projeto 7" />
-          <ProjectItem link="/projetos/8" title="Projeto 8" />
-          <ProjectItem link="/projetos/9" title="Projeto 9" />
+          {projects && projects.map(project => {
+            return <ProjectItem key={project.ID} title={project.NOME} link={`/projetos/${project.ID}`} />
+          })}
         </ScrollArea>
       </nav>
       <div className="mt-auto flex flex-col gap-6">

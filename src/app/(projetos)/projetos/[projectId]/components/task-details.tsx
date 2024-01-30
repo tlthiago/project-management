@@ -9,27 +9,41 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { UserAvatar } from '../../../../components/user-avatar';
+import { UsersAvatar } from '@/components/users-avatar';
 import { TaskComment } from './task-comment';
+import { GetTaskByIdResponse, getTaskById } from '@/app/api/projetos/get-task-by-id';
+import { useQuery } from '@tanstack/react-query';
+import Status from '@/components/status';
+import Priority from '@/components/priority';
 
 interface TaskDetailsProps {
+  projectId: string;
   taskId: string;
 }
 
-export function TaskDetails({ taskId }: TaskDetailsProps) {
+export function TaskDetails({ projectId, taskId }: TaskDetailsProps) {
+  const { data: task } = useQuery<GetTaskByIdResponse>({
+    queryKey: ['task', taskId],
+    queryFn: () => getTaskById({ projectId, taskId })
+  })
+
+  const dataInicioString: string = task?.DATA_INICIO || '';
+  const dataFimString: string = task?.DATA_FIM || '';
+
+  const dataInicio = new Date(dataInicioString);
+  const dataFim = new Date(dataFimString);
+
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Project X dashboard UI design {taskId}</DialogTitle>
+        <DialogTitle>{task?.NOME}</DialogTitle>
       </DialogHeader>
       <Table>
         <TableBody>
           <TableRow>
             <TableCell className="text-muted-foreground">Status</TableCell>
             <TableCell className="flex justify-end">
-              <Badge className="bg-zinc-200 text-zinc-500 hover:bg-zinc-200/90">
-                A fazer
-              </Badge>
+              <Status status={task?.STATUS} />
             </TableCell>
           </TableRow>
 
@@ -37,9 +51,7 @@ export function TaskDetails({ taskId }: TaskDetailsProps) {
             <TableCell className="text-muted-foreground">Prioridade</TableCell>
             <TableCell className="flex justify-end">
               <div className="flex items-center gap-2">
-                <Badge className="bg-green-500 text-green-50 hover:bg-green-500/90">
-                  Baixa
-                </Badge>
+                <Priority priority={task?.PRIORIDADE} />
               </div>
             </TableCell>
           </TableRow>
@@ -47,14 +59,7 @@ export function TaskDetails({ taskId }: TaskDetailsProps) {
           <TableRow>
             <TableCell className="text-muted-foreground">Datas</TableCell>
             <TableCell className="text-right">
-              <span>16/01/2024 a 20/01/2024</span>
-            </TableCell>
-          </TableRow>
-
-          <TableRow>
-            <TableCell className="text-muted-foreground">Equipes</TableCell>
-            <TableCell className="text-right">
-              Desenvolvimento de Sistemas, Suporte e Automação
+              <span>{dataInicio.toLocaleDateString('pt-BR')} a {dataFim.toLocaleDateString('pt-BR')}</span>
             </TableCell>
           </TableRow>
 
@@ -63,11 +68,7 @@ export function TaskDetails({ taskId }: TaskDetailsProps) {
               Responsáveis
             </TableCell>
             <TableCell className="flex justify-end gap-1">
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
-              <UserAvatar userInitials="TA" userName="Thiago Alves" />
+             <UsersAvatar members={task?.RESPONSAVEIS} />
             </TableCell>
           </TableRow>
         </TableBody>
@@ -84,13 +85,7 @@ export function TaskDetails({ taskId }: TaskDetailsProps) {
           value="description"
           className="mt-0 p-4 align-middle text-sm hover:bg-muted/50"
         >
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio non
-          maxime deserunt, dolore ullam corrupti hic assumenda at, quae nobis
-          nemo praesentium inventore ut impedit, natus ducimus quo! Ab,
-          consequatur. Lorem ipsum dolor sit amet consectetur adipisicing elit.
-          Iure deserunt perferendis asperiores sed. Hic temporibus aspernatur,
-          quasi nulla veritatis, distinctio asperiores labore odio non eum error
-          commodi natus similique minima!
+          {task?.DESCRICAO}
         </TabsContent>
         <TabsContent value="comments" className="mt-0">
           <ScrollArea className="h-56 p-4 align-middle">
@@ -101,7 +96,7 @@ export function TaskDetails({ taskId }: TaskDetailsProps) {
             </div>
           </ScrollArea>
           <div className="flex items-center gap-3">
-            <UserAvatar userInitials="TA" userName="Thiago Alves" />
+            {/* <UserAvatar userInitials="TA" userName="Thiago Alves" /> */}
             <Input placeholder="Adicione um comentário..." />
           </div>
         </TabsContent>

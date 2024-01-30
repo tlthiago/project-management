@@ -34,19 +34,22 @@ import { DataTableToolbar } from './data-table-toolbar';
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  projectId: string;
-  projectTeams: string[];
+  // projectId: string;
+  // projectTeams: string[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  projectId,
-  projectTeams
+  // projectId,
+  // projectTeams
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({
+      'ID': false,
+      'PROJETO_ID': false
+    });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -132,10 +135,10 @@ export function DataTable<TData, TValue>({
                         Nova tarefa
                       </Button>
                     </DialogTrigger>
-                    <CreateTaskForm
+                    {/* <CreateTaskForm
                       projectId={projectId}
                       projectTeams={projectTeams}
-                    />
+                    /> */}
                   </Dialog>
                 </TableCell>
               </TableRow>

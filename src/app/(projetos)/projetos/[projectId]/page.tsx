@@ -14,14 +14,16 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tabs } from '@/components/ui/tabs';
 
-import { Task } from '../../api/data/schema';
 import { ProjectDetails } from '../components/project-details';
-import { UserAvatar } from '@/components/user-avatar';
+import { UsersAvatar } from '@/components/users-avatar';
 import { CreateTaskForm } from './components/create-task-form';
 import { columns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
 import { useQuery } from '@tanstack/react-query';
+import { GetTasksByProjectResponse, getTasksByProject } from '../../../api/projetos/get-tasks-by-project';
+import Status from '@/components/status';
+import Priority from '@/components/priority';
 
 export default function Project({
   params
@@ -35,8 +37,17 @@ export default function Project({
     queryFn: () => getProjectById({ projectId })
   })
 
-  console.log(project);
+  const { data: tasks = [] } = useQuery<GetTasksByProjectResponse[]>({
+    queryKey: ['tasks', projectId],
+    queryFn: () => getTasksByProject({ projectId })
+  })
 
+  const dataInicioString: string = project?.DATA_INICIO || '';
+  const dataFimString: string = project?.DATA_FIM || '';
+
+  const dataInicio = new Date(dataInicioString);
+  const dataFim = new Date(dataFimString);
+  
   return (
     <div className="space-y-3 p-5">
       <Card>
@@ -45,10 +56,10 @@ export default function Project({
             <span className="line-clamp-1 max-w-7xl">
               {project?.NOME}
             </span>
-            <div>
-              {/* <Button variant="ghost" size="icon">
-                <Star className="h-5 w-5" />
-              </Button> */}
+            <div className='flex items-center'>
+              <span className="text-sm">
+                {dataInicio.toLocaleDateString('pt-BR')} a {dataFim.toLocaleDateString('pt-BR')}
+              </span>
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="icon">
@@ -63,22 +74,20 @@ export default function Project({
             <CardDescription className="line-clamp-1 max-w-6xl">
               {project?.DESCRICAO}
             </CardDescription>
-            <div className="flex gap-1">
-              {project?.RESPONSAVEIS}
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-7 w-7 rounded-full"
-              >
-                <Plus className="h-5 w-5" />
-              </Button>
+            <div className='items-center space-y-1'>
+              <span className='text-sm'>{project?.EQUIPES}</span>
+              <div className='flex justify-between'>
+                <Status status={project?.STATUS} />
+                <Priority priority={project?.PRIORIDADE} />
+                <UsersAvatar members={project?.RESPONSAVEIS} />
+              </div>
             </div>
           </div>
         </CardHeader>
       </Card>
       <Card>
         <CardHeader>
-          <Tabs defaultValue="kanban">
+          <Tabs defaultValue="table">
             <div className="mx-5 flex items-start justify-between">
               <Dialog>
                 <DialogTrigger asChild>
@@ -89,31 +98,31 @@ export default function Project({
                   projectTeams={project?.RESPONSAVEIS}
                 /> */}
               </Dialog>
-              {/* <TabsList className="bg-muted">
-                <TabsTrigger value="kanban">
+              <TabsList className="bg-muted">
+                {/* <TabsTrigger value="kanban">
                   <Kanban />
                   <span className="ml-1">Kanban</span>
-                </TabsTrigger>
+                </TabsTrigger> */}
                 <TabsTrigger value="table">
                   <Table />
                   <span className="ml-1">Tabela</span>
                 </TabsTrigger>
-              </TabsList> */}
+              </TabsList>
             </div>
-            {/* <TabsContent value="kanban" className="flex">
+            <TabsContent value="kanban" className="flex">
               <TaskContainer title="ATRASADO" />
               <TaskContainer title="PENDENTE" />
               <TaskContainer title="EM PROGRESSO" />
               <TaskContainer title="FINALIZADO" />
-            </TabsContent> */}
-            {/* <TabsContent value="table" className="px-5">
+            </TabsContent>
+              <TabsContent value="table" className="px-5">
               <DataTable
                 columns={columns}
                 data={tasks}
-                projectId={params.projectId}
-                projectTeams={}
+                // projectId={project?.ID}
+                // projectTeams={project?.RESPONSAVEIS}
               />
-            </TabsContent> */}
+            </TabsContent>
           </Tabs>
         </CardHeader>
       </Card>

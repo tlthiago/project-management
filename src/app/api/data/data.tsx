@@ -5,8 +5,7 @@ import {
   CheckCircle2,
   Circle,
   HelpCircle,
-  Timer,
-  XCircle
+  Timer
 } from 'lucide-react';
 
 import tasks from '@/app/api/data/tasks.json';
@@ -201,46 +200,80 @@ export const members = users.map((user) => ({
 
 export const statuses = [
   {
-    value: 'backlog',
+    value: 'Atrasado',
     label: 'Atrasado',
     icon: HelpCircle
   },
   {
-    value: 'todo',
+    value: 'Pendente',
     label: 'Pendente',
     icon: Circle
   },
   {
-    value: 'in progress',
+    value: 'Em andamento',
     label: 'Em andamento',
     icon: Timer
   },
   {
-    value: 'done',
+    value: 'Finalizado',
     label: 'Finalizado',
     icon: CheckCircle2
   }
-  // {
-  //   value: 'canceled',
-  //   label: 'Cancelado',
-  //   icon: XCircle
-  // }
 ];
 
 export const priorities = [
   {
     label: 'Baixa',
-    value: 'low',
+    value: 'Baixa',
     icon: ArrowDown
   },
   {
     label: 'Média',
-    value: 'medium',
+    value: 'Média',
     icon: ArrowRight
   },
   {
     label: 'Alta',
-    value: 'high',
+    value: 'Alta',
     icon: ArrowUp
   }
 ];
+
+export const teams = [
+  {
+    label: 'Suporte e Automação',
+    value: 'Suporte e Automação',
+  },
+  {
+    label: 'Governança, Segurança, Redes e Servidores',
+    value: 'Governança, Segurança, Redes e Servidores',
+  },
+  {
+    label: 'Desenvolvimento de Sistemas',
+    value: 'Desenvolvimento de Sistemas',
+  },
+  {
+    label: 'Loja, Financeiro, Contábil, Fiscal, RM, Suprimentos e Logistic Mobile',
+    value: 'Loja, Financeiro, Contábil, Fiscal, RM, Suprimentos e Logistic Mobile',
+  },
+  {
+    label: 'Comercial, Depto de Vendas, Logística',
+    value: 'Comercial, Depto de Vendas, Logística',
+  },
+  {
+    label: 'Integração',
+    value: 'Integração',
+  },
+  {
+    label: 'RH, DP e QSMS',
+    value: 'RH, DP e QSMS',
+  },
+  {
+    label: 'Coordenação',
+    value: 'Coordenação',
+  },
+  {
+    label: 'Gerência',
+    value: 'Gerência',
+  }
+]

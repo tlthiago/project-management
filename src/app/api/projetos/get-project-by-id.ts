@@ -10,8 +10,8 @@ export interface GetProjectByIdResponse {
   DATA_INICIO: string;
   DATA_FIM: string;
   DESCRICAO: string;
-  EQUIPES: string[];
-  RESPONSAVEIS: string[];
+  EQUIPES: string;
+  RESPONSAVEIS: string;
   STATUS: string;
   PRIORIDADE: string;
 };

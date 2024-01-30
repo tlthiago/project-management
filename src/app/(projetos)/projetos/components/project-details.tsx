@@ -1,6 +1,3 @@
-import { Row } from '@tanstack/react-table';
-
-import { Badge } from '@/components/ui/badge';
 import {
   DialogContent,
   DialogHeader,
@@ -9,9 +6,11 @@ import {
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-// import { UserAvatar } from '../../../components/user-avatar';
+import { UsersAvatar } from '@/components/users-avatar';
 import { useQuery } from '@tanstack/react-query';
 import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
+import Status from '@/components/status';
+import Priority from '@/components/priority';
 
 interface ProjectDetailsProps {
   projectId?: string
@@ -23,6 +22,12 @@ export function ProjectDetails({ projectId }: ProjectDetailsProps) {
     queryFn: () => getProjectById({ projectId })
   })
 
+  const dataInicioString: string = project?.DATA_INICIO || '';
+  const dataFimString: string = project?.DATA_FIM || '';
+
+  const dataInicio = new Date(dataInicioString);
+  const dataFim = new Date(dataFimString);
+
   return (
     <DialogContent>
       <DialogHeader>
@@ -33,22 +38,14 @@ export function ProjectDetails({ projectId }: ProjectDetailsProps) {
           <TableRow>
             <TableCell className="text-muted-foreground">Status</TableCell>
             <TableCell className="flex justify-end">
-              <div className="flex items-center gap-2">
-                <Badge className="bg-zinc-200 text-zinc-500">
-                  {project?.STATUS}
-                </Badge>
-              </div>
+              <Status status={project?.STATUS} />
             </TableCell>
           </TableRow>
 
           <TableRow>
             <TableCell className="text-muted-foreground">Prioridade</TableCell>
             <TableCell className="flex justify-end">
-              <div className="flex items-center gap-2">
-                <Badge className="bg-green-200 text-green-500">
-                  {project?.PRIORIDADE}
-                </Badge>
-              </div>
+              <Priority priority={project?.PRIORIDADE} />
             </TableCell>
           </TableRow>
 
@@ -56,7 +53,7 @@ export function ProjectDetails({ projectId }: ProjectDetailsProps) {
             <TableCell className="text-muted-foreground">Datas</TableCell>
             <TableCell className="text-right">
               <span>
-                {project?.DATA_INICIO} - {project?.DATA_FIM}
+                {dataInicio.toLocaleDateString('pt-BR')} a {dataFim.toLocaleDateString('pt-BR')}
               </span>
             </TableCell>
           </TableRow>
@@ -73,7 +70,7 @@ export function ProjectDetails({ projectId }: ProjectDetailsProps) {
               Responsáveis
             </TableCell>
             <TableCell className="flex justify-end gap-1">
-              {project?.RESPONSAVEIS}
+              <UsersAvatar members={project?.RESPONSAVEIS} />
             </TableCell>
           </TableRow>
         </TableBody>

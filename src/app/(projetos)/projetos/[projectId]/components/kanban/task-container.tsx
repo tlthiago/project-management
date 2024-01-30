@@ -49,7 +49,7 @@ export function TaskContainer({ title }: TasksContainerProps) {
           {Array.from({ length: 5 }).map((_, i) => {
             return (
               <div className="mb-2" key={i}>
-                <TaskCard />
+                {/* <TaskCard /> */}
               </div>
             );
           })}
