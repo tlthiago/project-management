@@ -6,27 +6,21 @@ import { ptBR } from 'date-fns/locale';
 import { ArrowDown, ArrowRight, ArrowUp, CalendarDays } from 'lucide-react';
 import { useState } from 'react';
 import { DateRange } from 'react-day-picker';
-import { useForm } from 'react-hook-form';
+import { useController, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { departments } from '@/app/api/data/data';
-import { projectSchema } from '@/app/api/data/schema';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
+  dialogCloseFn
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { MultiSelect } from '@/components/ui/multi-select';
 import {
@@ -43,6 +37,9 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { createProject } from '@/app/api/projetos/create-project';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 interface Member {
   name: string;
@@ -63,11 +60,28 @@ interface Department {
   teams?: Team[];
 }
 
+const projectSchema = z.object({
+  nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }),
+  datas: z.object({
+    from: z.coerce.date(),
+    to: z.coerce.date()
+  }),
+  descricao: z.string().min(1, { message: 'Descreva o projeto.' }),
+  equipes: z
+    .array(z.string()).min(1, { message: 'Selecione pelo menos uma equipe' }),
+  responsaveis: z
+    .array(z.string()).min(1, { message: 'Selecione pelo menos um responsável' }),
+  prioridade: z.string()
+});
+
+type ProjectSchema = z.infer<typeof projectSchema>;
+
 export function CreateProjectForm() {
   const [range, setRange] = useState<DateRange | undefined>({
     from: new Date(),
     to: new Date(new Date().setDate(new Date().getDate() + 1))
   });
+  
   const [teams, setTeams] = useState<string[]>([]);
   const [membersList, setMembersList] = useState<string[]>([]);
   const [members, setMembers] = useState<string[]>([]);
@@ -108,25 +122,66 @@ export function CreateProjectForm() {
     setMembersList(filteredMembers);
   };
 
-  const form = useForm<z.infer<typeof projectSchema>>({
+  const { register, handleSubmit, control, formState: { isSubmitting, errors } } = useForm<ProjectSchema>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
-      id: '1',
-      name: '',
-      dateRange: {
+      datas: {
         from: new Date(),
         to: new Date(new Date().setDate(new Date().getDate() + 1))
-      },
-      description: '',
-      teams: [],
-      members: [],
-      status: 'todo',
-      priority: ''
+      }
     }
-  });
+  })
 
-  function onSubmit(values: z.infer<typeof projectSchema>) {
-    console.log(values);
+  console.log(errors);
+
+  const { field: datas } = useController({
+    name: 'datas',
+    control
+  })
+
+  const fromError = errors.datas?.from;
+  const toError = errors.datas?.to;
+
+  const { field: equipes } = useController({
+    name: 'equipes',
+    control
+  })
+
+  const { field: responsaveis } = useController({
+    name: 'responsaveis',
+    control
+  })
+
+  const { field: prioridade } = useController({
+    name: 'prioridade',
+    control
+  })
+
+  const { mutateAsync: createProjectFn } = useMutation({
+    mutationFn: createProject
+  })
+
+  async function handleCreateProject(dados: ProjectSchema) {
+    console.log(dados);
+    
+    try {
+      await createProjectFn({
+        nome: dados.nome,
+        dataInicio: dados.datas.from,
+        dataFim: dados.datas.to,
+        descricao: dados.descricao,
+        equipes: dados.equipes,
+        responsaveis: dados.responsaveis,
+        prioridade: dados.prioridade
+      })
+
+      toast.success('Projeto criado com sucesso!')
+
+      dialogCloseFn();
+    } catch {
+      toast.error('Erro ao criar o projeto, contate o administrador.')
+      dialogCloseFn();
+    }
   }
 
   return (
@@ -137,205 +192,169 @@ export function CreateProjectForm() {
           Preencha os campos abaixo com as informações do projeto
         </DialogDescription>
       </DialogHeader>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome do projeto</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type="text"
-                    placeholder="Digite o nome do projeto"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+      <form onSubmit={handleSubmit(handleCreateProject)} className='space-y-8'>
+        <div>
+          <Label>Nome do projeto</Label>
+          <Input
+            id="nome"
+            type="text"
+            placeholder='Digite o nome do projeto'
+            {...register('nome')}
           />
-          <FormField
-            control={form.control}
-            name="dateRange"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Datas</FormLabel>
-                <FormControl>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={'outline'}
-                        className={cn(
-                          'w-60 justify-start text-left font-normal',
-                          !range && 'text-muted-foreground'
-                        )}
-                      >
-                        <CalendarDays className="mr-2 h-4 w-4" />
-                        {range?.from && range?.to
-                          ? `${format(range.from, 'P', {
-                              locale: ptBR
-                            })} a ${format(range.to, 'P', {
-                              locale: ptBR
-                            })}`
-                          : 'Selecione as datas'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="flex w-auto p-0">
-                      <Calendar
-                        mode="range"
-                        selected={{
-                          from: field.value.from,
-                          to: field.value.to
-                        }}
-                        onSelect={(range) => {
-                          field.onChange({
-                            from: range?.from,
-                            to: range?.to
-                          });
-                          setRange({
-                            from: range?.from,
-                            to: range?.to
-                          });
-                        }}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+          {errors.nome && <span className='text-sm text-red-500 font-semibold'>{errors.nome.message}</span>}
+        </div>
+
+        <div className='flex flex-col gap-1'>
+          <Label>Datas</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={'outline'}
+                className={cn(
+                  'w-60 justify-start text-left font-normal',
+                  !range && 'text-muted-foreground'
+                )}
+              >
+                <CalendarDays className="mr-2 h-4 w-4" />
+                {range?.from && range?.to
+                  ? `${format(range.from, 'P', {
+                      locale: ptBR
+                    })} a ${format(range.to, 'P', {
+                      locale: ptBR
+                    })}`
+                  : 'Selecione as datas'}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="flex w-auto p-0">
+              <Calendar
+                mode="range"
+                selected={range ? { from: range.from, to: range.to } : undefined}
+                onSelect={(range) => {
+                  datas.onChange({
+                    from: range?.from,
+                    to: range?.to
+                  });
+                  setRange({
+                    from: range?.from,
+                    to: range?.to
+                  });
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {fromError ? (
+            fromError.type === 'invalid_date' 
+            ? <span className="text-sm text-red-500 font-semibold">As datas devem ser selecionadas</span>
+            : <span className="text-sm text-red-500 font-semibold">{fromError.message}</span>
+          ) : (
+              toError?.type === 'invalid_date' 
+                ? <span className="text-sm text-red-500 font-semibold">Selecione a data final</span>
+                : <span className="text-sm text-red-500 font-semibold">{toError?.message}</span>
+            )
+          }
+        </div>
+
+        <div>
+          <Label>Descrição</Label>
+          <Textarea
+            id="descricao"
+            placeholder='Descreva o projeto'
+            {...register('descricao')}
           />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descrição</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="Descreva o projeto" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+          {errors.descricao && <span className='text-sm text-red-500 font-semibold'>{errors.descricao.message}</span>}
+        </div>
+
+        <div className='flex flex-col gap-1'>
+          <Label>Equipes</Label>
+          <MultiSelect
+            options={teamsList.map((subTeamName, index) => ({
+              value: subTeamName,
+              label: subTeamName,
+              key: index
+            }))}
+            selected={teams}
+            onChange={(selectedTeams) => {
+              equipes.onChange(selectedTeams);
+              setTeams(selectedTeams);
+              handleTeamsChange(selectedTeams);
+            }}
+            className="max-w-[462px]"
+            placeholder="Selecione a(s) equipe(s)"
           />
-          <FormField
-            control={form.control}
-            name="teams"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Equipes</FormLabel>
-                <FormControl>
-                  <div>
-                    <MultiSelect
-                      options={teamsList.map((subTeamName, index) => ({
-                        value: subTeamName,
-                        label: subTeamName,
-                        key: index
-                      }))}
-                      selected={teams}
-                      onChange={(selectedTeams) => {
-                        field.onChange(selectedTeams);
-                        setTeams(selectedTeams);
-                        handleTeamsChange(selectedTeams);
-                      }}
-                      className="w-[523px]"
-                      placeholder="Selecione a(s) equipe(s)"
-                    />
+          {errors.equipes && <span className='text-sm text-red-500 font-semibold'>Selecione pelo menos uma equipe</span>}
+        </div>
+
+        <div className='flex flex-col gap-1'>
+          <Label>Responsáveis</Label>
+          <MultiSelect
+            options={membersList.map((memberName, index) => ({
+              value: memberName,
+              label: memberName,
+              key: index
+            }))}
+            selected={members}
+            onChange={(members) => {
+              responsaveis.onChange(members);
+              setMembers(members);
+            }}
+            className="w-96"
+            placeholder={
+              teams.length === 0
+                ? 'Selecione a(s) equipe(s)'
+                : 'Selecione os responsáveis'
+            }
+            disabled={teams.length === 0}
+            />
+            {errors.responsaveis && <span className='text-sm text-red-500 font-semibold'>Selecione pelo menos um responsável</span>}
+        </div>
+
+        <div className='flex flex-col gap-1'>
+          <Label>Prioridade</Label>
+          <Select
+            onValueChange={(prioridadeSelecionada) => {
+              prioridade.onChange(prioridadeSelecionada);
+            }}
+          >
+            <SelectTrigger className="w-60">
+              <SelectValue placeholder="Selecione a prioridade" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Baixa">
+                <div className="flex gap-3">
+                  <div className="flex items-center">
+                    <ArrowDown className='size-4' />
                   </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="members"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Responsáveis</FormLabel>
-                <FormControl>
-                  <div>
-                    <MultiSelect
-                      options={membersList.map((memberName, index) => ({
-                        value: memberName,
-                        label: memberName,
-                        key: index
-                      }))}
-                      selected={members}
-                      onChange={(members) => {
-                        field.onChange(members);
-                        setMembers(members);
-                      }}
-                      className="w-96"
-                      placeholder={
-                        teams.length === 0
-                          ? 'Selecione a(s) equipe(s)'
-                          : 'Selecione os responsáveis'
-                      }
-                      disabled={teams.length === 0}
-                    />
+                  <span>Baixa</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="Média">
+                <div className="flex gap-3">
+                  <div className="flex items-center">
+                    <ArrowRight className='size-4' />
                   </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priority"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Prioridade</FormLabel>
-                <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-60">
-                        <SelectValue placeholder="Selecione a prioridade" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="low">
-                        <div className="flex gap-3">
-                          <div className="flex items-center">
-                            <ArrowDown />
-                          </div>
-                          <span>Baixa</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="medium">
-                        <div className="flex gap-3">
-                          <div className="flex items-center">
-                            <ArrowRight />
-                          </div>
-                          <span>Média</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="high">
-                        <div className="flex gap-3">
-                          <div className="flex items-center">
-                            <ArrowUp />
-                          </div>
-                          <span>Alta</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex justify-center">
-            <Button type="submit">Criar projeto</Button>
-          </div>
-        </form>
-      </Form>
+                  <span>Média</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="Alta">
+                <div className="flex gap-3">
+                  <div className="flex items-center">
+                    <ArrowUp className='size-4' />
+                  </div>
+                  <span>Alta</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.prioridade && <span className='text-sm text-red-500 font-semibold'>Selecione a prioridade</span>}
+        </div>
+
+        <div className="flex justify-center">
+          <DialogFooter>
+            <Button disabled={isSubmitting} type="submit">Criar projeto</Button>
+          </DialogFooter>
+        </div>
+      </form>
     </DialogContent>
   );
 }

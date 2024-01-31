@@ -74,9 +74,6 @@ export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
     ),
     cell: ({ row }) => {
       return <Status status={row.getValue('STATUS')} />
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue('id'));
     }
   },
   {

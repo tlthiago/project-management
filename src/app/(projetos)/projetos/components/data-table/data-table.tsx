@@ -27,7 +27,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 
-import { CreateProjectForm } from '../create-project-form';
+import { CreateProjectForm } from '../create-project-form-radix';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
 

@@ -1,10 +1,11 @@
 import { z } from 'zod';
 
 export const projectSchema = z.object({
-  id: z.string(),
   nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }),
-  dataInicio: z.coerce.date(),
-  dataFim: z.coerce.date(),
+  datas: z.object({
+    dataInicio: z.coerce.date(),
+    dataFim: z.coerce.date(),
+  }),
   descricao: z.string().min(1, { message: 'Descreva o projeto.' }),
   equipes: z
     .array(z.string())

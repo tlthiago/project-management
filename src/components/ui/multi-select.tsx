@@ -50,7 +50,7 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
             onClick={() => !disabled && setOpen(!open)}
             disabled={disabled}
           >
-            <div className="flex flex-wrap items-center gap-1">
+            <div className="flex flex-wrap items-center gap-1 text-wrap">
               {selected.map((item) => (
                 <Badge
                   variant="outline"

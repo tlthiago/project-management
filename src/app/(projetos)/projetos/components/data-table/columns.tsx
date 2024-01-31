@@ -86,7 +86,7 @@ export const columns: ColumnDef<GetProjectsResponse>[] = [
       return <Status status={row.getValue('STATUS')} />
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue('id'));
+      return value.includes(row.getValue(id));
     }
   },
   {
