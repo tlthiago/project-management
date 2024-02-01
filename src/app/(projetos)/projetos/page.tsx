@@ -17,8 +17,6 @@ export default function Projects() {
     queryFn: getProjects
   });
 
-  console.log(projects);
-
   return (
     <div className="space-y-5 p-5">
       <div className="flex justify-between">

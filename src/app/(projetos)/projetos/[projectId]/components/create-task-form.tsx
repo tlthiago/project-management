@@ -13,28 +13,22 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DateRange } from 'react-day-picker';
-import { useForm } from 'react-hook-form';
+import { useController, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { departments } from '@/app/api/data/data';
-import { taskSchema } from '@/app/api/data/schema';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
+  dialogCloseFn
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { MultiSelect } from '@/components/ui/multi-select';
 import {
@@ -51,88 +45,101 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { createTask } from '@/app/api/projetos/create-task';
+import { getProfile } from '@/app/api/get-profile';
+import { toast } from 'sonner';
+import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
 
-interface Member {
-  name: string;
+interface createTaskFormProps {
+  projectId?: string
 }
 
-interface SubTeam {
-  name: string;
-  members?: Member[];
-}
+export const taskSchema = z.object({
+  nome: z.string().min(1, { message: 'O nome da tarefa deve ser informado.' }),
+  datas: z.object({
+      from: z.coerce.date(),
+      to: z.coerce.date()
+    }),
+  descricao: z.string().min(1, { message: 'Descreva a tarefa.' }),
+  responsaveis: z
+    .array(z.string())
+    .min(1, { message: 'Selecione pelo menos um responsável.' }),
+  prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
+});
 
-interface Team {
-  name: string;
-  subTeams?: SubTeam[];
-}
+export type TaskSchema = z.infer<typeof taskSchema>;
 
-interface Department {
-  name: string;
-  teams?: Team[];
-}
+export function CreateTaskForm( { projectId }: createTaskFormProps ) {
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: getProfile
+  });
 
-interface TaskFormProps {
-  projectId?: string;
-  projectTeams?: string;
-}
+  const { data: project } = useQuery<GetProjectByIdResponse>({
+    queryKey: ['project', projectId],
+    queryFn: () => getProjectById({ projectId })
+  })
 
-export function CreateTaskForm({ projectId, projectTeams }: TaskFormProps) {
   const [range, setRange] = useState<DateRange | undefined>({
     from: new Date(),
     to: new Date(new Date().setDate(new Date().getDate() + 1))
   });
-  const [membersList, setMembersList] = useState<string[]>([]);
+
+  const membersList: string[] = project?.RESPONSAVEIS.split(', ') || [];
   const [members, setMembers] = useState<string[]>([]);
 
-  const teamsList: string[] = projectTeams?.split(", ");
-
-  const updateMembersList = (newMembers: string[]) => {
-    setMembersList((prevMembersList) => [...prevMembersList, ...newMembers]);
-  };
-
-  useEffect(() => {
-    const filteredMembers: string[] = departments.flatMap(
-      (department: Department) =>
-        department.teams?.flatMap(
-          (team: Team) =>
-            team.subTeams
-              ?.filter((subTeam: SubTeam) =>
-                teamsList.includes(subTeam.name || '')
-              )
-              .flatMap(
-                (subTeam: SubTeam) =>
-                  subTeam.members?.map((member: Member) => member.name || '') ||
-                  []
-              ) || []
-        ) || []
-    );
-
-    updateMembersList(filteredMembers);
-    setMembersList(filteredMembers);
-  }, [teamsList]);
-
-  let contador = 0;
-
-  const form = useForm<z.infer<typeof taskSchema>>({
+  const { register, handleSubmit, control, formState: { isSubmitting, errors } } = useForm<TaskSchema>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
-      id: contador.toString(),
-      projectId: projectId,
-      name: '',
-      dateRange: {
+      datas: {
         from: new Date(),
         to: new Date(new Date().setDate(new Date().getDate() + 1))
-      },
-      description: '',
-      members: [],
-      status: 'todo',
-      priority: ''
+      }
     }
-  });
+  })
 
-  function onSubmit(values: z.infer<typeof taskSchema>) {
-    contador = contador + 1;
-    console.log(values);
+  const { field: datas } = useController({
+    name: 'datas',
+    control
+  })
+
+  const fromError = errors.datas?.from;
+  const toError = errors.datas?.to;
+
+  const { field: responsaveis } = useController({
+    name: 'responsaveis',
+    control
+  })
+
+  const { field: prioridade } = useController({
+    name: 'prioridade',
+    control
+  })
+
+  const { mutateAsync: createTaskFn } = useMutation({
+    mutationFn: createTask
+  })
+
+  async function handleCreateTask(taskData: TaskSchema) {
+    try {
+      await createTaskFn({
+        projectId: projectId,
+        nome: taskData.nome,
+        dataInicio: format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }),
+        dataFim: format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
+        descricao: taskData.descricao,
+        responsaveis: taskData.responsaveis,
+        prioridade: taskData.prioridade,
+        usuInclusao: profile ? profile?.codUsuario : 'TL_THIAGO'
+      })
+      
+      toast.success('Tarefa criada com sucesso!')
+      dialogCloseFn();
+    } catch {
+      toast.error('Erro ao criar a tarefa, contate o administrador.')
+      dialogCloseFn();
+    }
   }
 
   return (
@@ -143,195 +150,145 @@ export function CreateTaskForm({ projectId, projectTeams }: TaskFormProps) {
           Preencha os campos abaixo com as informações da tarefa
         </DialogDescription>
       </DialogHeader>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome da tarefa</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type="text"
-                    placeholder="Digite o nome da tarefa"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+      <form onSubmit={handleSubmit(handleCreateTask)} className='space-y-8'>
+        <div>
+          <Label>Nome da tarefa</Label>
+          <Input
+            id="nome"
+            type="text"
+            placeholder='Digite o nome da tarefa'
+            {...register('nome')}
           />
-          <FormField
-            control={form.control}
-            name="dateRange"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Datas</FormLabel>
-                <FormControl>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={'outline'}
-                        className={cn(
-                          'w-60 justify-start text-left font-normal',
-                          !range && 'text-muted-foreground'
-                        )}
-                      >
-                        <CalendarDays className="mr-2 h-4 w-4" />
-                        {range?.from && range?.to
-                          ? `${format(range.from, 'P', {
-                              locale: ptBR
-                            })} a ${format(range.to, 'P', {
-                              locale: ptBR
-                            })}`
-                          : 'Selecione as datas'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="flex w-auto p-0">
-                      <Calendar
-                        mode="range"
-                        selected={{
-                          from: field.value.from,
-                          to: field.value.to
-                        }}
-                        onSelect={(range) => {
-                          field.onChange({
-                            from: range?.from,
-                            to: range?.to
-                          });
-                          setRange({
-                            from: range?.from,
-                            to: range?.to
-                          });
-                        }}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descrição</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="Descreva a tarefa" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormItem>
-            <FormLabel>Equipes</FormLabel>
-            <FormControl>
+          {errors.nome && <span className='text-sm text-red-500 font-semibold'>{errors.nome.message}</span>}
+        </div>
+
+        <div className='flex flex-col gap-1'>
+          <Label>Datas</Label>
+          <Popover>
+            <PopoverTrigger asChild>
               <Button
-                variant="outline"
-                role="combobox"
-                className="w-full justify-between font-normal"
-                disabled
+                variant={'outline'}
+                className={cn(
+                  'w-60 justify-start text-left font-normal',
+                  !range && 'text-muted-foreground'
+                )}
               >
-                <div className="flex flex-wrap items-center gap-1">
-                  {teamsList.map((item) => (
-                    <Badge variant="outline" key={item} className="mb-1 mr-1">
-                      {item}
-                      <span className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                        <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
-                      </span>
-                    </Badge>
-                  ))}
-                </div>
-                <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                <CalendarDays className="mr-2 h-4 w-4" />
+                {range?.from && range?.to
+                  ? `${format(range.from, 'P', {
+                      locale: ptBR
+                    })} a ${format(range.to, 'P', {
+                      locale: ptBR
+                    })}`
+                  : 'Selecione as datas'}
               </Button>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-          <FormField
-            control={form.control}
-            name="members"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Responsáveis</FormLabel>
-                <FormControl>
-                  <div>
-                    <MultiSelect
-                      options={membersList.map((memberName, index) => ({
-                        value: memberName,
-                        label: memberName,
-                        key: index
-                      }))}
-                      selected={members}
-                      onChange={(members) => {
-                        field.onChange(members);
-                        setMembers(members);
-                      }}
-                      className="w-96"
-                      placeholder="Selecione os responsáveis"
-                    />
+            </PopoverTrigger>
+            <PopoverContent className="flex w-auto p-0">
+              <Calendar
+                mode="range"
+                selected={range ? { from: range.from, to: range.to } : undefined}
+                onSelect={(range) => {
+                  datas.onChange({
+                    from: range?.from,
+                    to: range?.to
+                  });
+                  setRange({
+                    from: range?.from,
+                    to: range?.to
+                  });
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {fromError ? (
+            fromError.type === 'invalid_date' 
+            ? <span className="text-sm text-red-500 font-semibold">As datas devem ser selecionadas</span>
+            : <span className="text-sm text-red-500 font-semibold">{fromError.message}</span>
+          ) : (
+              toError?.type === 'invalid_date' 
+                ? <span className="text-sm text-red-500 font-semibold">Selecione a data final</span>
+                : <span className="text-sm text-red-500 font-semibold">{toError?.message}</span>
+            )
+          }
+        </div>
+
+        <div>
+          <Label>Descrição</Label>
+          <Textarea
+            id="descricao"
+            placeholder='Descreva a tarefa'
+            {...register('descricao')}
+          />
+          {errors.descricao && <span className='text-sm text-red-500 font-semibold'>{errors.descricao.message}</span>}
+        </div>
+
+        <div className='flex flex-col gap-1'>
+          <Label>Responsáveis</Label>
+          <MultiSelect
+            options={membersList.map((memberName, index) => ({
+              value: memberName,
+              label: memberName,
+              key: index
+            }))}
+            selected={members}
+            onChange={(membersSelected) => {
+              responsaveis.onChange(membersSelected);
+              setMembers(membersSelected);
+            }}
+            className="w-96"
+            placeholder="Selecione os responsáveis"
+          />
+          {errors.responsaveis && <span className='text-sm text-red-500 font-semibold'>Selecione pelo menos um responsável</span>}
+        </div>
+
+        <div className='flex flex-col gap-1'>
+          <Label>Prioridade</Label>
+          <Select
+            onValueChange={(prioridadeSelecionada) => {
+              prioridade.onChange(prioridadeSelecionada);
+            }}
+          >
+            <SelectTrigger className="w-60">
+              <SelectValue placeholder="Selecione a prioridade" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Baixa">
+                <div className="flex gap-3">
+                  <div className="flex items-center">
+                    <ArrowDown className='size-4' />
                   </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priority"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Prioridade</FormLabel>
-                <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-60">
-                        <SelectValue placeholder="Selecione a prioridade" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="low">
-                        <div className="flex gap-3">
-                          <div className="flex items-center">
-                            <ArrowDown />
-                          </div>
-                          <span>Baixa</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="medium">
-                        <div className="flex gap-3">
-                          <div className="flex items-center">
-                            <ArrowRight />
-                          </div>
-                          <span>Média</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="high">
-                        <div className="flex gap-3">
-                          <div className="flex items-center">
-                            <ArrowUp />
-                          </div>
-                          <span>Alta</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex justify-center">
-            <Button type="submit">Criar tarefa</Button>
-          </div>
-        </form>
-      </Form>
+                  <span>Baixa</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="Média">
+                <div className="flex gap-3">
+                  <div className="flex items-center">
+                    <ArrowRight className='size-4' />
+                  </div>
+                  <span>Média</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="Alta">
+                <div className="flex gap-3">
+                  <div className="flex items-center">
+                    <ArrowUp className='size-4' />
+                  </div>
+                  <span>Alta</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.prioridade && <span className='text-sm text-red-500 font-semibold'>Selecione a prioridade</span>}
+        </div>
+
+        <div className="flex justify-center">
+          <DialogFooter>
+            <Button disabled={isSubmitting} type="submit">Criar tarefa</Button>
+          </DialogFooter>
+        </div>
+      </form>
+      
     </DialogContent>
   );
 }

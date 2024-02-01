@@ -16,9 +16,7 @@ export interface GetProjectByIdResponse {
   PRIORIDADE: string;
 };
 
-export async function getProjectById({ projectId }: GetProjectByIdParams) {
-  console.log(projectId);
-  
+export async function getProjectById({ projectId }: GetProjectByIdParams) {  
   const response = await api.get<GetProjectByIdResponse>(`/projects/${projectId}`)
 
   return response.data;

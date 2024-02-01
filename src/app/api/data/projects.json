@@ -1,112 +1,126 @@
 [
   {
-    "id": "1",
-    "nome": "Projeto XYZ",
+    "nome": "Projeto ZPTO",
     "dataInicio": "2024-02-15",
     "dataFim": "2024-05-30",
-    "descricao": "Descrição do Projeto XYZ",
+    "descricao": "Descrição do Projeto ZPTO",
     "equipes": ["Suporte e Automação", "Desenvolvimento de Sistemas"],
     "responsaveis": ["Lucas Dias", "Pedro Bomfim", "Thiago Alves"],
-    "status": "Em andamento",
-    "prioridade": "Média"
+    "prioridade": "Média",
+    "usuInclusao": "TL_THIAGO"
   },
   {
-    "id": "2",
-    "nome": "Projeto ABC",
+    "nome": "Projeto IJH",
     "dataInicio": "2024-03-01",
     "dataFim": "2024-06-15",
-    "descricao": "Descrição do Projeto ABC",
+    "descricao": "Descrição do Projeto IJH",
     "equipes": ["Desenvolvimento de Sistemas", "Suporte e Automação"],
     "responsaveis": ["Pedro Bomfim", "Thiago Alves", "Gabriel Souza"],
-    "status": "Finalizado",
-    "prioridade": "Alta"
+    "prioridade": "Alta",
+    "usuInclusao": "TL_THIAGO"
   },
   {
-    "id": "3",
     "nome": "Projeto QWE",
     "dataInicio": "2024-04-10",
     "dataFim": "2024-08-20",
     "descricao": "Descrição do Projeto QWE",
     "equipes": ["Suporte e Automação", "Governança, Segurança, Redes e Servidores"],
     "responsaveis": ["Gabriel Souza", "Robson de Paula", "Guilherme Andrade"],
-    "status": "Pendente",
-    "prioridade": "Baixa"
+    "prioridade": "Baixa",
+    "usuInclusao": "TL_THIAGO"
   },
   {
-    "id": "4",
-    "nome": "Projeto 123",
+    "nome": "Projeto 456",
     "dataInicio": "2024-05-15",
     "dataFim": "2024-09-30",
-    "descricao": "Descrição do Projeto 123",
+    "descricao": "Descrição do Projeto 456",
     "equipes": ["Integração", "Desenvolvimento de Sistemas"],
     "responsaveis": ["Caio Wendel", "Marcio Moreira", "Paulo Gonçalves"],
-    "status": "Em andamento",
-    "prioridade": "Alta"
+    "prioridade": "Alta",
+    "usuInclusao": "TL_THIAGO"
   },
   {
-    "id": "5",
-    "nome": "Projeto XYZ",
+    "nome": "Projeto LMN",
     "dataInicio": "2024-06-01",
     "dataFim": "2024-11-15",
-    "descricao": "Descrição do Projeto XYZ",
+    "descricao": "Descrição do Projeto LMN",
     "equipes": ["Loja, Financeiro, Contábil, Fiscal, RM, Suprimentos e Logistic Mobile"],
     "responsaveis": ["Gabriel Matos", "Veronica Assis", "Dionata Sena"],
-    "status": "Pendente",
-    "prioridade": "Média"
+    "prioridade": "Média",
+    "usuInclusao": "TL_THIAGO"
   },
   {
-    "id": "6",
-    "nome": "Projeto ABC",
+    "nome": "Projeto DEF",
     "dataInicio": "2024-07-10",
     "dataFim": "2024-12-25",
-    "descricao": "Descrição do Projeto ABC",
+    "descricao": "Descrição do Projeto DEF",
     "equipes": ["Loja, Financeiro, Contábil, Fiscal, RM, Suprimentos e Logistic Mobile", "Comercial, Depto de Vendas, Logística"],
     "responsaveis": ["Kennedy Oliveira", "Gleiton Bessa", "Eduardo Ramos"],
-    "status": "Em andamento",
-    "prioridade": "Alta"
+    "prioridade": "Alta",
+    "usuInclusao": "TL_THIAGO"
   },
   {
-    "id": "7",
-    "nome": "Projeto QWE",
+    "nome": "Projeto FGH",
     "dataInicio": "2024-08-15",
     "dataFim": "2025-01-31",
-    "descricao": "Descrição do Projeto QWE",
+    "descricao": "Descrição do Projeto FGH",
     "equipes": ["Loja, Financeiro, Contábil, Fiscal, RM, Suprimentos e Logistic Mobile", "RH, DP e QSMS"],
     "responsaveis": ["Marcus Miranda", "Ronaldo Sena", "Alicia Leal"],
-    "status": "Finalizado",
-    "prioridade": "Baixa"
+    "prioridade": "Baixa",
+    "usuInclusao": "TL_THIAGO"
   },
   {
-    "id": "8",
     "nome": "Projeto 123",
     "dataInicio": "2024-09-01",
     "dataFim": "2025-02-15",
     "descricao": "Descrição do Projeto 123",
     "equipes": ["Gerência"],
     "responsaveis": ["Helton Lima"],
-    "status": "Pendente",
-    "prioridade": "Baixa"
+    "prioridade": "Baixa",
+    "usuInclusao": "TL_THIAGO"
   },
   {
-    "id": "9",
     "nome": "Projeto XYZ",
     "dataInicio": "2024-10-10",
     "dataFim": "2025-03-30",
     "descricao": "Descrição do Projeto XYZ",
     "equipes": ["Governança, Segurança, Redes e Servidores"],
     "responsaveis": ["Robson de Paula", "Guilherme Andrade", "Marcus Oliveira"],
-    "status": "Em andamento",
-    "prioridade": "Média"
+    "prioridade": "Média",
+    "usuInclusao": "TL_THIAGO"
   },
   {
-    "id": "10",
     "nome": "Projeto ABC",
     "dataInicio": "2024-11-15",
     "dataFim": "2025-04-15",
     "descricao": "Descrição do Projeto ABC",
     "equipes": ["Suporte e Automação"],
     "responsaveis": ["Fábio Batista", "Lucas Alexandre", "Alexsander Rocha"],
-    "status": "Finalizado",
-    "prioridade": "Alta"
+    "prioridade": "Alta",
+    "usuInclusao": "TL_THIAGO"
+  },
+  {
+    "tarefas": [
+      {
+        "projetoId": 45,
+        "nome": "Tarefa 1",
+        "dataInicio": "2024-02-15",
+        "dataFim": "2024-05-30",
+        "descricao": "Descrição da tarefa 1",
+        "responsaveis": ["Lucas Dias", "Pedro Bomfim", "Thiago Alves"],
+        "prioridade": "Média",
+        "usuInclusao": "TL_THIAGO"
+      },
+      {
+        "projetoId": 45,
+        "nome": "Tarefa 2",
+        "dataInicio": "2024-02-15",
+        "dataFim": "2024-05-30",
+        "descricao": "Descrição da tarefa 2",
+        "responsaveis": ["Lucas Dias", "Pedro Bomfim", "Thiago Alves"],
+        "prioridade": "Alta",
+        "usuInclusao": "TL_THIAGO"
+      }
+    ]
   }
 ]

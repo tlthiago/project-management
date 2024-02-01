@@ -38,8 +38,9 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { createProject } from '@/app/api/projetos/create-project';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { getProfile } from '@/app/api/get-profile';
 
 interface Member {
   name: string;
@@ -132,8 +133,6 @@ export function CreateProjectForm() {
     }
   })
 
-  console.log(errors);
-
   const { field: datas } = useController({
     name: 'datas',
     control
@@ -157,26 +156,31 @@ export function CreateProjectForm() {
     control
   })
 
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: getProfile
+  });
+
   const { mutateAsync: createProjectFn } = useMutation({
     mutationFn: createProject
   })
 
-  async function handleCreateProject(dados: ProjectSchema) {
-    console.log(dados);
-    
+  async function handleCreateProject(projectData: ProjectSchema) {
+    console.log(projectData);
+
     try {
       await createProjectFn({
-        nome: dados.nome,
-        dataInicio: dados.datas.from,
-        dataFim: dados.datas.to,
-        descricao: dados.descricao,
-        equipes: dados.equipes,
-        responsaveis: dados.responsaveis,
-        prioridade: dados.prioridade
+        nome: projectData.nome,
+        dataInicio: format(projectData.datas.from, 'yyyy-MM-dd', { locale: ptBR }),
+        dataFim: format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
+        descricao: projectData.descricao,
+        equipes: projectData.equipes,
+        responsaveis: projectData.responsaveis,
+        prioridade: projectData.prioridade,
+        usuInclusao: profile ? profile?.codUsuario : 'TL_THIAGO'
       })
-
+      
       toast.success('Projeto criado com sucesso!')
-
       dialogCloseFn();
     } catch {
       toast.error('Erro ao criar o projeto, contate o administrador.')

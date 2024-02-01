@@ -93,10 +93,9 @@ export default function Project({
                 <DialogTrigger asChild>
                   <Button variant="secondary">Nova tarefa</Button>
                 </DialogTrigger>
-                {/* <CreateTaskForm
+                <CreateTaskForm
                   projectId={project?.ID}
-                  projectTeams={project?.RESPONSAVEIS}
-                /> */}
+                />
               </Dialog>
               <TabsList className="bg-muted">
                 {/* <TabsTrigger value="kanban">
@@ -119,8 +118,6 @@ export default function Project({
               <DataTable
                 columns={columns}
                 data={tasks}
-                // projectId={project?.ID}
-                // projectTeams={project?.RESPONSAVEIS}
               />
             </TabsContent>
           </Tabs>

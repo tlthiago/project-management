@@ -2,12 +2,13 @@ import { api } from '@/lib/axios';
 
 export interface CreateProjectBody {
   nome: string
-  dataInicio: Date
-  dataFim: Date
+  dataInicio: string
+  dataFim: string
   descricao: string
   equipes: string[]
   responsaveis: string[]
   prioridade: string
+  usuInclusao: string
 }
 
 export async function createProject({
@@ -17,7 +18,8 @@ export async function createProject({
   descricao,
   equipes,
   responsaveis,
-  prioridade
+  prioridade,
+  usuInclusao
 }: CreateProjectBody) {
   await api.post("/projects", {
     nome,
@@ -26,6 +28,7 @@ export async function createProject({
     descricao,
     equipes,
     responsaveis,
-    prioridade
+    prioridade,
+    usuInclusao
   })
 }
