@@ -14,6 +14,7 @@ import { DataTableRowActions } from './data-table-row-actions';
 import { GetTasksByProjectResponse } from '@/app/api/projetos/get-tasks-by-project';
 import Priority from '@/components/priority';
 import Status from '@/components/status';
+import { useState } from 'react';
 
 export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
   {
@@ -33,16 +34,20 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Nome" />
     ),
-    cell: ({ row }) => (
-      <Dialog>
-        <DialogTrigger asChild>
-          <span className="cursor-pointer font-semibold">
-            {row.getValue('NOME')}
-          </span>
-        </DialogTrigger>
-        <TaskDetails projectId={row.getValue('PROJETO_ID')} taskId={row.getValue('ID')} />
-      </Dialog>
-    )
+    cell: ({ row }) => {
+      const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+      return (
+        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+          <DialogTrigger asChild>
+            <span className="cursor-pointer font-semibold">
+              {row.getValue('NOME')}
+            </span>
+          </DialogTrigger>
+          <TaskDetails open={isDetailsOpen} taskId={row.getValue('ID')} />
+        </Dialog>
+      )
+    }
   },
   {
     accessorKey: 'DESCRICAO',

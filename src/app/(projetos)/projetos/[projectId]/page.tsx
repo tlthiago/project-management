@@ -24,22 +24,28 @@ import { useQuery } from '@tanstack/react-query';
 import { GetTasksByProjectResponse, getTasksByProject } from '../../../api/projetos/get-tasks-by-project';
 import Status from '@/components/status';
 import Priority from '@/components/priority';
+import { useState } from 'react';
 
 export default function Project({
   params
 }: {
   params: { projectId: string };
+  
 }) {
-  const projectId = params.projectId;
+  const projectId: string = params.projectId;
+
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
-    queryFn: () => getProjectById({ projectId })
+    queryFn: () => getProjectById({ projectId }),
+    enabled: !!projectId
   })
 
   const { data: tasks = [] } = useQuery<GetTasksByProjectResponse[]>({
     queryKey: ['tasks', projectId],
-    queryFn: () => getTasksByProject({ projectId })
+    queryFn: () => getTasksByProject({ projectId }),
+    enabled: !!projectId
   })
 
   const dataInicioString: string = project?.DATA_INICIO || '';
@@ -60,13 +66,13 @@ export default function Project({
               <span className="text-sm">
                 {dataInicio.toLocaleDateString('pt-BR')} a {dataFim.toLocaleDateString('pt-BR')}
               </span>
-              <Dialog>
+              <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="icon">
                     <MoreVertical className="h-5 w-5" />
                   </Button>
                 </DialogTrigger>
-                <ProjectDetails projectId={project?.ID} />
+                <ProjectDetails open={isDetailsOpen} projectId={project?.ID} />
               </Dialog>
             </div>
           </CardTitle>

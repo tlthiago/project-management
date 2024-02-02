@@ -3,21 +3,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUp,
-  CalendarDays,
-  ChevronsUpDown,
-  X
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ArrowDown, ArrowRight, ArrowUp, CalendarDays } from 'lucide-react';
+import { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { useController, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { departments } from '@/app/api/data/data';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -45,57 +37,119 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { updateProject } from '@/app/api/projetos/update-project';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createTask } from '@/app/api/projetos/create-task';
-import { getProfile } from '@/app/api/get-profile';
 import { toast } from 'sonner';
+import { getProfile } from '@/app/api/get-profile';
 import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
 
-interface createTaskFormProps {
-  projectId?: string
+interface Member {
+  name: string;
 }
 
-export const taskSchema = z.object({
-  nome: z.string().min(1, { message: 'O nome da tarefa deve ser informado.' }),
+interface SubTeam {
+  name: string;
+  members?: Member[];
+}
+
+interface Team {
+  name: string;
+  subTeams?: SubTeam[];
+}
+
+interface Department {
+  name: string;
+  teams?: Team[];
+}
+
+const projectSchema = z.object({
+  nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }),
   datas: z.object({
-      from: z.coerce.date(),
-      to: z.coerce.date()
-    }),
-  descricao: z.string().min(1, { message: 'Descreva a tarefa.' }),
+    from: z.coerce.date(),
+    to: z.coerce.date()
+  }),
+  descricao: z.string().min(1, { message: 'Descreva o projeto.' }),
+  equipes: z
+    .array(z.string()).min(1, { message: 'Selecione pelo menos uma equipe' }),
   responsaveis: z
-    .array(z.string())
-    .min(1, { message: 'Selecione pelo menos um responsável.' }),
-  prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
+    .array(z.string()).min(1, { message: 'Selecione pelo menos um responsável' }),
+  prioridade: z.string()
 });
 
-export type TaskSchema = z.infer<typeof taskSchema>;
+type ProjectSchema = z.infer<typeof projectSchema>;
 
-export function CreateTaskForm( { projectId }: createTaskFormProps ) {
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: getProfile
-  });
+export interface UpdateProjectFormProps {
+  projectId: string;
+  open: boolean;
+}
 
+export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
     queryFn: () => getProjectById({ projectId }),
-    enabled: !!projectId
+    enabled: open
   })
 
+  const dataInicioFormatada = project?.DATA_INICIO && new Date(project.DATA_INICIO)
+
+  console.log(project?.DATA_INICIO);
+  console.log(project?.DATA_FIM);
+  console.log(dataInicioFormatada);
+
   const [range, setRange] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(new Date().setDate(new Date().getDate() + 1))
+    from: project?.DATA_INICIO ? new Date(project.DATA_INICIO) : new Date(),
+    to: project?.DATA_FIM ? new Date(project.DATA_FIM) : new Date(new Date().setDate(new Date().getDate() + 1))
   });
 
-  const membersList: string[] = project?.RESPONSAVEIS.split(', ') || [];
-  const [members, setMembers] = useState<string[]>([]);
+  const teamsArray: string[] = project?.EQUIPES.split(', ') || [];
+  const membersArray: string[] = project?.RESPONSAVEIS.split(', ') || []
+  
+  const [teams, setTeams] = useState<string[]>(teamsArray);
+  const [membersList, setMembersList] = useState<string[]>([]);
+  const [members, setMembers] = useState<string[]>(membersArray);
 
-  const { register, handleSubmit, control, formState: { isSubmitting, errors } } = useForm<TaskSchema>({
-    resolver: zodResolver(taskSchema),
+  const teamsList: string[] = departments.flatMap((department: Department) => {
+    return (
+      department.teams?.flatMap((team: Team) => {
+        return (
+          team.subTeams?.map((subTeam: SubTeam) => {
+            return subTeam?.name || '';
+          }) || []
+        );
+      }) || []
+    );
+  });
+
+  const handleTeamsChange = (selectedTeams: string[]) => {
+    const filteredMembers: string[] = departments.flatMap(
+      (department: Department) =>
+        department.teams?.flatMap(
+          (team: Team) =>
+            team.subTeams
+              ?.filter((subTeam: SubTeam) =>
+                selectedTeams.includes(subTeam.name || '')
+              )
+              .flatMap(
+                (subTeam: SubTeam) =>
+                  subTeam.members?.map((member: Member) => member.name || '') ||
+                  []
+              ) || []
+        ) || []
+    );
+
+    if (teams.length === 1) {
+      setMembers([]);
+    }
+
+    setMembersList(filteredMembers);
+  };
+
+  const { register, handleSubmit, control, formState: { isSubmitting, errors } } = useForm<ProjectSchema>({
+    resolver: zodResolver(projectSchema),
     defaultValues: {
       datas: {
-        from: new Date(),
-        to: new Date(new Date().setDate(new Date().getDate() + 1))
+        from: project?.DATA_INICIO ? new Date(project.DATA_INICIO) : new Date(),
+        to: project?.DATA_FIM ? new Date(project.DATA_FIM) : new Date(new Date().setDate(new Date().getDate() + 1))
       }
     }
   })
@@ -108,6 +162,11 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
   const fromError = errors.datas?.from;
   const toError = errors.datas?.to;
 
+  const { field: equipes } = useController({
+    name: 'equipes',
+    control
+  })
+
   const { field: responsaveis } = useController({
     name: 'responsaveis',
     control
@@ -118,27 +177,35 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
     control
   })
 
-  const { mutateAsync: createTaskFn } = useMutation({
-    mutationFn: createTask
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: getProfile
+  });
+
+  const { mutateAsync: updateProjectFn } = useMutation({
+    mutationFn: updateProject
   })
 
-  async function handleCreateTask(taskData: TaskSchema) {
+  async function handleUpdateProject(projectData: ProjectSchema) {
+    console.log(projectData);
+
     try {
-      await createTaskFn({
+      await updateProjectFn({
         projectId: projectId,
-        nome: taskData.nome,
-        dataInicio: format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }),
-        dataFim: format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
-        descricao: taskData.descricao,
-        responsaveis: taskData.responsaveis,
-        prioridade: taskData.prioridade,
+        nome: projectData.nome,
+        dataInicio: format(projectData.datas.from, 'yyyy-MM-dd', { locale: ptBR }),
+        dataFim: format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
+        descricao: projectData.descricao,
+        equipes: projectData.equipes,
+        responsaveis: projectData.responsaveis,
+        prioridade: projectData.prioridade,
         usuInclusao: profile ? profile?.codUsuario : 'TL_THIAGO'
       })
       
-      toast.success('Tarefa criada com sucesso!')
+      toast.success('Projeto criado com sucesso!')
       dialogCloseFn();
     } catch {
-      toast.error('Erro ao criar a tarefa, contate o administrador.')
+      toast.error('Erro ao criar o projeto, contate o administrador.')
       dialogCloseFn();
     }
   }
@@ -146,19 +213,20 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
   return (
     <DialogContent className="max-h-[90vh] overflow-auto">
       <DialogHeader>
-        <DialogTitle>Criar tarefa</DialogTitle>
+        <DialogTitle>Atualizar projeto</DialogTitle>
         <DialogDescription>
-          Preencha os campos abaixo com as informações da tarefa
+          Preencha os campos abaixo com as informações do projeto
         </DialogDescription>
       </DialogHeader>
-      <form onSubmit={handleSubmit(handleCreateTask)} className='space-y-8'>
+      <form onSubmit={handleSubmit(handleUpdateProject)} className='space-y-8'>
         <div>
-          <Label>Nome da tarefa</Label>
+          <Label>Nome do projeto</Label>
           <Input
             id="nome"
             type="text"
-            placeholder='Digite o nome da tarefa'
+            placeholder='Digite o nome do projeto'
             {...register('nome')}
+            value={project?.NOME}
           />
           {errors.nome && <span className='text-sm text-red-500 font-semibold'>{errors.nome.message}</span>}
         </div>
@@ -218,10 +286,31 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
           <Label>Descrição</Label>
           <Textarea
             id="descricao"
-            placeholder='Descreva a tarefa'
+            placeholder='Descreva o projeto'
             {...register('descricao')}
+            value={project?.DESCRICAO}
           />
           {errors.descricao && <span className='text-sm text-red-500 font-semibold'>{errors.descricao.message}</span>}
+        </div>
+
+        <div className='flex flex-col gap-1'>
+          <Label>Equipes</Label>
+          <MultiSelect
+            options={teamsList.map((subTeamName, index) => ({
+              value: subTeamName,
+              label: subTeamName,
+              key: index
+            }))}
+            selected={teams}
+            onChange={(selectedTeams) => {
+              equipes.onChange(selectedTeams);
+              setTeams(selectedTeams);
+              handleTeamsChange(selectedTeams);
+            }}
+            className="max-w-[462px]"
+            placeholder="Selecione a(s) equipe(s)"
+          />
+          {errors.equipes && <span className='text-sm text-red-500 font-semibold'>Selecione pelo menos uma equipe</span>}
         </div>
 
         <div className='flex flex-col gap-1'>
@@ -233,14 +322,19 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
               key: index
             }))}
             selected={members}
-            onChange={(membersSelected) => {
-              responsaveis.onChange(membersSelected);
-              setMembers(membersSelected);
+            onChange={(members) => {
+              responsaveis.onChange(members);
+              setMembers(members);
             }}
             className="w-96"
-            placeholder="Selecione os responsáveis"
-          />
-          {errors.responsaveis && <span className='text-sm text-red-500 font-semibold'>Selecione pelo menos um responsável</span>}
+            placeholder={
+              teams.length === 0
+                ? 'Selecione a(s) equipe(s)'
+                : 'Selecione os responsáveis'
+            }
+            disabled={teams.length === 0}
+            />
+            {errors.responsaveis && <span className='text-sm text-red-500 font-semibold'>Selecione pelo menos um responsável</span>}
         </div>
 
         <div className='flex flex-col gap-1'>
@@ -249,6 +343,7 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
             onValueChange={(prioridadeSelecionada) => {
               prioridade.onChange(prioridadeSelecionada);
             }}
+            value={project?.PRIORIDADE}
           >
             <SelectTrigger className="w-60">
               <SelectValue placeholder="Selecione a prioridade" />
@@ -285,11 +380,10 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
 
         <div className="flex justify-center">
           <DialogFooter>
-            <Button disabled={isSubmitting} type="submit">Criar tarefa</Button>
+            <Button disabled={isSubmitting} type="submit">Atualizar projeto</Button>
           </DialogFooter>
         </div>
       </form>
-      
     </DialogContent>
   );
 }

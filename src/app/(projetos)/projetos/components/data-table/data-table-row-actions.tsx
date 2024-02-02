@@ -12,7 +12,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
+  dialogCloseFn
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -21,7 +22,11 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 
-import { ProjectDetails } from '../project-details';
+import { useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { archiveProject } from '@/app/api/projetos/archive-project';
+import { UpdateProjectForm } from '../update-project-form';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -30,6 +35,26 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row
 }: DataTableRowActionsProps<TData>) {
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+  const { mutateAsync: archiveProjectFn } = useMutation({
+    mutationFn: archiveProject
+  })
+
+  async function handleSubmit(projectId: string) {
+    try {
+      await archiveProjectFn({
+        projectId: projectId
+      })
+      
+      toast.success('O projeto foi arquivado!')
+      dialogCloseFn();
+    } catch {
+      toast.error('Erro ao arquivar o projeto, contate o administrador.')
+      dialogCloseFn();
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -45,13 +70,13 @@ export function DataTableRowActions<TData>({
         <Link href={`projetos/${row.getValue('ID')}`}>
           <DropdownMenuItem>Abrir</DropdownMenuItem>
         </Link>
-        <Dialog>
+        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
           <DialogTrigger asChild>
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
               Editar
             </DropdownMenuItem>
           </DialogTrigger>
-          <ProjectDetails row={row} />
+          <UpdateProjectForm open={isDetailsOpen} projectId={row.getValue('ID')} />
         </Dialog>
         <Dialog>
           <DialogTrigger asChild>
@@ -68,7 +93,7 @@ export function DataTableRowActions<TData>({
               <DialogClose asChild>
                 <Button variant="secondary">Cancelar</Button>
               </DialogClose>
-              <Button variant="destructive" type="submit">
+              <Button variant="destructive" type="submit" onClick={() => handleSubmit(row.getValue('ID'))}>
                 Arquivar
               </Button>
             </DialogFooter>

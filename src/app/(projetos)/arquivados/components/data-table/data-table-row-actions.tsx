@@ -11,7 +11,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
+  dialogCloseFn
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -19,6 +20,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { useMutation } from '@tanstack/react-query';
+import { unarchiveProject } from '@/app/api/projetos/unarchive-project';
+import { toast } from 'sonner';
+import { deleteProject } from '@/app/api/projetos/delete-project';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -27,6 +32,42 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row
 }: DataTableRowActionsProps<TData>) {
+  const { mutateAsync: unarchiveProjectFn } = useMutation({
+    mutationFn: unarchiveProject
+  })
+
+  async function handleUnarchiveProject(projectId: string) {
+    try {
+      await unarchiveProjectFn({
+        projectId: projectId
+      })
+      
+      toast.success('O projeto foi restaurado!')
+      dialogCloseFn();
+    } catch {
+      toast.error('Erro ao restaurar o projeto, contate o administrador.')
+      dialogCloseFn();
+    }
+  }
+
+  const { mutateAsync: deleteProjectFn } = useMutation({
+    mutationFn: deleteProject
+  })
+
+  async function handleSubmit(projectId: string) {
+    try {
+      await deleteProjectFn({
+        projectId: projectId
+      })
+      
+      toast.success('O projeto foi excluído!')
+      dialogCloseFn();
+    } catch {
+      toast.error('Erro ao excluir o projeto, contate o administrador.')
+      dialogCloseFn();
+    }
+  }
+
   return (
     <Dialog>
       <DropdownMenu>
@@ -40,7 +81,7 @@ export function DataTableRowActions<TData>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem>Restaurar</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleUnarchiveProject(row.getValue('ID'))}>Restaurar</DropdownMenuItem>
           <DialogTrigger asChild>
             <DropdownMenuItem>Excluir</DropdownMenuItem>
           </DialogTrigger>
@@ -56,7 +97,7 @@ export function DataTableRowActions<TData>({
           <DialogClose asChild>
             <Button variant="secondary">Cancelar</Button>
           </DialogClose>
-          <Button variant="destructive" type="submit">
+          <Button variant="destructive" type="submit" onClick={() => handleSubmit(row.getValue('ID'))}>
             Excluir
           </Button>
         </DialogFooter>

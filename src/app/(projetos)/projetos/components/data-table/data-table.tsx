@@ -119,14 +119,6 @@ export function DataTable<TData, TValue>({
                   className="h-44 text-center"
                 >
                   <div>Nenhum projeto encontrado.</div>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="secondary" className="mt-5">
-                        Novo projeto
-                      </Button>
-                    </DialogTrigger>
-                    <CreateProjectForm />
-                  </Dialog>
                 </TableCell>
               </TableRow>
             )}

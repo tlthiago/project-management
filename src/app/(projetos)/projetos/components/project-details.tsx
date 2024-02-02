@@ -14,12 +14,14 @@ import Priority from '@/components/priority';
 
 interface ProjectDetailsProps {
   projectId?: string
+  open: boolean
 }
 
-export function ProjectDetails({ projectId }: ProjectDetailsProps) {
+export function ProjectDetails({ projectId, open }: ProjectDetailsProps) {
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
-    queryFn: () => getProjectById({ projectId })
+    queryFn: () => getProjectById({ projectId }),
+    enabled: open
   })
 
   const dataInicioString: string = project?.DATA_INICIO || '';

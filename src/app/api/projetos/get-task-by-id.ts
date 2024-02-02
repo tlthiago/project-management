@@ -1,7 +1,6 @@
 import { api } from '@/lib/axios';
 
 export interface GetTaskByIdParams {
-  projectId?: string;
   taskId?: string
 }
 
@@ -17,8 +16,8 @@ export interface GetTaskByIdResponse {
   PRIORIDADE: string;
 };
 
-export async function getTaskById({ projectId, taskId }: GetTaskByIdParams) {
-  const response = await api.get<GetTaskByIdResponse>(`/projects/${projectId}/tasks/${taskId}`)
+export async function getTaskById({ taskId }: GetTaskByIdParams) {
+  const response = await api.get<GetTaskByIdResponse>(`/projects/tasks/${taskId}`)
 
   return response.data;
 }

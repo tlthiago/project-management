@@ -17,14 +17,15 @@ import Status from '@/components/status';
 import Priority from '@/components/priority';
 
 interface TaskDetailsProps {
-  projectId: string;
   taskId: string;
+  open: boolean;
 }
 
-export function TaskDetails({ projectId, taskId }: TaskDetailsProps) {
+export function TaskDetails({ taskId, open }: TaskDetailsProps) {
   const { data: task } = useQuery<GetTaskByIdResponse>({
     queryKey: ['task', taskId],
-    queryFn: () => getTaskById({ projectId, taskId })
+    queryFn: () => getTaskById({ taskId }),
+    enabled: open
   })
 
   const dataInicioString: string = task?.DATA_INICIO || '';

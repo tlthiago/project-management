@@ -27,22 +27,17 @@ import {
   TableRow
 } from '@/components/ui/table';
 
-import { CreateTaskForm } from '../create-task-form-radix';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  // projectId: string;
-  // projectTeams: string[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  // projectId,
-  // projectTeams
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -129,17 +124,6 @@ export function DataTable<TData, TValue>({
                   className="h-44 text-center"
                 >
                   <div>Nenhuma tarefa encontrada.</div>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="secondary" className="mt-5">
-                        Nova tarefa
-                      </Button>
-                    </DialogTrigger>
-                    {/* <CreateTaskForm
-                      projectId={projectId}
-                      projectTeams={projectTeams}
-                    /> */}
-                  </Dialog>
                 </TableCell>
               </TableRow>
             )}

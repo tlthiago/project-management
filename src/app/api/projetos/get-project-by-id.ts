@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
 
 export interface GetProjectByIdParams {
-  projectId?: string
+  projectId: string
 }
 
 export interface GetProjectByIdResponse {
@@ -16,7 +16,9 @@ export interface GetProjectByIdResponse {
   PRIORIDADE: string;
 };
 
-export async function getProjectById({ projectId }: GetProjectByIdParams) {  
+export async function getProjectById({ projectId }: GetProjectByIdParams) {
+  console.log(projectId);
+  
   const response = await api.get<GetProjectByIdResponse>(`/projects/${projectId}`)
 
   return response.data;
