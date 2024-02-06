@@ -1,38 +1,35 @@
 import { api } from '@/lib/axios';
 
-export interface UpdateProjectBody {
-  projectId: string
+export interface UpdateTaskBody {
+  taskId: string
   nome: string
   dataInicio: string
   dataFim: string
   descricao: string
-  equipes: string[]
   responsaveis: string[]
   prioridade: string
   usuInclusao: string
 }
 
-export async function updateProject({
-  projectId,
+export async function updateTask({
+  taskId,
   nome,
   dataInicio,
   dataFim,
   descricao,
-  equipes,
   responsaveis,
   prioridade,
   usuInclusao
-}: UpdateProjectBody) {
-  const projectData = {
+}: UpdateTaskBody) {
+  const taskData = {
     nome,
     dataInicio,
     dataFim,
     descricao,
-    equipes,
     responsaveis,
     prioridade,
     usuInclusao
   };
   
-  await api.put(`/projects/${projectId}`, projectData);
+  await api.put(`/projects/tasks/${taskId}`, taskData);
 }

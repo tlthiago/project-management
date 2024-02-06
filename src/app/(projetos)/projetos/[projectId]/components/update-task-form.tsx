@@ -3,24 +3,31 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { ArrowDown, ArrowRight, ArrowUp, CalendarDays } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUp,
+  CalendarDays,
+  ChevronsUpDown,
+  X
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { departments } from '@/app/api/data/data';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
-  dialogCloseFn,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
+  dialogCloseFn
 } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { MultiSelect } from '@/components/ui/multi-select';
 import {
@@ -46,54 +53,42 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { updateProject } from '@/app/api/projetos/update-project';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import { getProfile } from '@/app/api/get-profile';
+import { toast } from 'sonner';
+import { GetTaskByIdResponse, getTaskById } from '@/app/api/projetos/get-task-by-id';
+import { updateTask } from '@/app/api/projetos/update-task';
 import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
 
-interface Member {
-  name: string;
-}
-
-interface SubTeam {
-  name: string;
-  members?: Member[];
-}
-
-interface Team {
-  name: string;
-  subTeams?: SubTeam[];
-}
-
-interface Department {
-  name: string;
-  teams?: Team[];
-}
-
-const formSchema = z.object({
-  nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }),
+export const taskSchema = z.object({
+  nome: z.string().min(1, { message: 'O nome da tarefa deve ser informado.' }),
   datas: z.object({
-    from: z.coerce.date(),
-    to: z.coerce.date()
-  }),
-  descricao: z.string().min(1, { message: 'Descreva o projeto.' }),
-  equipes: z
-    .array(z.string()).min(1, { message: 'Selecione pelo menos uma equipe' }),
+      from: z.coerce.date(),
+      to: z.coerce.date()
+    }),
+  descricao: z.string().min(1, { message: 'Descreva a tarefa.' }),
   responsaveis: z
-    .array(z.string()).min(1, { message: 'Selecione pelo menos um responsável' }),
-  prioridade: z.string()
+    .array(z.string())
+    .min(1, { message: 'Selecione pelo menos um responsável.' }),
+  prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
 });
 
-export interface UpdateProjectFormProps {
+interface updateTaskFormProps {
   projectId: string;
+  taskId: string;
   open: boolean;
 }
 
-export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
+export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps ) {
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
     queryFn: () => getProjectById({ projectId }),
+    enabled: open
+  })
+  
+  const { data: task } = useQuery<GetTaskByIdResponse>({
+    queryKey: ['task', taskId],
+    queryFn: () => getTaskById({ taskId }),
     enabled: open
   })
 
@@ -105,97 +100,54 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
   const queryClient = useQueryClient();
 
   const [range, setRange] = useState<DateRange | undefined>();
-  const [teams, setTeams] = useState<string[]>([]);
+  const membersList: string[] = project?.RESPONSAVEIS.split(', ') || [];
   const [members, setMembers] = useState<string[]>([]);
-  const [membersList, setMembersList] = useState<string[]>([]);
-  
+
   useEffect(() => {
-    setTeams(project?.EQUIPES.split('; ') || [])
-    setMembers(project?.RESPONSAVEIS.split(', ') || [])
-    handleTeamsChange(project?.EQUIPES.split('; ') || [])
-  }, [project])
-
-  const teamsList: string[] = departments.flatMap((department: Department) => {
-    return (
-      department.teams?.flatMap((team: Team) => {
-        return (
-          team.subTeams?.map((subTeam: SubTeam) => {
-            return subTeam?.name || '';
-          }) || []
-        );
-      }) || []
-    );
-  });
-
-  const handleTeamsChange = (selectedTeams: string[]) => {
-    const filteredMembers: string[] = departments.flatMap(
-      (department: Department) =>
-        department.teams?.flatMap(
-          (team: Team) =>
-            team.subTeams
-              ?.filter((subTeam: SubTeam) =>
-                selectedTeams.includes(subTeam.name || '')
-              )
-              .flatMap(
-                (subTeam: SubTeam) =>
-                  subTeam.members?.map((member: Member) => member.name || '') ||
-                  []
-              ) || []
-        ) || []
-    );
-
-    const removedTeam = teams.filter(team => !selectedTeams.includes(team));
-    if (removedTeam.length > 0) {
-      const updatedMembers = members.filter(member => filteredMembers.includes(member));
-      setMembers(updatedMembers);
-    }
-
-    setMembersList(filteredMembers);
-  };
+    setMembers(task?.RESPONSAVEIS.split(', ') || [])
+  }, [task])
 
   const dataInicio: string = new Date().toString();
   const dataFim: string = new Date(new Date().setDate(new Date().getDate() + 1)).toString();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof taskSchema>>({
+    resolver: zodResolver(taskSchema),
     values: {
-      nome: project?.NOME ?? '',
+      nome: task?.NOME ?? '',
       datas: {
-        from: project?.DATA_INICIO ? new Date(project?.DATA_INICIO) : new Date(dataInicio),
-        to: project?.DATA_FIM ? new Date(project?.DATA_FIM) : new Date(dataFim)
+        from: task?.DATA_INICIO ? new Date(task?.DATA_INICIO) : new Date(dataInicio),
+        to: task?.DATA_FIM ? new Date(task?.DATA_FIM) : new Date(dataFim)
       },
-      descricao: project?.DESCRICAO ?? '',
-      equipes: project?.EQUIPES.split('; ') || [],
-      responsaveis: project?.RESPONSAVEIS.split(', ') || [],
-      prioridade: project?.PRIORIDADE || ''
+      descricao: task?.DESCRICAO ?? '',
+      responsaveis: task?.RESPONSAVEIS.split(', ') || [],
+      prioridade: task?.PRIORIDADE || ''
     }
   })
 
-  const { mutateAsync: updateProjectFn } = useMutation({
-    mutationFn: updateProject,
+  const { mutateAsync: updateTaskFn } = useMutation({
+    mutationFn: updateTask,
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     }
   })
 
-  async function onSubmit(projectData: z.infer<typeof formSchema>) {
+  async function onSubmit(taskData: z.infer<typeof taskSchema>) {
     try {
-      await updateProjectFn({
-        projectId: projectId,
-        nome: projectData.nome,
-        dataInicio: format(projectData.datas.from, 'yyyy-MM-dd', { locale: ptBR }),
-        dataFim: format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
-        descricao: projectData.descricao,
-        equipes: projectData.equipes,
-        responsaveis: projectData.responsaveis,
-        prioridade: projectData.prioridade,
+      await updateTaskFn({
+        taskId: taskId,
+        nome: taskData.nome,
+        dataInicio: format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }),
+        dataFim: format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
+        descricao: taskData.descricao,
+        responsaveis: taskData.responsaveis,
+        prioridade: taskData.prioridade,
         usuInclusao: profile ? profile?.codUsuario : 'TL_THIAGO'
       })
       
-      toast.success('Projeto atualizado com sucesso!');
+      toast.success('Tarefa atualizada com sucesso!');
       dialogCloseFn();
     } catch {
-      toast.error('Erro ao atualizar o projeto, contate o administrador.');
+      toast.error('Erro ao atualizar a tarefa, contate o administrador.');
       dialogCloseFn();
     }
   }
@@ -217,7 +169,7 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
               <FormItem>
                 <FormLabel>Nome</FormLabel>
                 <FormControl>
-                  <Input placeholder="Digite o nome do projeto" {...field} />
+                  <Input placeholder="Digite o nome da tarefa" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -291,35 +243,7 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
               <FormItem>
                 <FormLabel>Descrição</FormLabel>
                 <FormControl>
-                  <Textarea placeholder='Descreva o projeto' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="equipes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Equipes</FormLabel>
-                <FormControl>
-                  <MultiSelect 
-                    options={teamsList.map((subTeamName, index) => ({
-                      value: subTeamName,
-                      label: subTeamName,
-                      key: index
-                    }))}
-                    selected={teams}
-                    onChange={(selectedTeams) => {
-                      field.onChange(selectedTeams);
-                      setTeams(selectedTeams);
-                      handleTeamsChange(selectedTeams);
-                    }}
-                    className="max-w-[462px]"
-                    placeholder="Selecione a(s) equipe(s)"
-                  />
+                  <Textarea placeholder='Descreva a tarefa' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -345,12 +269,7 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
                       setMembers(members);
                     }}
                     className="w-96"
-                    placeholder={
-                      teams.length === 0
-                        ? 'Selecione a(s) equipe(s)'
-                        : 'Selecione os responsáveis'
-                    }
-                    disabled={teams.length === 0}
+                    placeholder="Selecione os responsáveis"
                   />
                 </FormControl>
                 <FormMessage />
@@ -409,7 +328,7 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
 
           <div className="flex justify-center">
             <DialogFooter>
-              <Button disabled={form.formState.isSubmitting} type="submit">Atualizar projeto</Button>
+              <Button disabled={form.formState.isSubmitting} type="submit">Atualizar tarefa</Button>
             </DialogFooter>
           </div>
         </form>

@@ -12,8 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  dialogCloseFn
+  DialogTrigger
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -22,7 +21,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { archiveProject } from '@/app/api/projetos/archive-project';
@@ -35,10 +34,15 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row
 }: DataTableRowActionsProps<TData>) {
+  const queryClient = useQueryClient();
+  
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const { mutateAsync: archiveProjectFn } = useMutation({
-    mutationFn: archiveProject
+    mutationFn: archiveProject,
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    }
   })
 
   async function handleSubmit(projectId: string) {
@@ -47,11 +51,9 @@ export function DataTableRowActions<TData>({
         projectId: projectId
       })
       
-      toast.success('O projeto foi arquivado!')
-      dialogCloseFn();
+      toast.success('O projeto foi arquivado!');
     } catch {
-      toast.error('Erro ao arquivar o projeto, contate o administrador.')
-      dialogCloseFn();
+      toast.error('Erro ao arquivar o projeto, contate o administrador.');
     }
   }
 
@@ -93,9 +95,11 @@ export function DataTableRowActions<TData>({
               <DialogClose asChild>
                 <Button variant="secondary">Cancelar</Button>
               </DialogClose>
-              <Button variant="destructive" type="submit" onClick={() => handleSubmit(row.getValue('ID'))}>
-                Arquivar
-              </Button>
+              <DialogClose asChild>
+                <Button variant="destructive" type="submit" onClick={() => handleSubmit(row.getValue('ID'))}>
+                  Arquivar
+                </Button>
+              </DialogClose>
             </DialogFooter>
           </DialogContent>
         </Dialog>

@@ -16,8 +16,6 @@ import {
 } from '@tanstack/react-table';
 import * as React from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -68,7 +66,7 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedUniqueValues: getFacetedUniqueValues()
   });
 
   return (
@@ -115,9 +113,9 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-44 text-center"
+                  className="h-24 text-center"
                 >
-                  <div>Nenhum projeto encontrado.</div>
+                  Nenhuma projeto encontrado.
                 </TableCell>
               </TableRow>
             )}

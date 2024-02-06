@@ -45,7 +45,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createTask } from '@/app/api/projetos/create-task';
 import { getProfile } from '@/app/api/get-profile';
 import { toast } from 'sonner';
@@ -81,6 +81,8 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
     queryFn: () => getProjectById({ projectId }),
     enabled: !!projectId
   })
+
+  const queryClient = useQueryClient();
 
   const [range, setRange] = useState<DateRange | undefined>({
     from: new Date(),
@@ -119,7 +121,10 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
   })
 
   const { mutateAsync: createTaskFn } = useMutation({
-    mutationFn: createTask
+    mutationFn: createTask,
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    }
   })
 
   async function handleCreateTask(taskData: TaskSchema) {
@@ -135,10 +140,10 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
         usuInclusao: profile ? profile?.codUsuario : 'TL_THIAGO'
       })
       
-      toast.success('Tarefa criada com sucesso!')
+      toast.success('Tarefa criada com sucesso!');
       dialogCloseFn();
     } catch {
-      toast.error('Erro ao criar a tarefa, contate o administrador.')
+      toast.error('Erro ao criar a tarefa, contate o administrador.');
       dialogCloseFn();
     }
   }

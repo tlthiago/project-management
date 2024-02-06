@@ -38,7 +38,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { createProject } from '@/app/api/projetos/create-project';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getProfile } from '@/app/api/get-profile';
 
@@ -78,6 +78,8 @@ const projectSchema = z.object({
 type ProjectSchema = z.infer<typeof projectSchema>;
 
 export function CreateProjectForm() {
+  const queryClient = useQueryClient();
+  
   const [range, setRange] = useState<DateRange | undefined>({
     from: new Date(),
     to: new Date(new Date().setDate(new Date().getDate() + 1))
@@ -116,8 +118,10 @@ export function CreateProjectForm() {
         ) || []
     );
 
-    if (teams.length === 1) {
-      setMembers([]);
+    const removedTeam = teams.filter(team => !selectedTeams.includes(team));
+    if (removedTeam.length > 0) {
+      const updatedMembers = members.filter(member => filteredMembers.includes(member));
+      setMembers(updatedMembers);
     }
 
     setMembersList(filteredMembers);
@@ -162,7 +166,10 @@ export function CreateProjectForm() {
   });
 
   const { mutateAsync: createProjectFn } = useMutation({
-    mutationFn: createProject
+    mutationFn: createProject,
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    }
   })
 
   async function handleCreateProject(projectData: ProjectSchema) {
@@ -180,10 +187,10 @@ export function CreateProjectForm() {
         usuInclusao: profile ? profile?.codUsuario : 'TL_THIAGO'
       })
       
-      toast.success('Projeto criado com sucesso!')
+      toast.success('Projeto criado com sucesso!');
       dialogCloseFn();
     } catch {
-      toast.error('Erro ao criar o projeto, contate o administrador.')
+      toast.error('Erro ao criar o projeto, contate o administrador.');
       dialogCloseFn();
     }
   }
