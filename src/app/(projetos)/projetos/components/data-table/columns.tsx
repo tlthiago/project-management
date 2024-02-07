@@ -3,12 +3,9 @@
 import { ColumnDef } from '@tanstack/react-table';
 import Link from 'next/link';
 
-import { Project } from '@/app/api/data/schema';
 import { GetProjectsResponse } from '@/app/api/projetos/get-projects';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { UsersAvatar } from '@/components/users-avatar';
 
-import { ProjectDetails } from '../project-details';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 import Status from '@/components/status';

@@ -17,8 +17,6 @@ export interface GetProjectByIdResponse {
 };
 
 export async function getProjectById({ projectId }: GetProjectByIdParams) {
-  console.log(projectId);
-  
   const response = await api.get<GetProjectByIdResponse>(`/projects/${projectId}`)
 
   return response.data;

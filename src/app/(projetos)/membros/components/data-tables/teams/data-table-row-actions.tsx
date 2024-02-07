@@ -20,9 +20,10 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { unarchiveProject } from '@/app/api/projetos/unarchive-project';
 import { toast } from 'sonner';
-import { deleteProject } from '@/app/api/projetos/delete-project';
+import { deleteTeam } from '@/app/api/departments/delete-team';
+import { UpdateTeamForm } from '../../update-team-form';
+import { useState } from 'react';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -31,43 +32,28 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row
 }: DataTableRowActionsProps<TData>) {
+  const department: string = 'TECNOLOGIA DA INFORMACAO';
+
+  const [isUpdateTeamOpen, setIsUpdateTeamOpen] = useState(false);
+
   const queryClient = useQueryClient();
-
-  const { mutateAsync: unarchiveProjectFn } = useMutation({
-    mutationFn: unarchiveProject,
+  
+  const { mutateAsync: deleteTeamFn } = useMutation({
+    mutationFn: deleteTeam,
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['archived-projects'] });
+      queryClient.invalidateQueries({ queryKey: ['teams', department] });
     }
   })
 
-  async function handleUnarchiveProject(projectId: string) {
+  async function handleSubmit(teamId: string) {
     try {
-      await unarchiveProjectFn({
-        projectId: projectId
+      await deleteTeamFn({
+        teamId: teamId
       })
       
-      toast.success('O projeto foi restaurado!');
+      toast.success('A equipe foi excluída!');
     } catch {
-      toast.error('Erro ao restaurar o projeto, contate o administrador.');
-    }
-  }
-
-  const { mutateAsync: deleteProjectFn } = useMutation({
-    mutationFn: deleteProject,
-    onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['archived-projects'] });
-    }
-  })
-
-  async function handleSubmit(projectId: string) {
-    try {
-      await deleteProjectFn({
-        projectId: projectId
-      })
-      
-      toast.success('O projeto foi excluído!');
-    } catch {
-      toast.error('Erro ao excluir o projeto, contate o administrador.');
+      toast.error('Erro ao excluir a equipe, contate o administrador.');
     }
   }
 
@@ -84,7 +70,12 @@ export function DataTableRowActions<TData>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem onClick={() => handleUnarchiveProject(row.getValue('ID'))}>Restaurar</DropdownMenuItem>
+          <Dialog open={isUpdateTeamOpen} onOpenChange={setIsUpdateTeamOpen}>
+            <DialogTrigger asChild>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Editar</DropdownMenuItem>
+            </DialogTrigger>
+            <UpdateTeamForm open={isUpdateTeamOpen} teamId={row.getValue('ID')} />
+          </Dialog>
           <DialogTrigger asChild>
             <DropdownMenuItem>Excluir</DropdownMenuItem>
           </DialogTrigger>
@@ -94,7 +85,7 @@ export function DataTableRowActions<TData>({
         <DialogHeader>
           <DialogTitle>Excluir projeto</DialogTitle>
         </DialogHeader>
-        Tem certeza que deseja excluir o projeto? Essa ação não pode ser
+        Tem certeza que deseja excluir a equipe? Essa ação não pode ser
         desfeita.
         <DialogFooter>
           <DialogClose asChild>

@@ -3,7 +3,6 @@
 import { Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
 
-import { priorities } from '@/app/api/data/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -23,20 +22,20 @@ export function DataTableToolbar<TData>({
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         <Input
-          placeholder="Buscar projetos..."
+          placeholder="Buscar equipes..."
           value={(table.getColumn('NOME')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
             table.getColumn('NOME')?.setFilterValue(event.target.value)
           }
           className="h-8 w-64"
         />
-        {table.getColumn('PRIORIDADE') && (
+        {/* {table.getColumn('PRIORIDADE') && (
           <DataTableFacetedFilter
             column={table.getColumn('PRIORIDADE')}
             title="Prioridade"
             options={priorities}
           />
-        )}
+        )} */}
         {isFiltered && (
           <Button
             variant="ghost"

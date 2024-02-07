@@ -99,7 +99,8 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
-    queryFn: getProfile
+    queryFn: getProfile,
+    enabled: open
   });
 
   const queryClient = useQueryClient();
