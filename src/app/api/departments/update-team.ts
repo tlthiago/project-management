@@ -1,23 +1,36 @@
 import { api } from '@/lib/axios';
 
+interface memberData {
+  chapa: string,
+  memberName: string
+}
+
 export interface UpdateTeamBody {
   teamId: string
-  nome: string
-  membros: string[]
+  teamName: string
+  department: string
+  removed?: memberData[]
+  added?: memberData[]
   usuInclusao: string
 }
 
 export async function updateTeam({
   teamId,
-  nome,
-  membros,
+  teamName,
+  department,
+  removed,
+  added,
   usuInclusao
 }: UpdateTeamBody) {
   const teamData = {
-    nome,
-    membros,
+    teamName,
+    department,
+    removed,
+    added,
     usuInclusao
   };
-    
-  await api.put(`/team/${teamId}`, teamData);
+
+  console.log(teamData);
+  
+  await api.put(`/teams/${teamId}`, teamData);
 }

@@ -7,9 +7,12 @@ export interface GetMembersByDepartmentBody {
 export interface GetMembersByDepartmentResponse {
   NOME: string;
   CHAPA: string;
-  LOJA: string;
+  LOJA: number;
   SETOR: string;
   CARGO: string;
+  EQUIPE_ID: number;
+  EQUIPE: string;
+  FUNCAO: string;
 };
 
 export async function getMembersByDepartment({ department }: GetMembersByDepartmentBody) {

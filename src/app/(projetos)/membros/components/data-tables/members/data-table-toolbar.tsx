@@ -54,6 +54,26 @@ export function DataTableToolbar<TData>({
     })
   })
 
+  const funcaoList: { label: string, value: string}[] = [];
+  members.forEach(member => {
+    let funcao: string = '';
+
+    switch (member.FUNCAO) {
+      case 'M':
+        funcao = 'Membro';
+        break;
+      default:
+        funcao = 'Membro';
+    }
+
+    if (!funcaoList.some(funcao => funcao.value === member.FUNCAO)) {
+      funcaoList.push({
+        label: funcao,
+        value: member.FUNCAO
+      })
+    }
+  })
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
@@ -83,7 +103,7 @@ export function DataTableToolbar<TData>({
           <DataTableFacetedFilter
             column={table.getColumn('FUNCAO')}
             title="Função"
-            options={priorities}
+            options={funcaoList}
           />
         )}
         {isFiltered && (

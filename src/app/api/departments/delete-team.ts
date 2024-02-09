@@ -1,12 +1,12 @@
 import { api } from '@/lib/axios';
 
-export interface DeleteTeamBody {
+export interface DeleteTeamParams {
   teamId: string
 }
 
 export async function deleteTeam({
   teamId,
-}: DeleteTeamBody) {
+}: DeleteTeamParams) {
     
-  await api.delete(`/team/${teamId}`);
+  await api.delete(`/teams/${teamId}`);
 }

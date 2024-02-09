@@ -40,7 +40,8 @@ export function DataTableTeams<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
-      'ID': false
+      'ID': false,
+      'CHAPAS': false
     });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -115,7 +116,7 @@ export function DataTableTeams<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Nenhuma projeto encontrado.
+                  Nenhuma equipe encontrada.
                 </TableCell>
               </TableRow>
             )}

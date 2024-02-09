@@ -1,24 +1,27 @@
 import { api } from '@/lib/axios';
 
 export interface CreateTeamBody {
-  nome: string
-  setor: string
-  membros: string[]
+  teamName: string
+  department: string
+  chapas: string[]
+  members: string[]
   usuInclusao: string
 }
 
 export async function createTeam({
-  nome,
-  setor,
-  membros,
+  teamName,
+  department,
+  chapas,
+  members,
   usuInclusao
 }: CreateTeamBody) {
   const teamData = {
-    nome,
-    setor,
-    membros,
+    teamName,
+    department,
+    chapas,
+    members,
     usuInclusao
   };
-    
-  await api.post("/team", teamData);
+  
+  await api.post("/teams/create", teamData);
 }

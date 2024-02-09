@@ -9,6 +9,7 @@ export interface GetTeamByIdResponse {
   NOME: string;
   SETOR: string;
   MEMBROS: string;
+  CHAPAS: string;
   USU_INCLUSAO: string;
   DATA_INCLUSAO: string;
 };

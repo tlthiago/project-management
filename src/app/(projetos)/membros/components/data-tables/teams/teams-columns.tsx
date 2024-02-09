@@ -2,7 +2,6 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { UsersAvatar } from '@/components/users-avatar';
 
 import { DataTableColumnHeader } from './data-table-column-header';
@@ -34,6 +33,17 @@ export const teamsColumns: ColumnDef<GetTeamsByDepartmentResponse>[] = [
     cell: ({ row }) => {
       return <UsersAvatar members={row.getValue('MEMBROS')} />;
     }
+  },
+  {
+    accessorKey: 'CHAPAS',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Chapas" />
+    ),
+    cell: ({ row }) => {
+      return <span className='font-semibold'>{row.getValue('CHAPAS')}</span>;
+    },
+    enableSorting: false,
+    enableHiding: false
   },
   {
     id: 'actions',

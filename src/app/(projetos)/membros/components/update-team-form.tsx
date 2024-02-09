@@ -65,9 +65,11 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
   const membersList: string[] = members.map(member => member.NOME);
 
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+
+  const teamMembers: string[] = team?.MEMBROS.split(', ') || [];
   
   useEffect(() => {
-    setSelectedMembers(team?.MEMBROS.split(', ') || [])
+    setSelectedMembers(teamMembers)
   }, [team])
 
   const form = useForm<z.infer<typeof teamSchema>>({
@@ -78,6 +80,36 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
     }
   });
 
+  const removed: { chapa: string, memberName: string }[] = [];
+
+  teamMembers.forEach(teamMember => {
+    if (!selectedMembers.includes(teamMember)) {
+      members.map(member => {
+        if (member.NOME === teamMember) {
+          removed.push({
+            chapa: member.CHAPA,
+            memberName: teamMember
+          })
+        }
+      })
+    }
+  })
+
+  const added: { chapa: string, memberName: string }[] = [];
+
+  selectedMembers.forEach(selectedMember => {
+    if (!teamMembers.includes(selectedMember)) {
+      members.map(member => {
+        if (member.NOME === selectedMember) {
+          added.push({
+            chapa: member.CHAPA,
+            memberName: selectedMember
+          })
+        }
+      })
+    }
+  })
+  
   const { mutateAsync: updateTeamFn } = useMutation({
     mutationFn: updateTeam,
     onSuccess() {
@@ -89,8 +121,10 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
     try {
       await updateTeamFn({
         teamId: teamId,
-        nome: teamData.nome,
-        membros: teamData.membros,
+        teamName: teamData.nome,
+        department: department,
+        removed: removed && removed.length > 0 ? removed : undefined,
+        added: added && added.length > 0 ? added : undefined,
         usuInclusao: profile ? profile?.codUsuario : 'TL_THIAGO'
       })
 
@@ -129,7 +163,7 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
           name="membros"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Responsáveis</FormLabel>
+              <FormLabel>Membros</FormLabel>
               <FormControl>
                 <MultiSelect
                   options={membersList.map((memberName, index) => ({
@@ -153,7 +187,10 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
 
         <div className="flex justify-center">
           <DialogFooter>
-            <Button disabled={form.formState.isSubmitting} type="submit">Atualizar equipe</Button>
+            <Button disabled={(
+              form.formState.isSubmitting,
+              !form.formState.isDirty
+            )} type="submit">Atualizar equipe</Button>
           </DialogFooter>
         </div>
 

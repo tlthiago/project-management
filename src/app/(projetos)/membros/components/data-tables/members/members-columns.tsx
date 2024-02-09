@@ -2,14 +2,11 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 import { GetMembersByDepartmentResponse } from '@/app/api/departments/get-members-by-department';
 import { UserAvatar } from '@/components/user-avatar';
-import { getTeamsByDepartment, GetTeamsByDepartmentResponse } from '@/app/api/departments/get-teams-by-department';
-import { useQuery } from '@tanstack/react-query';
+import { Button } from "@/components/ui/button";
 
 export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
   {
@@ -51,34 +48,30 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
     enableHiding: false
   },
   {
+    accessorKey: 'EQUIPE_ID',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Equipes" />
+    ),
+    cell: ({ row }) => {
+      return <span>{row.getValue('EQUIPE_ID')}</span>
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+    enableSorting: false,
+    enableHiding: false
+  },
+  {
     accessorKey: 'EQUIPE',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Equipes" />
     ),
     cell: ({ row }) => {
-      const department = 'TECNOLOGIA DA INFORMACAO';
-
-      const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
-        queryKey: ['teams', department],
-        queryFn: () => getTeamsByDepartment({ department })
-      });
-
-      for (const team of teams) {
-        if (team.MEMBROS.includes(row.getValue('NOME'))) {
-          return <span>{ team.NOME }</span>;
-        }
-      }
-      
-      return '';
+      return <span>{row.getValue('EQUIPE')}</span>
     },
     filterFn: (row, id, value) => {
-      // console.log(row);
-      // console.log(id);
-      // console.log(value);
-
       return value.includes(row.getValue(id));
     },
-    
   },
   {
     accessorKey: 'FUNCAO',
@@ -86,7 +79,17 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Função" />
     ),
     cell: ({ row }) => {
-      return <span>Membro</span>;
+      let funcao: string = '';
+      
+      switch (row.getValue('FUNCAO')) {
+        case 'M':
+          funcao = 'Membro'
+          break;
+        default:
+          funcao = 'Membro'
+      }
+
+      return <Button variant="outline">{funcao}</Button>
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));

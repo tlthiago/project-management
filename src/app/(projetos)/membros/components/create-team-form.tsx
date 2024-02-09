@@ -29,8 +29,8 @@ import { createTeam } from "@/app/api/departments/create-team";
 import { toast } from "sonner";
 
 const teamSchema = z.object({
-  nome: z.string().min(1, { message: 'O nome da equipe deve ser informado.' }),
-  membros: z.array(z.string()).min(1, { message: 'Selecione pelo menos um membro. '})
+  teamName: z.string().min(1, { message: 'O nome da equipe deve ser informado.' }),
+  members: z.array(z.string()).min(1, { message: 'Selecione pelo menos um membro. '})
 })
 
 interface CreateTeamFormProps {
@@ -50,14 +50,26 @@ export function CreateTeamForm({ department }: CreateTeamFormProps) {
 
   const queryClient = useQueryClient();
 
-  const membersList: string[] = members.map(member => member.NOME);
+  const membersList: string[] = members
+    .filter(member => member.EQUIPE == 'Não alocado')
+    .map(member => member.NOME)
 
   const [selectedMembers, setSelectedMembers] = useState([]);
+
+  const chapas: string[] = [];
+
+  selectedMembers.map((selectedMember) => {
+    members.map(member => {
+      if (member.NOME === selectedMember) {
+        chapas.push(member.CHAPA)
+      }
+    })
+  })
 
   const form = useForm<z.infer<typeof teamSchema>>({
     resolver: zodResolver(teamSchema),
     defaultValues: {
-      nome: ""
+      teamName: ""
     }
   });
 
@@ -67,15 +79,17 @@ export function CreateTeamForm({ department }: CreateTeamFormProps) {
       setSelectedMembers([]);
       form.reset();
       queryClient.invalidateQueries({ queryKey: ['teams', department] });
+      queryClient.invalidateQueries({ queryKey: ['members', department] });
     }
   })
   
   async function onSubmit(teamData: z.infer<typeof teamSchema>) {
     try {
       await createTeamFn({
-        nome: teamData.nome,
-        setor: department,
-        membros: teamData.membros,
+        teamName: teamData.teamName,
+        department: department,
+        chapas: chapas,
+        members: teamData.members,
         usuInclusao: profile ? profile?.codUsuario : 'TL_THIAGO'
       })
 
@@ -97,7 +111,7 @@ export function CreateTeamForm({ department }: CreateTeamFormProps) {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="nome"
+          name="teamName"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Nome</FormLabel>
@@ -111,10 +125,10 @@ export function CreateTeamForm({ department }: CreateTeamFormProps) {
         
         <FormField
           control={form.control}
-          name="membros"
+          name="members"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Responsáveis</FormLabel>
+              <FormLabel>Membros</FormLabel>
               <FormControl>
                 <MultiSelect
                   options={membersList.map((memberName, index) => ({

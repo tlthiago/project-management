@@ -19,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { deleteTeam } from '@/app/api/departments/delete-team';
 import { UpdateTeamForm } from '../../update-team-form';
@@ -35,13 +35,14 @@ export function DataTableRowActions<TData>({
   const department: string = 'TECNOLOGIA DA INFORMACAO';
 
   const [isUpdateTeamOpen, setIsUpdateTeamOpen] = useState(false);
-
+  
   const queryClient = useQueryClient();
   
   const { mutateAsync: deleteTeamFn } = useMutation({
     mutationFn: deleteTeam,
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['teams', department] });
+      queryClient.invalidateQueries({ queryKey: ['members', department] });
     }
   })
 
