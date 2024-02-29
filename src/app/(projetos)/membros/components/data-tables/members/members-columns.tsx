@@ -6,7 +6,7 @@ import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 import { GetMembersByDepartmentResponse } from '@/app/api/departments/get-members-by-department';
 import { UserAvatar } from '@/components/user-avatar';
-import { Button } from "@/components/ui/button";
+import UpdateMemberRole from '../../update-member-role';
 
 export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
   {
@@ -79,24 +79,14 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Função" />
     ),
     cell: ({ row }) => {
-      let funcao: string = '';
-      
-      switch (row.getValue('FUNCAO')) {
-        case 'M':
-          funcao = 'Membro'
-          break;
-        default:
-          funcao = 'Membro'
-      }
-
-      return <Button variant="outline">{funcao}</Button>
+      return <UpdateMemberRole chapa={row.getValue('CHAPA')} role={row.getValue('FUNCAO')} />
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     }
   },
-  {
-    id: 'actions',
-    cell: ({ row }) => <DataTableRowActions row={row} />
-  }
+  // {
+  //   id: 'actions',
+  //   cell: ({ row }) => <DataTableRowActions row={row} />
+  // }
 ];

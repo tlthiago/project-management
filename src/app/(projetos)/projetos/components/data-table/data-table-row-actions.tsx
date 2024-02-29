@@ -21,11 +21,13 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { archiveProject } from '@/app/api/projetos/archive-project';
 import { UpdateProjectForm } from '../update-project-form';
+import { useSession } from 'next-auth/react';
+import { GetMemberByChapaResponse, getMemberByChapa } from '@/app/api/departments/get-member-by-chapa';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -36,14 +38,23 @@ export function DataTableRowActions<TData>({
 }: DataTableRowActionsProps<TData>) {
   const queryClient = useQueryClient();
   
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const { data: session } = useSession();
+  const chapa = session?.user.CHAPA ?? '';
+
+  const { data: member } = useQuery<GetMemberByChapaResponse>({
+    queryKey: ['member', chapa],
+    queryFn: () => getMemberByChapa({ chapa }),
+    enabled: !!chapa
+  });
 
   const { mutateAsync: archiveProjectFn } = useMutation({
     mutationFn: archiveProject,
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     }
-  })
+  });
+
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   async function handleSubmit(projectId: string) {
     try {
@@ -72,37 +83,41 @@ export function DataTableRowActions<TData>({
         <Link href={`projetos/${row.getValue('ID')}`}>
           <DropdownMenuItem>Abrir</DropdownMenuItem>
         </Link>
-        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-          <DialogTrigger asChild>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              Editar
-            </DropdownMenuItem>
-          </DialogTrigger>
-          <UpdateProjectForm open={isDetailsOpen} projectId={row.getValue('ID')} />
-        </Dialog>
-        <Dialog>
-          <DialogTrigger asChild>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              Arquivar
-            </DropdownMenuItem>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Arquivar projeto</DialogTitle>
-            </DialogHeader>
-            Tem certeza que deseja arquivar o projeto?
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="secondary">Cancelar</Button>
-              </DialogClose>
-              <DialogClose asChild>
-                <Button variant="destructive" type="submit" onClick={() => handleSubmit(row.getValue('ID'))}>
+        {member?.FUNCAO === 'Administrador' && 
+          <>
+            <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+              <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Editar
+                </DropdownMenuItem>
+              </DialogTrigger>
+              <UpdateProjectForm open={isDetailsOpen} projectId={row.getValue('ID')} />
+            </Dialog>
+            <Dialog>
+              <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                   Arquivar
-                </Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+                </DropdownMenuItem>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Arquivar projeto</DialogTitle>
+                </DialogHeader>
+                Tem certeza que deseja arquivar o projeto?
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="secondary">Cancelar</Button>
+                  </DialogClose>
+                  <DialogClose asChild>
+                    <Button variant="destructive" type="submit" onClick={() => handleSubmit(row.getValue('ID'))}>
+                      Arquivar
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
+        }
       </DropdownMenuContent>
     </DropdownMenu>
   );

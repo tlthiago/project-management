@@ -12,6 +12,7 @@ import { DataTableViewOptions } from './data-table-view-options';
 import { GetMembersByDepartmentResponse, getMembersByDepartment } from "@/app/api/departments/get-members-by-department";
 import { GetTeamsByDepartmentResponse, getTeamsByDepartment } from "@/app/api/departments/get-teams-by-department";
 import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -20,10 +21,11 @@ interface DataTableToolbarProps<TData> {
 export function DataTableToolbar<TData>({
   table
 }: DataTableToolbarProps<TData>) {
+  const { data: session } = useSession();
+  
+  const department = session?.user.SETOR ?? '';
   const isFiltered = table.getState().columnFilters.length > 0;
-
-  const department = 'TECNOLOGIA DA INFORMACAO';
-
+  
   const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
     queryKey: ['members', department],
     queryFn: () => getMembersByDepartment({ department })
@@ -54,21 +56,16 @@ export function DataTableToolbar<TData>({
     })
   })
 
+  teamsList.push({
+    label: 'Não alocado',
+    value: 'Não alocado'
+  })
+
   const funcaoList: { label: string, value: string}[] = [];
   members.forEach(member => {
-    let funcao: string = '';
-
-    switch (member.FUNCAO) {
-      case 'M':
-        funcao = 'Membro';
-        break;
-      default:
-        funcao = 'Membro';
-    }
-
     if (!funcaoList.some(funcao => funcao.value === member.FUNCAO)) {
       funcaoList.push({
-        label: funcao,
+        label: member.FUNCAO,
         value: member.FUNCAO
       })
     }

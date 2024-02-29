@@ -26,9 +26,11 @@ import { useQuery } from "@tanstack/react-query";
 import { GetTeamsByDepartmentResponse, getTeamsByDepartment } from "@/app/api/departments/get-teams-by-department";
 import { CreateTeamForm } from "./components/create-team-form";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function Membros() {
-  const department = 'TECNOLOGIA DA INFORMACAO';
+  const { data: session } = useSession();
+  const department = session?.user.SETOR ?? '';
 
   const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
     queryKey: ['teams', department],
@@ -40,41 +42,44 @@ export default function Membros() {
     queryFn: () => getMembersByDepartment({ department })
   });
 
-  const [tabsTrigger, setTabsTriggerValue] = useState(true)
+  const [tabsTrigger, setTabsTriggerValue] = useState(false);
   
   return (
-    <div className="space-y-5 p-5">
-      <h1 className="text-3xl font-bold tracking-tight">Membros</h1>
-      <Card>
-        <CardHeader>
-          <Tabs defaultValue="members">
-            <div className={`flex ${tabsTrigger ? 'justify-end' : 'justify-between'}`}>
-              {!tabsTrigger && (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant='secondary'>Nova equipe</Button>
-                  </DialogTrigger>
-                  <CreateTeamForm department={department} />
-                </Dialog>
-              )}
-              <TabsList className="bg-muted">
-                <TabsTrigger value="members" onClick={() => setTabsTriggerValue(true)}>
-                  <span>Membros</span>
-                </TabsTrigger>
-                <TabsTrigger value="teams" onClick={() => setTabsTriggerValue(false)}>
-                  <span>Equipes</span>
-                </TabsTrigger>
-              </TabsList>
-            </div>
-            <TabsContent value="members">
+    <div>
+      <Tabs defaultValue="members" className="space-y-5">
+        <div className="flex justify-between">
+          <h1 className="text-3xl font-bold tracking-tight">Membros</h1>
+          <div className="space-x-2">
+            {tabsTrigger && 
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant='default'>Criar equipe</Button>
+                </DialogTrigger>
+                <CreateTeamForm />
+              </Dialog>
+            }
+            <TabsList className="bg-muted">
+              
+              <TabsTrigger value="members" onClick={(e) => setTabsTriggerValue(false)}>
+                <span>Membros</span>
+              </TabsTrigger>
+              <TabsTrigger value="teams" onClick={(e) => setTabsTriggerValue(true)}>
+                <span>Equipes</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+        </div>
+        <Card>
+          <CardHeader>
+            <TabsContent value="members" className="mt-0">
               <DataTableMembers columns={membersColumns} data={members} />
             </TabsContent>
-            <TabsContent value="teams">
+            <TabsContent value="teams" className="mt-0">
               <DataTableTeams columns={teamsColumns} data={teams} />
             </TabsContent>
-          </Tabs>
-        </CardHeader>
-      </Card>
+          </CardHeader>
+        </Card>
+      </Tabs>
     </div>
   );
 }

@@ -4,10 +4,10 @@ export const metadata: Metadata = {
   title: 'Projetos'
 };
 
-interface ExamplesLayoutProps {
+interface ProjectsLayoutProps {
   children: React.ReactNode;
 }
 
-export default function ExamplesLayout({ children }: ExamplesLayoutProps) {
+export default async function ProjectsLayout({ children }: ProjectsLayoutProps) {
   return <div>{children}</div>;
 }

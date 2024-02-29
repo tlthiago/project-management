@@ -1,5 +1,9 @@
 import { api } from '@/lib/axios';
 
+export interface GetArchivedProjectsByDepartmentBody {
+  department: string;
+}
+
 export interface GetArchivedProjectsResponse {
   ID: string;
   NOME: string;
@@ -12,8 +16,8 @@ export interface GetArchivedProjectsResponse {
   PRIORIDADE: string;
 };
 
-export async function getArchivedProjects() {
-  const response = await api.get<GetArchivedProjectsResponse[]>('/archived-projects');
+export async function getArchivedProjects({ department }: GetArchivedProjectsByDepartmentBody) {
+  const response = await api.post<GetArchivedProjectsResponse[]>('/archived-projects', { department });
 
   return response.data;
 }

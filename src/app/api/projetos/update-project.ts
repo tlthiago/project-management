@@ -1,15 +1,25 @@
 import { api } from '@/lib/axios';
 
+interface TeamMemberData {
+  teamsId?: number[],
+  chapas?: string[]
+}
+
 export interface UpdateProjectBody {
   projectId: string
-  nome: string
-  dataInicio: string
-  dataFim: string
-  descricao: string
-  equipes: string[]
-  responsaveis: string[]
-  prioridade: string
-  usuInclusao: string
+  nome?: string
+  dataInicio?: string
+  dataFim?: string
+  descricao?: string
+  prioridade?: string
+  removed?: TeamMemberData
+  added?: TeamMemberData
+  setor?: string
+  equipesId?: number[]
+  equipes?: string[]
+  chapas?: string[]
+  responsaveis?: string[]
+  usuInclusao?: string
 }
 
 export async function updateProject({
@@ -18,9 +28,14 @@ export async function updateProject({
   dataInicio,
   dataFim,
   descricao,
-  equipes,
-  responsaveis,
   prioridade,
+  removed,
+  added,
+  setor,
+  equipesId,
+  equipes,
+  chapas,
+  responsaveis,
   usuInclusao
 }: UpdateProjectBody) {
   const projectData = {
@@ -28,11 +43,16 @@ export async function updateProject({
     dataInicio,
     dataFim,
     descricao,
-    equipes,
-    responsaveis,
     prioridade,
+    removed,
+    added,
+    setor,
+    equipesId,
+    equipes,
+    chapas,
+    responsaveis,
     usuInclusao
   };
   
-  await api.put(`/projects/${projectId}`, projectData);
+  await api.put(`/update-project/${projectId}`, projectData);
 }

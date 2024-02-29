@@ -23,6 +23,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { unarchiveProject } from '@/app/api/projetos/unarchive-project';
 import { toast } from 'sonner';
 import { deleteProject } from '@/app/api/projetos/delete-project';
+import { useSession } from 'next-auth/react';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -31,12 +32,18 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row
 }: DataTableRowActionsProps<TData>) {
+  const { data: session } = useSession();
+  const department = session?.user.SETOR ?? '';
+  const chapa = session?.user.CHAPA ?? '';
+  
   const queryClient = useQueryClient();
 
   const { mutateAsync: unarchiveProjectFn } = useMutation({
     mutationFn: unarchiveProject,
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['archived-projects'] });
+      queryClient.invalidateQueries({ queryKey: ['projects', department] });
+      queryClient.invalidateQueries({ queryKey: ['projects', chapa] });
     }
   })
 

@@ -3,15 +3,15 @@
 import { ColumnDef } from '@tanstack/react-table';
 import Link from 'next/link';
 
-import { GetProjectsResponse } from '@/app/api/projetos/get-projects';
+import { GetProjectsByDepartmentResponse } from '@/app/api/projetos/get-projects-by-department';
 import { UsersAvatar } from '@/components/users-avatar';
 
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
-import Status from '@/components/status';
 import Priority from '@/components/priority';
+import ProjectStatus from '../project-status';
 
-export const columns: ColumnDef<GetProjectsResponse>[] = [
+export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
   {
     accessorKey: 'ID',
     header: () => <div>ID</div>,
@@ -80,7 +80,10 @@ export const columns: ColumnDef<GetProjectsResponse>[] = [
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
-      return <Status status={row.getValue('STATUS')} />
+      const projectId: number = row.getValue('ID');
+      const status: string = row.getValue('STATUS');
+
+      return <ProjectStatus projectId={projectId} status={status} />;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));

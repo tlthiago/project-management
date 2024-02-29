@@ -3,7 +3,7 @@
 import { Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
 
-import { memberNames, priorities, statuses, subTeamNames } from '@/app/api/data/data';
+import { priorities, statuses } from '@/app/api/data/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -18,16 +18,6 @@ export function DataTableToolbar<TData>({
   table
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
-
-  const teams = subTeamNames.map((team) => ({
-    label: team,
-    value: team
-  }));
-
-  const members = memberNames.map((member) => ({
-    label: member,
-    value: member
-  }));
   
   return (
     <div className="flex items-center justify-between">
@@ -54,7 +44,7 @@ export function DataTableToolbar<TData>({
             options={priorities}
           />
         )}
-        {table.getColumn('EQUIPES') && (
+        {/* {table.getColumn('EQUIPES') && (
           <DataTableFacetedFilter
             column={table.getColumn('EQUIPES')}
             title="Equipes"
@@ -67,7 +57,7 @@ export function DataTableToolbar<TData>({
             title="Responsáveis"
             options={members}
           />
-        )}
+        )} */}
         {isFiltered && (
           <Button
             variant="ghost"

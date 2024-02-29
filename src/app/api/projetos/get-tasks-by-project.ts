@@ -11,6 +11,8 @@ export interface GetTasksByProjectResponse {
   DATA_INICIO: string;
   DATA_FIM: string;
   DESCRICAO: string;
+  SETOR: string;
+  CHAPAS: string;
   RESPONSAVEIS: string;
   STATUS: string;
   PRIORIDADE: string;

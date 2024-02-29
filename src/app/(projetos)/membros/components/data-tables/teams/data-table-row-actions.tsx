@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { deleteTeam } from '@/app/api/departments/delete-team';
 import { UpdateTeamForm } from '../../update-team-form';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -32,7 +33,8 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row
 }: DataTableRowActionsProps<TData>) {
-  const department: string = 'TECNOLOGIA DA INFORMACAO';
+  const { data: session } = useSession();
+  const department = session?.user.SETOR ?? '';
 
   const [isUpdateTeamOpen, setIsUpdateTeamOpen] = useState(false);
   

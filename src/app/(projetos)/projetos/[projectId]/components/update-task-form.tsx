@@ -54,11 +54,12 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getProfile } from '@/app/api/get-profile';
 import { toast } from 'sonner';
 import { GetTaskByIdResponse, getTaskById } from '@/app/api/projetos/get-task-by-id';
 import { updateTask } from '@/app/api/projetos/update-task';
 import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
+import { useSession } from 'next-auth/react';
+import { GetMembersByDepartmentResponse, getMembersByDepartment } from '@/app/api/departments/get-members-by-department';
 
 export const taskSchema = z.object({
   nome: z.string().min(1, { message: 'O nome da tarefa deve ser informado.' }),
@@ -80,35 +81,66 @@ interface updateTaskFormProps {
 }
 
 export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps ) {
+  const { data: session } = useSession();
+  const department = session?.user.SETOR ?? '';
+
+  const projectIdString = projectId.toString();
+
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
     queryFn: () => getProjectById({ projectId }),
     enabled: open
-  })
+  });
   
   const { data: task } = useQuery<GetTaskByIdResponse>({
     queryKey: ['task', taskId],
     queryFn: () => getTaskById({ taskId }),
     enabled: open
-  })
-
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: getProfile
   });
 
-  const queryClient = useQueryClient();
+  const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
+    queryKey: ['members', department],
+    queryFn: () => getMembersByDepartment({ department }),
+    enabled: open
+  });
 
   const [range, setRange] = useState<DateRange | undefined>();
-  const membersList: string[] = project?.RESPONSAVEIS.split(', ') || [];
-  const [members, setMembers] = useState<string[]>([]);
+  const membersList: string[] = project?.RESPONSAVEIS.split(',') || [];
+  const [member, setMember] = useState<string[]>([]);
 
   useEffect(() => {
-    setMembers(task?.RESPONSAVEIS.split(', ') || [])
-  }, [task])
+    setMember(task?.RESPONSAVEIS.split(',') || [])
+  }, [task]);
 
   const dataInicio: string = new Date().toString();
   const dataFim: string = new Date(new Date().setDate(new Date().getDate() + 1)).toString();
+
+  const membersChapas: string[] = [];
+
+  member.map((selectedMember) => {
+    members.map((member) => {
+      if (selectedMember === member.NOME) {
+        membersChapas.push(member.CHAPA)
+      }
+    })
+  });
+
+  const removed: { chapas: string[] } = { chapas: [] };
+
+  const currentChapas = task?.CHAPAS.split(',') || [];
+  currentChapas.forEach(chapa => {
+    if (!membersChapas.includes(chapa)) {
+      removed.chapas?.push(chapa)
+    }
+  });
+
+  const added: { chapas: string[] } = { chapas: [] };
+
+  membersChapas.forEach(chapa => {
+    if (!currentChapas.includes(chapa)) {
+      added.chapas?.push(chapa);
+    }
+  });
 
   const form = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
@@ -119,30 +151,34 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
         to: task?.DATA_FIM ? new Date(task?.DATA_FIM) : new Date(dataFim)
       },
       descricao: task?.DESCRICAO ?? '',
-      responsaveis: task?.RESPONSAVEIS.split(', ') || [],
+      responsaveis: task?.RESPONSAVEIS.split(',') || [],
       prioridade: task?.PRIORIDADE || ''
     }
-  })
+  });
+
+  const queryClient = useQueryClient();
 
   const { mutateAsync: updateTaskFn } = useMutation({
     mutationFn: updateTask,
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', projectIdString] });
     }
-  })
+  });
 
   async function onSubmit(taskData: z.infer<typeof taskSchema>) {
     try {
       await updateTaskFn({
         taskId: taskId,
-        nome: taskData.nome,
-        dataInicio: format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }),
-        dataFim: format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
-        descricao: taskData.descricao,
+        nome: taskData.nome !== task?.NOME ? taskData.nome : undefined,
+        dataInicio: format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) !== task?.DATA_INICIO.split('T', 1)[0] ? format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) : undefined,
+        dataFim: format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) !== task?.DATA_FIM.split('T', 1)[0] ? format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) : undefined,
+        descricao: taskData.descricao !== task?.DESCRICAO ? taskData.descricao : undefined,
         responsaveis: taskData.responsaveis,
-        prioridade: taskData.prioridade,
-        usuInclusao: profile ? profile?.codUsuario : 'TL_THIAGO'
-      })
+        prioridade: taskData.prioridade !== task?.PRIORIDADE ? taskData.prioridade : undefined,
+        added: added.chapas.length > 0 ? added : undefined,
+        removed: removed.chapas.length > 0 ? removed : undefined,
+        usuInclusao: added.chapas.length > 0 ? session?.user.CODUSUARIO : undefined
+      });
       
       toast.success('Tarefa atualizada com sucesso!');
       dialogCloseFn();
@@ -263,10 +299,10 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
                       label: memberName,
                       key: index
                     }))}
-                    selected={members}
+                    selected={member}
                     onChange={(members) => {
                       field.onChange(members);
-                      setMembers(members);
+                      setMember(members);
                     }}
                     className="w-96"
                     placeholder="Selecione os responsáveis"
@@ -328,7 +364,10 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
 
           <div className="flex justify-center">
             <DialogFooter>
-              <Button disabled={form.formState.isSubmitting} type="submit">Atualizar tarefa</Button>
+              <Button disabled={(
+                form.formState.isSubmitting,
+                !form.formState.isDirty
+              )} type="submit">Atualizar tarefa</Button>
             </DialogFooter>
           </div>
         </form>

@@ -1,10 +1,7 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { CheckCircle2, Circle, HelpCircle, Timer } from 'lucide-react';
 
-import { Task } from '@/app/api/data/schema';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { UsersAvatar } from '@/components/users-avatar';
 
@@ -13,8 +10,8 @@ import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 import { GetTasksByProjectResponse } from '@/app/api/projetos/get-tasks-by-project';
 import Priority from '@/components/priority';
-import Status from '@/components/status';
 import { useState } from 'react';
+import TaskStatus from '../task-status';
 
 export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
   {
@@ -36,7 +33,6 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
     ),
     cell: ({ row }) => {
       const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-
       return (
         <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
           <DialogTrigger asChild>
@@ -90,12 +86,40 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
     }
   },
   {
+    accessorKey: 'SETOR',
+    header: () => <div>Setor</div>,
+    cell: ({ row }) => {
+      return (
+        <div className="line-clamp-1 max-w-96">
+          {row.getValue('SETOR')}
+        </div>
+      );
+    },
+    enableHiding: false
+  },
+  {
+    accessorKey: 'CHAPAS',
+    header: () => <div>Chapas</div>,
+    cell: ({ row }) => {
+      return (
+        <div className="line-clamp-1 max-w-96">
+          {row.getValue('CHAPAS')}
+        </div>
+      );
+    },
+    enableHiding: false
+  },
+  {
     accessorKey: 'STATUS',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
+      <DataTableColumnHeader column={column} title="Status"/>
     ),
     cell: ({ row }) => {
-      return <Status status={row.getValue('STATUS')} />
+      const projectId: number = row.getValue('PROJETO_ID');
+      const taskId: number = row.getValue('ID');
+      const status: string = row.getValue('STATUS');
+  
+      return <TaskStatus projectId={projectId} taskId={taskId} status={status} />;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));

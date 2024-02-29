@@ -20,18 +20,22 @@ import { CreateTaskForm } from './components/create-task-form';
 import { columns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { GetTasksByProjectResponse, getTasksByProject } from '../../../api/projetos/get-tasks-by-project';
 import Status from '@/components/status';
 import Priority from '@/components/priority';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { GetMemberByChapaResponse, getMemberByChapa } from '@/app/api/departments/get-member-by-chapa';
 
 export default function Project({
   params
 }: {
   params: { projectId: string };
-  
 }) {
+  const { data: session } = useSession();
+  const chapa = session?.user.CHAPA ?? '';
+  
   const projectId: string = params.projectId;
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -40,13 +44,34 @@ export default function Project({
     queryKey: ['project', projectId],
     queryFn: () => getProjectById({ projectId }),
     enabled: !!projectId
-  })
+  });
 
   const { data: tasks = [] } = useQuery<GetTasksByProjectResponse[]>({
     queryKey: ['tasks', projectId],
     queryFn: () => getTasksByProject({ projectId }),
     enabled: !!projectId
-  })
+  });
+
+  const { data: member } = useQuery<GetMemberByChapaResponse>({
+    queryKey: ['member', chapa],
+    queryFn: () => getMemberByChapa({ chapa }),
+    enabled: !!chapa
+  });
+
+  const queryClient = useQueryClient();
+
+  if (tasks) {
+    let verificado: boolean = false;
+
+    if (tasks.some((task: GetTasksByProjectResponse) => task.STATUS !== "Pendente") && !verificado) {
+      verificado = true;
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+    }
+
+    if (tasks.every((task: GetTasksByProjectResponse) => task.STATUS === "Finalizado")) {
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+    }
+  }
 
   const dataInicioString: string = project?.DATA_INICIO || '';
   const dataFimString: string = project?.DATA_FIM || '';
@@ -55,64 +80,71 @@ export default function Project({
   const dataFim = new Date(dataFimString);
   
   return (
-    <div className="space-y-3 p-5">
-      <Card>
-        <CardHeader>
+    <div className="space-y-3">
+      <Card className='grid grid-cols-4'>
+        <CardHeader className='col-span-3'>
           <CardTitle className="flex items-center justify-between">
             <span className="line-clamp-1 max-w-7xl">
               {project?.NOME}
             </span>
-            <div className='flex items-center'>
-              <span className="text-sm">
-                {dataInicio.toLocaleDateString('pt-BR')} a {dataFim.toLocaleDateString('pt-BR')}
-              </span>
-              <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-5 w-5" />
-                  </Button>
-                </DialogTrigger>
-                <ProjectDetails open={isDetailsOpen} projectId={project?.ID} />
-              </Dialog>
-            </div>
           </CardTitle>
-          <div className="flex items-center justify-between">
-            <CardDescription className="line-clamp-1 max-w-6xl">
-              {project?.DESCRICAO}
-            </CardDescription>
-            <div className='items-center space-y-1'>
-              <span className='text-sm'>{project?.EQUIPES}</span>
-              <div className='flex justify-between'>
-                <Status status={project?.STATUS} />
-                <Priority priority={project?.PRIORIDADE} />
-                <UsersAvatar members={project?.RESPONSAVEIS} />
-              </div>
+          <CardDescription className="line-clamp-1 max-w-6xl">
+            {project?.DESCRICAO}
+          </CardDescription>
+        </CardHeader>
+        <div className='col-span-1 p-4 flex justify-end gap-2'>
+          <div className='space-y-2 text-sm'>
+            <div>Datas: {dataInicio.toLocaleDateString('pt-BR')} a {dataFim.toLocaleDateString('pt-BR')}</div>
+            <div className='flex gap-1'>
+              <span>Status:</span>
+              <Status status={project?.STATUS} />
+            </div>
+            <div>
+              <span>Prioridade: </span>
+              <Priority priority={project?.PRIORIDADE} />
+            </div>
+            <div className='line-clamp-1'>Equipes: {project?.EQUIPES}</div>
+            <div className='flex items-center gap-1'>
+              <span>Membros:</span>
+              <UsersAvatar members={project?.RESPONSAVEIS} />
             </div>
           </div>
-        </CardHeader>
+          <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DialogTrigger>
+            <ProjectDetails open={isDetailsOpen} projectId={project?.ID} />
+          </Dialog>
+        </div>
       </Card>
       <Card>
         <CardHeader>
           <Tabs defaultValue="table">
             <div className="mx-5 flex items-start justify-between">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="secondary">Nova tarefa</Button>
-                </DialogTrigger>
-                <CreateTaskForm
-                  projectId={project?.ID}
-                />
-              </Dialog>
-              <TabsList className="bg-muted">
-                {/* <TabsTrigger value="kanban">
-                  <Kanban />
-                  <span className="ml-1">Kanban</span>
-                </TabsTrigger> */}
-                <TabsTrigger value="table">
-                  <Table />
-                  <span className="ml-1">Tabela</span>
-                </TabsTrigger>
-              </TabsList>
+              {member?.FUNCAO === 'Administrador' && 
+                <>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="default">Criar tarefa</Button>
+                    </DialogTrigger>
+                    <CreateTaskForm
+                      projectId={projectId}
+                    />
+                  </Dialog>
+                  {/* <TabsList className="bg-muted">
+                    <TabsTrigger value="kanban">
+                      <Kanban />
+                      <span className="ml-1">Kanban</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="table">
+                      <Table />
+                      <span className="ml-1">Tabela</span>
+                    </TabsTrigger>
+                  </TabsList> */}
+                </>
+              }
             </div>
             <TabsContent value="kanban" className="flex">
               <TaskContainer title="ATRASADO" />
@@ -121,10 +153,7 @@ export default function Project({
               <TaskContainer title="FINALIZADO" />
             </TabsContent>
               <TabsContent value="table" className="px-5">
-              <DataTable
-                columns={columns}
-                data={tasks}
-              />
+              <DataTable columns={columns} data={tasks} />
             </TabsContent>
           </Tabs>
         </CardHeader>

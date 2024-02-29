@@ -9,7 +9,6 @@ import { DateRange } from 'react-day-picker';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { departments } from '@/app/api/data/data';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -49,39 +48,22 @@ import { cn } from '@/lib/utils';
 import { updateProject } from '@/app/api/projetos/update-project';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getProfile } from '@/app/api/get-profile';
 import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
-
-interface Member {
-  name: string;
-}
-
-interface SubTeam {
-  name: string;
-  members?: Member[];
-}
-
-interface Team {
-  name: string;
-  subTeams?: SubTeam[];
-}
-
-interface Department {
-  name: string;
-  teams?: Team[];
-}
+import { useSession } from 'next-auth/react';
+import { getTeamsByDepartment, GetTeamsByDepartmentResponse } from '@/app/api/departments/get-teams-by-department';
+import { getMembersByDepartment, GetMembersByDepartmentResponse } from '@/app/api/departments/get-members-by-department';
 
 const formSchema = z.object({
-  nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }),
+  nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }).max(100, { message: "O nome deve possuir no máximo 100 caracteres." }),
   datas: z.object({
     from: z.coerce.date(),
     to: z.coerce.date()
   }),
   descricao: z.string().min(1, { message: 'Descreva o projeto.' }),
   equipes: z
-    .array(z.string()).min(1, { message: 'Selecione pelo menos uma equipe' }),
+    .array(z.string()).min(1, { message: 'Selecione pelo menos uma equipe.' }),
   responsaveis: z
-    .array(z.string()).min(1, { message: 'Selecione pelo menos um responsável' }),
+    .array(z.string()).min(1, { message: 'Selecione pelo menos um responsável.' }),
   prioridade: z.string()
 });
 
@@ -91,68 +73,121 @@ export interface UpdateProjectFormProps {
 }
 
 export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
+  const { data: session } = useSession();
+  const department = session?.user.SETOR ?? '';
+
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
     queryFn: () => getProjectById({ projectId }),
     enabled: open
-  })
+  });  
 
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: getProfile,
+  const [range, setRange] = useState<DateRange | undefined>();
+
+  const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
+    queryKey: ['teams', department],
+    queryFn: () => getTeamsByDepartment({ department }),
     enabled: open
   });
 
-  const queryClient = useQueryClient();
+  const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
+    queryKey: ['members', department],
+    queryFn: () => getMembersByDepartment({ department }),
+    enabled: open
+  })
 
-  const [range, setRange] = useState<DateRange | undefined>();
-  const [teams, setTeams] = useState<string[]>([]);
-  const [members, setMembers] = useState<string[]>([]);
+  const currentTeamsIdString = project?.EQUIPES_ID.split(',') || [];
+  const teamsIdNumber: number[] = currentTeamsIdString.map(teamId => parseInt(teamId, 10));
+
+  const [team, setTeam] = useState<string[]>([]);
+  const [teamsId, setTeamsId] = useState<number[]>([]);
   const [membersList, setMembersList] = useState<string[]>([]);
+  const [member, setMember] = useState<string[]>([]);
   
   useEffect(() => {
-    setTeams(project?.EQUIPES.split('; ') || [])
-    setMembers(project?.RESPONSAVEIS.split(', ') || [])
-    handleTeamsChange(project?.EQUIPES.split('; ') || [])
-  }, [project])
+    setTeam(project?.EQUIPES.split(',') || []);
+    setTeamsId(teamsIdNumber);
+    setMember(project?.RESPONSAVEIS.split(',') || []);
+    handleTeamsChange(project?.EQUIPES.split(',') || []);
+  }, [project]);
 
-  const teamsList: string[] = departments.flatMap((department: Department) => {
-    return (
-      department.teams?.flatMap((team: Team) => {
-        return (
-          team.subTeams?.map((subTeam: SubTeam) => {
-            return subTeam?.name || '';
-          }) || []
-        );
-      }) || []
-    );
-  });
+  const teamsList: string[] = teams.map(team => team.NOME);
 
   const handleTeamsChange = (selectedTeams: string[]) => {
-    const filteredMembers: string[] = departments.flatMap(
-      (department: Department) =>
-        department.teams?.flatMap(
-          (team: Team) =>
-            team.subTeams
-              ?.filter((subTeam: SubTeam) =>
-                selectedTeams.includes(subTeam.name || '')
-              )
-              .flatMap(
-                (subTeam: SubTeam) =>
-                  subTeam.members?.map((member: Member) => member.name || '') ||
-                  []
-              ) || []
-        ) || []
-    );
-
-    const removedTeam = teams.filter(team => !selectedTeams.includes(team));
+    const filteredMembers: string[] = [];
+    const selectedTeamsId: number[] = [];
+    
+    teams.map((team) => {
+      selectedTeams.map((selectedTeam) => {
+        if (selectedTeam === team.NOME) {
+          selectedTeamsId.push(team.ID);          
+          const teamMembers: string[] = team.MEMBROS.split(', ');
+          filteredMembers.push(...teamMembers);
+        }
+      });
+    });
+    
+    const removedTeam = team.filter(team => !selectedTeams.includes(team));
     if (removedTeam.length > 0) {
-      const updatedMembers = members.filter(member => filteredMembers.includes(member));
-      setMembers(updatedMembers);
+      const updatedMembers = member.filter(member => filteredMembers.includes(member));
+      setMember(updatedMembers);
     }
 
     setMembersList(filteredMembers);
+    setTeamsId(selectedTeamsId);
   };
+
+  const membersChapas: string[] = [];
+
+  member.map((selectedMember) => {
+    members.map((member) => {
+      if (selectedMember === member.NOME) {
+        membersChapas.push(member.CHAPA)
+      }
+    })
+  });
+
+  const removed: { 
+    teamsId: number[],
+    chapas: string[]
+  } = {
+    teamsId: [],
+    chapas: []
+  };
+
+  teamsIdNumber.forEach(teamId => {
+    if (!teamsId.includes(teamId)) {
+      removed.teamsId?.push(teamId)
+    }
+  });
+
+  const currentChapas = project?.CHAPAS.split(',') || [];
+  
+  currentChapas.forEach(chapa => {
+    if (!membersChapas.includes(chapa)) {
+      removed.chapas?.push(chapa)
+    }
+  });
+
+  const added: {
+    teamsId: number[],
+    chapas: string[]
+  } = {
+    teamsId: [],
+    chapas: []
+  };
+
+  teamsId.forEach(teamId => {
+    if (!teamsIdNumber.includes(teamId)) {
+      added.teamsId?.push(teamId)
+    }
+  });
+
+  membersChapas.forEach(chapa => {
+    if (!currentChapas.includes(chapa)) {
+      added.chapas.push(chapa)
+    }
+  });
 
   const dataInicio: string = new Date().toString();
   const dataFim: string = new Date(new Date().setDate(new Date().getDate() + 1)).toString();
@@ -166,32 +201,34 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
         to: project?.DATA_FIM ? new Date(project?.DATA_FIM) : new Date(dataFim)
       },
       descricao: project?.DESCRICAO ?? '',
-      equipes: project?.EQUIPES.split('; ') || [],
-      responsaveis: project?.RESPONSAVEIS.split(', ') || [],
+      equipes: project?.EQUIPES.split(',') || [],
+      responsaveis: project?.RESPONSAVEIS.split(',') || [],
       prioridade: project?.PRIORIDADE || ''
     }
-  })
+  });
+
+  const queryClient = useQueryClient();
 
   const { mutateAsync: updateProjectFn } = useMutation({
     mutationFn: updateProject,
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     }
-  })
+  });
 
   async function onSubmit(projectData: z.infer<typeof formSchema>) {
     try {
       await updateProjectFn({
         projectId: projectId,
-        nome: projectData.nome,
-        dataInicio: format(projectData.datas.from, 'yyyy-MM-dd', { locale: ptBR }),
-        dataFim: format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
-        descricao: projectData.descricao,
-        equipes: projectData.equipes,
-        responsaveis: projectData.responsaveis,
-        prioridade: projectData.prioridade,
-        usuInclusao: profile ? profile?.codUsuario : 'TL_THIAGO'
-      })
+        nome: projectData.nome !== project?.NOME ? projectData.nome : undefined,
+        dataInicio: format(projectData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) !== project?.DATA_INICIO.split('T', 1)[0] ? format(projectData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) : undefined,
+        dataFim: format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) !== project?.DATA_FIM.split('T', 1)[0] ? format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) : undefined,
+        descricao: projectData.descricao !== project?.DESCRICAO ? projectData.descricao : undefined,
+        prioridade: projectData.prioridade !== project?.PRIORIDADE ? projectData.prioridade : undefined,
+        removed: removed.chapas.length > 0 || removed.teamsId.length > 0 ? removed : undefined,
+        added: added.chapas.length > 0 || added.teamsId.length > 0 ? added : undefined,
+        usuInclusao: added.chapas.length > 0 || added.teamsId.length > 0 ? session?.user.CODUSUARIO : undefined
+      });
       
       toast.success('Projeto atualizado com sucesso!');
       dialogCloseFn();
@@ -216,7 +253,7 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
             name="nome"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome</FormLabel>
+                <FormLabel>Nome do projeto</FormLabel>
                 <FormControl>
                   <Input placeholder="Digite o nome do projeto" {...field} />
                 </FormControl>
@@ -312,10 +349,10 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
                       label: subTeamName,
                       key: index
                     }))}
-                    selected={teams}
-                    onChange={(selectedTeams) => {
+                    selected={team}
+                    onChange={(selectedTeams) => {                      
                       field.onChange(selectedTeams);
-                      setTeams(selectedTeams);
+                      setTeam(selectedTeams);
                       handleTeamsChange(selectedTeams);
                     }}
                     className="max-w-[462px]"
@@ -340,10 +377,10 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
                       label: memberName,
                       key: index
                     }))}
-                    selected={members}
+                    selected={member}
                     onChange={(members) => {
                       field.onChange(members);
-                      setMembers(members);
+                      setMember(members);
                     }}
                     className="w-96"
                     placeholder={
@@ -410,7 +447,10 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
 
           <div className="flex justify-center">
             <DialogFooter>
-              <Button disabled={form.formState.isSubmitting} type="submit">Atualizar projeto</Button>
+              <Button disabled={(
+                form.formState.isSubmitting,
+                !form.formState.isDirty
+              )} type="submit">Atualizar projeto</Button>
             </DialogFooter>
           </div>
         </form>

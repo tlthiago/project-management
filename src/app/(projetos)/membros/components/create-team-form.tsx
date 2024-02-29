@@ -24,28 +24,23 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetMembersByDepartmentResponse, getMembersByDepartment } from "@/app/api/departments/get-members-by-department";
-import { getProfile } from "@/app/api/get-profile";
 import { createTeam } from "@/app/api/departments/create-team";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 const teamSchema = z.object({
   teamName: z.string().min(1, { message: 'O nome da equipe deve ser informado.' }),
   members: z.array(z.string()).min(1, { message: 'Selecione pelo menos um membro. '})
 })
 
-interface CreateTeamFormProps {
-  department: string
-}
+export function CreateTeamForm() {
+  const { data: session } = useSession();
 
-export function CreateTeamForm({ department }: CreateTeamFormProps) {
+  const department = session?.user.SETOR ?? '';
+
   const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
     queryKey: ['members', department],
     queryFn: () => getMembersByDepartment({ department })
-  });
-
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: getProfile
   });
 
   const queryClient = useQueryClient();
@@ -90,7 +85,7 @@ export function CreateTeamForm({ department }: CreateTeamFormProps) {
         department: department,
         chapas: chapas,
         members: teamData.members,
-        usuInclusao: profile ? profile?.codUsuario : 'TL_THIAGO'
+        usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB'
       })
 
       toast.success('Equipe criada com sucesso!');

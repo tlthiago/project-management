@@ -24,10 +24,10 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetMembersByDepartmentResponse, getMembersByDepartment } from "@/app/api/departments/get-members-by-department";
-import { getProfile } from "@/app/api/get-profile";
 import { updateTeam } from "@/app/api/departments/update-team";
 import { toast } from "sonner";
 import { GetTeamByIdResponse, getTeamById } from '@/app/api/departments/get-team-by-id';
+import { useSession } from "next-auth/react";
 
 const teamSchema = z.object({
   nome: z.string().min(1, { message: 'O nome da equipe deve ser informado.' }),
@@ -40,7 +40,9 @@ interface UpdateTeamFormProps {
 }
 
 export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
-  const department: string = 'TECNOLOGIA DA INFORMACAO';
+  const { data: session } = useSession();
+
+  const department: string = session?.user.SETOR ?? '';
 
   const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
     queryKey: ['members', department],
@@ -54,12 +56,6 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
     enabled: open
   });
 
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: getProfile,
-    enabled: open
-  });
-
   const queryClient = useQueryClient();
 
   const membersList: string[] = members.map(member => member.NOME);
@@ -70,15 +66,7 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
   
   useEffect(() => {
     setSelectedMembers(teamMembers)
-  }, [team])
-
-  const form = useForm<z.infer<typeof teamSchema>>({
-    resolver: zodResolver(teamSchema),
-    values: {
-      nome: team?.NOME ?? '',
-      membros: team?.MEMBROS.split(', ') || []
-    }
-  });
+  }, [team]);
 
   const removed: { chapa: string, memberName: string }[] = [];
 
@@ -93,7 +81,7 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
         }
       })
     }
-  })
+  });
 
   const added: { chapa: string, memberName: string }[] = [];
 
@@ -108,14 +96,23 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
         }
       })
     }
-  })
+  });
+
+  const form = useForm<z.infer<typeof teamSchema>>({
+    resolver: zodResolver(teamSchema),
+    values: {
+      nome: team?.NOME ?? '',
+      membros: team?.MEMBROS.split(', ') || []
+    }
+  });
   
   const { mutateAsync: updateTeamFn } = useMutation({
     mutationFn: updateTeam,
     onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['members', department] });
       queryClient.invalidateQueries({ queryKey: ['teams', department] });
     }
-  })
+  });
   
   async function onSubmit(teamData: z.infer<typeof teamSchema>) {
     try {
@@ -125,8 +122,8 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
         department: department,
         removed: removed && removed.length > 0 ? removed : undefined,
         added: added && added.length > 0 ? added : undefined,
-        usuInclusao: profile ? profile?.codUsuario : 'TL_THIAGO'
-      })
+        usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB'
+      });
 
       toast.success('Equipe atualizada com sucesso!');
       dialogCloseFn();

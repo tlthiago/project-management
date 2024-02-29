@@ -1,6 +1,5 @@
-'use client';
+'use client'
 
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -10,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-import { signIn } from './api/sign-in';
+import { signIn } from 'next-auth/react';
 import { Loader2 } from 'lucide-react';
 
 const signInForm = z.object({
@@ -27,27 +26,28 @@ export default function Login() {
     formState: { isSubmitting }
   } = useForm<SignInForm>();
 
-  const { mutateAsync: login } = useMutation({
-    mutationFn: signIn
-  });
-
   const router = useRouter();
 
   async function handleSignIn(data: SignInForm) {
-    try {
-      const transformedData: SignInForm = {
-        username: data.username.toUpperCase(),
-        password: data.password.toUpperCase()
-      };
+    const transformedData: SignInForm = {
+      username: data.username.toUpperCase(),
+      password: data.password.toUpperCase()
+    };
 
-      await login(transformedData);
+    const result = await signIn('credentials', {
+      username: transformedData.username,
+      password: transformedData.password,
+      redirect: false
+    })
 
-      toast.success('Usuário autenticado');
-
-      router.replace('/dashboard');
-    } catch {
-      toast.error('Credenciais inválidas');
+    if (result?.error) {
+      console.log(result);
+      toast.error('Usuário não encontrado.');
+      return
     }
+
+    toast.success('Usuário autenticado.');
+    router.replace('/projetos');
   }
 
   return (
@@ -72,6 +72,7 @@ export default function Login() {
                   id="username"
                   type="text"
                   className="uppercase"
+                  placeholder='A_NOME'
                   {...register('username')}
                 ></Input>
               </div>
@@ -80,6 +81,7 @@ export default function Login() {
                 <Input
                   id="password"
                   type="password"
+                  placeholder='••••••••'
                   {...register('password')}
                 ></Input>
               </div>

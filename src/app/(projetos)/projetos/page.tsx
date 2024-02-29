@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { GetProjectsResponse, getProjects } from '@/app/api/projetos/get-projects';
+import { GetProjectsByDepartmentResponse, getProjectsByDepartment } from '@/app/api/projetos/get-projects-by-department';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
@@ -10,23 +10,51 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { CreateProjectForm } from './components/create-project-form';
 import { columns } from './components/data-table/columns';
 import { DataTable } from './components/data-table/data-table';
+import { useSession } from 'next-auth/react';
+import { GetMemberByChapaResponse, getMemberByChapa } from '@/app/api/departments/get-member-by-chapa';
+import { GetProjectsByChapaResponse, getProjectsByChapa } from '@/app/api/projetos/get-projects-by-member';
 
 export default function Projects() {
-  const { data: projects = [] } = useQuery<GetProjectsResponse[]>({
-    queryKey: ['projects'],
-    queryFn: getProjects
+  const { data: session } = useSession();
+  const department = session?.user.SETOR ?? '';
+  const chapa = session?.user.CHAPA ?? '';
+
+  let projects: any = [];
+
+  const { data: member } = useQuery<GetMemberByChapaResponse>({
+    queryKey: ['member', chapa],
+    queryFn: () => getMemberByChapa({ chapa }),
+    enabled: !!chapa
   });
 
+  if (member?.FUNCAO === 'Administrador' && department) {
+    const { data: adminProjects = [] } = useQuery<GetProjectsByDepartmentResponse[]>({
+      queryKey: ['projects', department],
+      queryFn: () => getProjectsByDepartment({ department }),
+      enabled: !!department
+    });
+    projects = adminProjects;
+  } else {
+    const { data: memberProjects = [] } = useQuery<GetProjectsByChapaResponse[]>({
+      queryKey: ['projects', chapa],
+      queryFn: () => getProjectsByChapa({ chapa }),
+      enabled: !!chapa
+    });
+    projects = memberProjects;
+  }
+  
   return (
-    <div className="space-y-5 p-5">
+    <div className="space-y-5">
       <div className="flex justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Projetos</h1>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="secondary">Novo projeto</Button>
-          </DialogTrigger>
-          <CreateProjectForm />
-        </Dialog>
+        {member?.FUNCAO === 'Administrador' && 
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="default">Criar projeto</Button>
+            </DialogTrigger>
+            <CreateProjectForm />
+          </Dialog>
+        }
       </div>
       <Card>
         <CardContent className="pt-5">

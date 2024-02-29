@@ -8,7 +8,7 @@ export interface GetTeamsByDepartmentResponse {
   ID: number;
   NOME: string;
   SETOR: string;
-  MEMBROS: string[];
+  MEMBROS: string;
   CHAPAS: string[];
 };
 

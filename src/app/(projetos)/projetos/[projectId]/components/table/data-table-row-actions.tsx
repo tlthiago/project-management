@@ -15,6 +15,9 @@ import { useState } from 'react';
 import { TaskDetails } from '../task-details';
 import { UpdateTaskForm } from '../update-task-form';
 import { DeleteTaskDialog } from '../delete-task-dialog';
+import { useSession } from 'next-auth/react';
+import { useQuery } from '@tanstack/react-query';
+import { GetMemberByChapaResponse, getMemberByChapa } from '@/app/api/departments/get-member-by-chapa';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -23,6 +26,15 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row
 }: DataTableRowActionsProps<TData>) {
+  const { data: session } = useSession();
+  const chapa = session?.user.CHAPA ?? '';
+
+  const { data: member } = useQuery<GetMemberByChapaResponse>({
+    queryKey: ['member', chapa],
+    queryFn: () => getMemberByChapa({ chapa }),
+    enabled: !!chapa
+  });
+
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isUpdateTaskOpen, setIsUpdateTaskOpen] = useState(false);
 
@@ -46,22 +58,26 @@ export function DataTableRowActions<TData>({
           </DialogTrigger>
           <TaskDetails open={isDetailsOpen} taskId={row.getValue('ID')} />
         </Dialog>
-        <Dialog open={isUpdateTaskOpen} onOpenChange={setIsUpdateTaskOpen}>
-          <DialogTrigger asChild>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              Editar
-            </DropdownMenuItem>
-          </DialogTrigger>
-          <UpdateTaskForm open={isUpdateTaskOpen} projectId={row.getValue('PROJETO_ID')} taskId={row.getValue('ID')} />
-        </Dialog>
-        <Dialog>
-          <DialogTrigger asChild>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              Excluir
-            </DropdownMenuItem>
-          </DialogTrigger>
-          <DeleteTaskDialog taskId={row.getValue('ID')} />
-        </Dialog>
+        {member?.FUNCAO === 'Administrador' && 
+          <>
+            <Dialog open={isUpdateTaskOpen} onOpenChange={setIsUpdateTaskOpen}>
+              <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Editar
+                </DropdownMenuItem>
+              </DialogTrigger>
+              <UpdateTaskForm open={isUpdateTaskOpen} projectId={row.getValue('PROJETO_ID')} taskId={row.getValue('ID')} />
+            </Dialog>
+            <Dialog>
+              <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Excluir
+                </DropdownMenuItem>
+              </DialogTrigger>
+              <DeleteTaskDialog taskId={row.getValue('ID')} />
+            </Dialog>
+          </>
+        }
       </DropdownMenuContent>
     </DropdownMenu>
   );
