@@ -13,7 +13,7 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 
 import { UserAvatar } from '@/components/users-avatar';
 import { TaskDetails } from '../task-details';
-import { GetTaskByIdResponse, getTaskById } from '@/app/api/projetos/get-task-by-id';
+import { GetTaskByIdResponse, getTaskById } from '@/app/api/projetos/tarefas/get-task-by-id';
 import { useQuery } from '@tanstack/react-query';
 
 export interface TaskCardProps {

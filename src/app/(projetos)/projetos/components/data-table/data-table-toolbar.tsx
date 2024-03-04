@@ -1,7 +1,7 @@
 'use client';
 
 import { Table } from '@tanstack/react-table';
-import { X } from 'lucide-react';
+import { HelpCircle, PlusCircle, X } from 'lucide-react';
 
 import { priorities, statuses } from '@/app/api/data/data';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,9 @@ export function DataTableToolbar<TData>({
   table
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
-  
+
+  const delayedTotalValue = table.getColumn('ATRASADO')?.getFacetedUniqueValues().get('S ');
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
@@ -44,20 +46,18 @@ export function DataTableToolbar<TData>({
             options={priorities}
           />
         )}
-        {/* {table.getColumn('EQUIPES') && (
-          <DataTableFacetedFilter
-            column={table.getColumn('EQUIPES')}
-            title="Equipes"
-            options={teams}
-          />
-        )}
-        {table.getColumn('RESPONSAVEIS') && (
-          <DataTableFacetedFilter
-            column={table.getColumn('RESPONSAVEIS')}
-            title="Responsáveis"
-            options={members}
-          />
-        )} */}
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="h-8 border-dashed"
+          onClick={() => table.getColumn('ATRASADO')?.setFilterValue('S ')}
+          >
+          <PlusCircle className="mr-2 h-4 w-4" />
+          <div className='space-x-2'>
+            <span>Atrasados</span>
+            <span className='text-xs font-mono'>{delayedTotalValue}</span>
+          </div>
+        </Button>
         {isFiltered && (
           <Button
             variant="ghost"

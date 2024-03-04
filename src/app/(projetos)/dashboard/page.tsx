@@ -20,6 +20,7 @@ import { useSession } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
 import { getProjectsByDepartment, GetProjectsByDepartmentResponse } from '@/app/api/projetos/get-projects-by-department';
 import ProjectShortcut from './components/project-shortcut';
+import Link from 'next/link';
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -31,7 +32,9 @@ export default function Dashboard() {
     enabled: !!department
   });
 
-  const delayedProjects = projects?.filter(project => project.STATUS === 'Atrasado');
+  const last5Projects = projects.slice().sort((a, b) => new Date(b.DATA_INCLUSAO).getTime() - new Date(a.DATA_INCLUSAO).getTime()).slice(0, 5);
+
+  const delayedProjects = projects?.filter(project => project.ATRASADO === 'S ');
   const pendingProjects = projects?.filter(project => project.STATUS === 'Pendente');
   const inProgressProjects = projects?.filter(project => project.STATUS === 'Em andamento');
   const finishedProjects = projects?.filter(project => project.STATUS === 'Finalizado');
@@ -48,9 +51,6 @@ export default function Dashboard() {
             <Button>Download</Button>
             <TabsList>
               <TabsTrigger value="overview">Visão geral</TabsTrigger>
-              <TabsTrigger value="analytics" disabled>
-                Análises
-              </TabsTrigger>
               <TabsTrigger value="notifications" disabled>
                 Notificações
               </TabsTrigger>
@@ -70,15 +70,17 @@ export default function Dashboard() {
                 <div className="text-2xl font-bold">{projects?.length}</div>
               </CardContent>
             </Card>
-            <Card className='text-rose-500'>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Atrasados</CardTitle>
-                <AlertCircle className="size-5" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold ">{delayedProjects.length}</div>
-              </CardContent>
-            </Card>
+            <Link href='/projetos'>
+              <Card className='text-rose-500'>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Atrasados</CardTitle>
+                  <AlertCircle className="size-5" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold ">{delayedProjects.length}</div>
+                </CardContent>
+              </Card>
+            </Link>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Pendente</CardTitle>
@@ -124,11 +126,11 @@ export default function Dashboard() {
               <CardHeader>
                 <CardTitle>Criados recentemente</CardTitle>
                 <CardDescription>
-                  O seu time criou {projects?.length} projetos este mês.
+                  O seu time já criou {projects?.length} projetos.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                {projects.slice(0, 5).map(project => {
+                {last5Projects.map(project => {
                   return (
                     <ProjectShortcut key={project.ID}
                       id={project.ID}

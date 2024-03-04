@@ -7,9 +7,9 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteTask } from '@/app/api/projetos/delete-task';
+import { deleteTask } from '@/app/api/projetos/tarefas/delete-task';
 import { toast } from 'sonner';
-import { restoreTask } from '@/app/api/projetos/restore-task';
+import { restoreTask } from '@/app/api/projetos/tarefas/restore-task';
 
 interface deleteTaskDialogProps {
   taskId: string;

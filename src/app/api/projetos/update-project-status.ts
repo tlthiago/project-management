@@ -1,15 +1,16 @@
 import { api } from '@/lib/axios';
 
 export interface UpdateProjectStatusBody {
-  id: number;
+  projectId: number;
   status: string;
 }
 
 export async function UpdateProjectStatus({
-  id,
+  projectId,
   status
 }: UpdateProjectStatusBody) {
-  console.log(id);
+  console.log(projectId);
+  console.log(status);
 
-  await api.patch(`/projects/${id}`, { status });
+  await api.patch(`/projects/${projectId}`, { status });
 }

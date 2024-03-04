@@ -8,7 +8,7 @@ import { UsersAvatar } from '@/components/users-avatar';
 import { TaskDetails } from '../task-details';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
-import { GetTasksByProjectResponse } from '@/app/api/projetos/get-tasks-by-project';
+import { GetTasksByProjectResponse } from '@/app/api/projetos/tarefas/get-tasks-by-project';
 import Priority from '@/components/priority';
 import { useState } from 'react';
 import TaskStatus from '../task-status';
@@ -33,10 +33,12 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
     ),
     cell: ({ row }) => {
       const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+      const atrasado = row.getValue('ATRASADO');
+
       return (
         <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
           <DialogTrigger asChild>
-            <span className="cursor-pointer font-semibold">
+            <span className={`cursor-pointer font-semibold ${atrasado === 'S ' ? 'text-rose-500' : ''}`}>
               {row.getValue('NOME')}
             </span>
           </DialogTrigger>
@@ -49,8 +51,10 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
     accessorKey: 'DESCRICAO',
     header: () => <div>Descrição</div>,
     cell: ({ row }) => {
+      const atrasado = row.getValue('ATRASADO');
+      
       return (
-        <div className="line-clamp-1 max-w-96">
+        <div className={`line-clamp-1 max-w-96 ${atrasado === 'S ' ? 'text-rose-500 font-semibold' : ''}`}>
           {row.getValue('DESCRICAO')}
         </div>
       );
@@ -64,7 +68,9 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
     cell: ({ row }) => {
       const dataInicioString: string = row.getValue('DATA_INICIO');
       const dataInicio = new Date(dataInicioString);
-      return <div>{dataInicio.toLocaleDateString('pt-BR')}</div>;
+      const atrasado = row.getValue('ATRASADO');
+
+      return <div className={atrasado === 'S ' ? 'text-rose-500 font-semibold' : ''}>{dataInicio.toLocaleDateString('pt-BR')}</div>;
     }
   },
   {
@@ -75,27 +81,17 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
     cell: ({ row }) => {
       const dataFimString: string = row.getValue('DATA_FIM');
       const dataFim = new Date(dataFimString);
-      return <div>{dataFim.toLocaleDateString('pt-BR')}</div>;
+      const atrasado = row.getValue('ATRASADO');
+
+      return <div className={atrasado === 'S ' ? 'text-rose-500 font-semibold' : ''}>{dataFim.toLocaleDateString('pt-BR')}</div>;
     }
   },
   {
-    accessorKey: 'RESPONSAVEIS',
-    header: () => <div>Responsáveis</div>,
+    accessorKey: 'MEMBROS',
+    header: () => <div>Membros</div>,
     cell: ({ row }) => {
-      return <UsersAvatar members={row.getValue('RESPONSAVEIS')} />
+      return <UsersAvatar members={row.getValue('MEMBROS')} />
     }
-  },
-  {
-    accessorKey: 'SETOR',
-    header: () => <div>Setor</div>,
-    cell: ({ row }) => {
-      return (
-        <div className="line-clamp-1 max-w-96">
-          {row.getValue('SETOR')}
-        </div>
-      );
-    },
-    enableHiding: false
   },
   {
     accessorKey: 'CHAPAS',
@@ -136,6 +132,20 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     }
+  },
+  {
+    accessorKey: 'ATRASADO',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Atrasado" />
+    ),
+    cell: ({ row }) => {
+      return <span>{row.getValue('ATRASADO')}</span>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+    enableSorting: false,
+    enableHiding: false
   },
   {
     id: 'actions',

@@ -16,8 +16,6 @@ import {
 } from '@tanstack/react-table';
 import * as React from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -44,8 +42,8 @@ export function DataTable<TData, TValue>({
     React.useState<VisibilityState>({
       'ID': false,
       'PROJETO_ID': false,
-      'SETOR': false,
-      'CHAPAS': false
+      'CHAPAS': false,
+      'ATRASADO': false
     });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

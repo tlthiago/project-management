@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { unarchiveProject } from '@/app/api/projetos/unarchive-project';
+import { unarchiveProject } from '@/app/api/arquivados/unarchive-project';
 import { toast } from 'sonner';
 import { deleteProject } from '@/app/api/projetos/delete-project';
 import { useSession } from 'next-auth/react';

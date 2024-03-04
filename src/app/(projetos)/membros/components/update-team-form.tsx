@@ -58,7 +58,11 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
 
   const queryClient = useQueryClient();
 
-  const membersList: string[] = members.map(member => member.NOME);
+  // const membersList: string[] = members.map(member => member.NOME);
+
+  const membersList: string[] = members
+    .filter(member => member.EQUIPE == 'Não alocado')
+    .map(member => member.NOME)
 
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
 
@@ -68,31 +72,25 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
     setSelectedMembers(teamMembers)
   }, [team]);
 
-  const removed: { chapa: string, memberName: string }[] = [];
+  const removed: string[] = [];
 
   teamMembers.forEach(teamMember => {
     if (!selectedMembers.includes(teamMember)) {
       members.map(member => {
         if (member.NOME === teamMember) {
-          removed.push({
-            chapa: member.CHAPA,
-            memberName: teamMember
-          })
+          removed.push(member.CHAPA)
         }
       })
     }
   });
 
-  const added: { chapa: string, memberName: string }[] = [];
+  const added: string[] = [];
 
   selectedMembers.forEach(selectedMember => {
     if (!teamMembers.includes(selectedMember)) {
       members.map(member => {
         if (member.NOME === selectedMember) {
-          added.push({
-            chapa: member.CHAPA,
-            memberName: selectedMember
-          })
+          added.push(member.CHAPA)
         }
       })
     }
@@ -118,8 +116,7 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
     try {
       await updateTeamFn({
         teamId: teamId,
-        teamName: teamData.nome,
-        department: department,
+        teamName: teamData.nome !== team?.NOME ? teamData.nome : undefined,
         removed: removed && removed.length > 0 ? removed : undefined,
         added: added && added.length > 0 ? added : undefined,
         usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB'

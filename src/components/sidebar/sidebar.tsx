@@ -104,7 +104,7 @@ export function Sidebar() {
           })}
         </ScrollArea>
       </nav>
-      <div className="mt-auto flex flex-col gap-6">
+      <div className="flex flex-col gap-6">
         <Profile />
       </div>
     </aside>

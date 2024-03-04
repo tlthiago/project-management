@@ -5,17 +5,18 @@ export interface GetTaskByIdParams {
 }
 
 export interface GetTaskByIdResponse {
-  ID: string;
-  PROJETO_ID: string;
+  ID: number;
+  PROJETO_ID: number;
   NOME: string;
   DATA_INICIO: string;
   DATA_FIM: string;
   DESCRICAO: string;
-  SETOR: string;
-  CHAPAS: string;
-  RESPONSAVEIS: string;
   STATUS: string;
   PRIORIDADE: string;
+  DATA_INCLUSAO: string;
+  ATRASADO: string;
+  CHAPAS: string;
+  MEMBROS: string;
 };
 
 export async function getTaskById({ taskId }: GetTaskByIdParams) {

@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge';
 import {
   DialogContent,
   DialogHeader,
@@ -11,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { UsersAvatar } from '@/components/users-avatar';
 import { TaskComment } from './task-comment';
-import { GetTaskByIdResponse, getTaskById } from '@/app/api/projetos/get-task-by-id';
+import { GetTaskByIdResponse, getTaskById } from '@/app/api/projetos/tarefas/get-task-by-id';
 import { useQuery } from '@tanstack/react-query';
 import Status from '@/components/status';
 import Priority from '@/components/priority';
@@ -69,7 +68,7 @@ export function TaskDetails({ taskId, open }: TaskDetailsProps) {
               Responsáveis
             </TableCell>
             <TableCell className="flex justify-end gap-1">
-             <UsersAvatar members={task?.RESPONSAVEIS} />
+             <UsersAvatar members={task?.MEMBROS} />
             </TableCell>
           </TableRow>
         </TableBody>

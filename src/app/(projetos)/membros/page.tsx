@@ -34,12 +34,14 @@ export default function Membros() {
 
   const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
     queryKey: ['teams', department],
-    queryFn: () => getTeamsByDepartment({ department })
+    queryFn: () => getTeamsByDepartment({ department }),
+    enabled: !!department
   });
 
   const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
     queryKey: ['members', department],
-    queryFn: () => getMembersByDepartment({ department })
+    queryFn: () => getMembersByDepartment({ department }),
+    enabled: !!department
   });
 
   const [tabsTrigger, setTabsTriggerValue] = useState(false);

@@ -55,8 +55,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { GetTaskByIdResponse, getTaskById } from '@/app/api/projetos/get-task-by-id';
-import { updateTask } from '@/app/api/projetos/update-task';
+import { GetTaskByIdResponse, getTaskById } from '@/app/api/projetos/tarefas/get-task-by-id';
+import { updateTask } from '@/app/api/projetos/tarefas/update-task';
 import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
 import { useSession } from 'next-auth/react';
 import { GetMembersByDepartmentResponse, getMembersByDepartment } from '@/app/api/departments/get-members-by-department';
@@ -105,11 +105,11 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
   });
 
   const [range, setRange] = useState<DateRange | undefined>();
-  const membersList: string[] = project?.RESPONSAVEIS.split(',') || [];
+  const membersList: string[] = project?.MEMBROS.split(',') || [];
   const [member, setMember] = useState<string[]>([]);
 
   useEffect(() => {
-    setMember(task?.RESPONSAVEIS.split(',') || [])
+    setMember(task?.MEMBROS.split(',') || [])
   }, [task]);
 
   const dataInicio: string = new Date().toString();
@@ -151,7 +151,7 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
         to: task?.DATA_FIM ? new Date(task?.DATA_FIM) : new Date(dataFim)
       },
       descricao: task?.DESCRICAO ?? '',
-      responsaveis: task?.RESPONSAVEIS.split(',') || [],
+      responsaveis: task?.MEMBROS.split(',') || [],
       prioridade: task?.PRIORIDADE || ''
     }
   });
@@ -173,7 +173,6 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
         dataInicio: format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) !== task?.DATA_INICIO.split('T', 1)[0] ? format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) : undefined,
         dataFim: format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) !== task?.DATA_FIM.split('T', 1)[0] ? format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) : undefined,
         descricao: taskData.descricao !== task?.DESCRICAO ? taskData.descricao : undefined,
-        responsaveis: taskData.responsaveis,
         prioridade: taskData.prioridade !== task?.PRIORIDADE ? taskData.prioridade : undefined,
         added: added.chapas.length > 0 ? added : undefined,
         removed: removed.chapas.length > 0 ? removed : undefined,
@@ -259,15 +258,12 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
                   </Popover>
                 </FormControl>
                 {form.formState.errors.datas?.from ? (
-                  form.formState.errors.datas?.from.type === 'invalid_date' 
-                  ? <span className="text-sm font-medium text-destructive">As datas devem ser selecionadas</span>
+                  form.formState.errors.datas?.from.type == 'invalid_date' ? <span className="text-sm font-medium text-destructive">As datas devem ser selecionadas.</span>
                   : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.from.message}</span>
                 ) : (
-                    form.formState.errors.datas?.to?.type === 'invalid_date' 
-                    ? <span className="text-sm font-medium text-destructive">Selecione a data final</span>
-                    : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.to?.message}</span>
-                  )
-                }
+                  form.formState.errors.datas?.to?.type == 'invalid_date' ? <span className="text-sm font-medium text-destructive">Selecione a data final.</span>
+                  : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.to?.message}</span>
+                )}
               </FormItem>
             )}
           />

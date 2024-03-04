@@ -72,7 +72,7 @@ export function ProjectDetails({ projectId, open }: ProjectDetailsProps) {
               Responsáveis
             </TableCell>
             <TableCell className="flex justify-end gap-1">
-              <UsersAvatar members={project?.RESPONSAVEIS} />
+              <UsersAvatar members={project?.MEMBROS} />
             </TableCell>
           </TableRow>
         </TableBody>

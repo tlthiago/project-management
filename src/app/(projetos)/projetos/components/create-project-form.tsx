@@ -53,7 +53,7 @@ import { GetTeamsByDepartmentResponse, getTeamsByDepartment } from '@/app/api/de
 import { GetMembersByDepartmentResponse, getMembersByDepartment } from '@/app/api/departments/get-members-by-department';
 
 const formSchema = z.object({
-  nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }).max(100, { message: "O nome deve possuir no máximo 100 caracteres." }),
+  nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }),
   datas: z.object({
     from: z.coerce.date(),
     to: z.coerce.date()
@@ -63,7 +63,7 @@ const formSchema = z.object({
     .array(z.string()).min(1, { message: 'Selecione pelo menos uma equipe.' }),
   responsaveis: z
     .array(z.string()).min(1, { message: 'Selecione pelo menos um responsável.' }),
-  prioridade: z.string()
+  prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
 });
 
 export function CreateProjectForm() {
@@ -133,7 +133,11 @@ export function CreateProjectForm() {
       datas: {
         from: new Date(),
         to: new Date(new Date().setDate(new Date().getDate() + 1))
-      }
+      },
+      descricao: '',
+      equipes: [],
+      responsaveis: [],
+      prioridade: ''
     }
   });
 
@@ -156,13 +160,11 @@ export function CreateProjectForm() {
         dataInicio: format(projectData.datas.from, 'yyyy-MM-dd', { locale: ptBR }),
         dataFim: format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
         descricao: projectData.descricao,
-        setor: department,
-        equipesId: teamsId,
-        equipes: projectData.equipes,
-        chapas: membersChapas,
-        responsaveis: projectData.responsaveis,
+        departamento: department,
         prioridade: projectData.prioridade,
-        usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB'
+        usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB',
+        equipesId: teamsId,
+        chapas: membersChapas
       });
       
       toast.success('Projeto criado com sucesso!');
@@ -239,20 +241,18 @@ export function CreateProjectForm() {
                             to: range?.to
                           })
                         }}
+                        disabled={{ before: new Date() }}
                       />
                     </PopoverContent>
                   </Popover>
                 </FormControl>
                 {form.formState.errors.datas?.from ? (
-                  form.formState.errors.datas?.from.type === 'invalid_date' 
-                  ? <span className="text-sm font-medium text-destructive">As datas devem ser selecionadas</span>
+                  form.formState.errors.datas?.from.type == 'invalid_date' ? <span className="text-sm font-medium text-destructive">As datas devem ser selecionadas</span>
                   : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.from.message}</span>
                 ) : (
-                    form.formState.errors.datas?.to?.type === 'invalid_date' 
-                    ? <span className="text-sm font-medium text-destructive">Selecione a data final</span>
-                    : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.to?.message}</span>
-                  )
-                }
+                  form.formState.errors.datas?.to?.type == 'invalid_date' ? <span className="text-sm font-medium text-destructive">Selecione a data final</span>
+                  : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.to?.message}</span>
+                )}
               </FormItem>
             )}
           />

@@ -5,15 +5,20 @@ export interface GetArchivedProjectsByDepartmentBody {
 }
 
 export interface GetArchivedProjectsResponse {
-  ID: string;
+  ID: number;
   NOME: string;
   DATA_INICIO: string;
   DATA_FIM: string;
   DESCRICAO: string;
-  EQUIPES: string;
-  RESPONSAVEIS: string;
+  DEPARTAMENTO: string;
   STATUS: string;
   PRIORIDADE: string;
+  DATA_INCLUSAO: string;
+  ATRASADO: string;
+  EQUIPES_ID: string;
+  EQUIPES: string;
+  CHAPAS: string;
+  MEMBROS: string;
 };
 
 export async function getArchivedProjects({ department }: GetArchivedProjectsByDepartmentBody) {

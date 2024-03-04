@@ -54,7 +54,7 @@ import { getTeamsByDepartment, GetTeamsByDepartmentResponse } from '@/app/api/de
 import { getMembersByDepartment, GetMembersByDepartmentResponse } from '@/app/api/departments/get-members-by-department';
 
 const formSchema = z.object({
-  nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }).max(100, { message: "O nome deve possuir no máximo 100 caracteres." }),
+  nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }),
   datas: z.object({
     from: z.coerce.date(),
     to: z.coerce.date()
@@ -64,7 +64,7 @@ const formSchema = z.object({
     .array(z.string()).min(1, { message: 'Selecione pelo menos uma equipe.' }),
   responsaveis: z
     .array(z.string()).min(1, { message: 'Selecione pelo menos um responsável.' }),
-  prioridade: z.string()
+  prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
 });
 
 export interface UpdateProjectFormProps {
@@ -107,7 +107,7 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
   useEffect(() => {
     setTeam(project?.EQUIPES.split(',') || []);
     setTeamsId(teamsIdNumber);
-    setMember(project?.RESPONSAVEIS.split(',') || []);
+    setMember(project?.MEMBROS.split(',') || []);
     handleTeamsChange(project?.EQUIPES.split(',') || []);
   }, [project]);
 
@@ -202,7 +202,7 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
       },
       descricao: project?.DESCRICAO ?? '',
       equipes: project?.EQUIPES.split(',') || [],
-      responsaveis: project?.RESPONSAVEIS.split(',') || [],
+      responsaveis: project?.MEMBROS.split(',') || [],
       prioridade: project?.PRIORIDADE || ''
     }
   });
@@ -309,15 +309,12 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
                   </Popover>
                 </FormControl>
                 {form.formState.errors.datas?.from ? (
-                  form.formState.errors.datas?.from.type === 'invalid_date' 
-                  ? <span className="text-sm font-medium text-destructive">As datas devem ser selecionadas</span>
+                  form.formState.errors.datas?.from.type == 'invalid_date' ? <span className="text-sm font-medium text-destructive">As datas devem ser selecionadas.</span>
                   : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.from.message}</span>
                 ) : (
-                    form.formState.errors.datas?.to?.type === 'invalid_date' 
-                    ? <span className="text-sm font-medium text-destructive">Selecione a data final</span>
-                    : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.to?.message}</span>
-                  )
-                }
+                  form.formState.errors.datas?.to?.type == 'invalid_date' ? <span className="text-sm font-medium text-destructive">Selecione a data final.</span>
+                  : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.to?.message}</span>
+                )}
               </FormItem>
             )}
           />
@@ -388,7 +385,7 @@ export function UpdateProjectForm({projectId, open}: UpdateProjectFormProps) {
                         ? 'Selecione a(s) equipe(s)'
                         : 'Selecione os responsáveis'
                     }
-                    disabled={teams.length === 0}
+                    disabled={team.length === 0}
                   />
                 </FormControl>
                 <FormMessage />

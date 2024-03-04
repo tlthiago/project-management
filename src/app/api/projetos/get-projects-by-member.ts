@@ -10,13 +10,15 @@ export interface GetProjectsByChapaResponse {
   DATA_INICIO: string;
   DATA_FIM: string;
   DESCRICAO: string;
-  SETOR: string;
-  EQUIPES_ID: string;
-  EQUIPE: string;
-  CHAPAS: string;
-  RESPONSAVEIS: string;
+  DEPARTAMENTO: string;
   STATUS: string;
   PRIORIDADE: string;
+  DATA_INCLUSAO: string;
+  ATRASADO: string;
+  EQUIPES_ID: string;
+  EQUIPES: string;
+  CHAPAS: string;
+  MEMBROS: string;
 };
 
 export async function getProjectsByChapa({ chapa }: GetProjectsByChapaParams) {

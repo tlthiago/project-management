@@ -22,7 +22,7 @@ import { GetMemberByChapaResponse, getMemberByChapa } from '@/app/api/department
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { UpdateProjectForm } from '@/app/(projetos)/projetos/components/update-project-form';
 import { toast } from 'sonner';
-import { archiveProject } from '@/app/api/projetos/archive-project';
+import { archiveProject } from '@/app/api/arquivados/archive-project';
 import { useState } from 'react';
 import { queryClient } from '@/lib/react-query';
 

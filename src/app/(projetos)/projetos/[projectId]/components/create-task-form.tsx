@@ -16,7 +16,6 @@ import { DateRange } from 'react-day-picker';
 import { useController, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { departments } from '@/app/api/data/data';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -55,18 +54,19 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createTask } from '@/app/api/projetos/create-task';
+import { createTask } from '@/app/api/projetos/tarefas/create-task';
 import { toast } from 'sonner';
 import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
 import { useSession } from 'next-auth/react';
 import { GetMembersByDepartmentResponse, getMembersByDepartment } from '@/app/api/departments/get-members-by-department';
 
 interface createTaskFormProps {
-  projectId: string
+  projectId: string;
+  open: boolean;
 }
 
 export const taskSchema = z.object({
-  nome: z.string().min(1, { message: 'O nome da tarefa deve ser informado.' }).max(100, { message: "O nome deve possuir no máximo 100 caracteres." }),
+  nome: z.string().min(1, { message: 'O nome da tarefa deve ser informado.' }),
   datas: z.object({
       from: z.coerce.date(),
       to: z.coerce.date()
@@ -78,19 +78,20 @@ export const taskSchema = z.object({
   prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
 });
 
-export function CreateTaskForm( { projectId }: createTaskFormProps ) {
+export function CreateTaskForm( { projectId, open }: createTaskFormProps ) {
   const { data: session } = useSession();
   const department = session?.user.SETOR ?? '';
 
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
     queryFn: () => getProjectById({ projectId }),
-    enabled: !!projectId
+    enabled: !!open
   });
 
   const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
     queryKey: ['members', department],
-    queryFn: () => getMembersByDepartment({ department })
+    queryFn: () => getMembersByDepartment({ department }),
+    enabled: !!open
   });
 
   const [range, setRange] = useState<DateRange | undefined>({
@@ -98,7 +99,7 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
     to: new Date(new Date().setDate(new Date().getDate() + 1))
   });
 
-  const membersList: string[] = project?.RESPONSAVEIS.split(',') || [];
+  const membersList: string[] = project?.MEMBROS.split(',') || [];
   const [member, setMember] = useState<string[]>([]);
 
   const membersChapas: string[] = [];
@@ -118,7 +119,10 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
       datas: {
         from: new Date(),
         to: new Date(new Date().setDate(new Date().getDate() + 1))
-      }
+      },
+      descricao: '',
+      responsaveis: [],
+      prioridade: ''
     }
   });
 
@@ -141,9 +145,7 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
         dataInicio: format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }),
         dataFim: format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
         descricao: taskData.descricao,
-        setor: department,
         chapas: membersChapas,
-        responsaveis: taskData.responsaveis,
         prioridade: taskData.prioridade,
         usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB'
       });
@@ -222,20 +224,18 @@ export function CreateTaskForm( { projectId }: createTaskFormProps ) {
                             to: range?.to
                           })
                         }}
+                        disabled={{ before: new Date() }}
                       />
                     </PopoverContent>
                   </Popover>
                 </FormControl>
                 {form.formState.errors.datas?.from ? (
-                  form.formState.errors.datas?.from.type === 'invalid_date' 
-                  ? <span className="text-sm font-medium text-destructive">As datas devem ser selecionadas</span>
+                  form.formState.errors.datas?.from.type == 'invalid_date' ? <span className="text-sm font-medium text-destructive">As datas devem ser selecionadas.</span>
                   : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.from.message}</span>
                 ) : (
-                    form.formState.errors.datas?.to?.type === 'invalid_date' 
-                    ? <span className="text-sm font-medium text-destructive">Selecione a data final</span>
-                    : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.to?.message}</span>
-                  )
-                }
+                  form.formState.errors.datas?.to?.type == 'invalid_date' ? <span className="text-sm font-medium text-destructive">Selecione a data final.</span>
+                  : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.to?.message}</span>
+                )}
               </FormItem>
             )}
           />

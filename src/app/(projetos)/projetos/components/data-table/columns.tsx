@@ -24,11 +24,15 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Nome" />
     ),
-    cell: ({ row }) => (
-      <Link href={`projetos/${row.getValue('ID')}`}>
-        <span className="font-semibold">{row.getValue('NOME')}</span>
-      </Link>
-    )
+    cell: ({ row }) => { 
+      const atrasado = row.getValue('ATRASADO');
+      
+      return (
+        <Link href={`projetos/${row.getValue('ID')}`}>
+          <span className={`font-semibold ${atrasado === 'S ' ? 'text-rose-500' : ''}`}>{row.getValue('NOME')}</span>
+        </Link>
+      )
+    }
   },
   {
     accessorKey: 'DATA_INICIO',
@@ -38,7 +42,9 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
     cell: ({ row }) => {
       const dataInicioString: string = row.getValue('DATA_INICIO');
       const dataInicio = new Date(dataInicioString);
-      return <div>{dataInicio.toLocaleDateString('pt-BR')}</div>;
+      const atrasado = row.getValue('ATRASADO');
+
+      return <div className={atrasado === 'S ' ? 'text-rose-500 font-semibold' : ''}>{dataInicio.toLocaleDateString('pt-BR')}</div>;
     }
   },
   {
@@ -49,7 +55,9 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
     cell: ({ row }) => {
       const dataFimString: string = row.getValue('DATA_FIM');
       const dataFim = new Date(dataFimString);
-      return <div>{dataFim.toLocaleDateString('pt-BR')}</div>;
+      const atrasado = row.getValue('ATRASADO');
+
+      return <div className={atrasado === 'S ' ? 'text-rose-500 font-semibold' : ''}>{dataFim.toLocaleDateString('pt-BR')}</div>;
     }
   },
   {
@@ -58,17 +66,19 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Equipes" />
     ),
     cell: ({ row }) => {
-      return <div className='line-clamp-1 max-w-96'>{row.getValue('EQUIPES')}</div>
+      const atrasado = row.getValue('ATRASADO');
+
+      return <div className={`line-clamp-1 max-w-96 ${atrasado === 'S ' ? 'text-rose-500 font-semibold' : ''}`}>{row.getValue('EQUIPES')}</div>
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     }
   },
   {
-    accessorKey: 'RESPONSAVEIS',
-    header: () => <div>Responsáveis</div>,
+    accessorKey: 'MEMBROS',
+    header: () => <div>Membros</div>,
     cell: ({ row }) => {
-      return <UsersAvatar members={row.getValue('RESPONSAVEIS')} />
+      return <UsersAvatar members={row.getValue('MEMBROS')} />
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -100,6 +110,20 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     }
+  },
+  {
+    accessorKey: 'ATRASADO',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Atrasado" />
+    ),
+    cell: ({ row }) => {
+      return <span>{row.getValue('ATRASADO')}</span>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+    enableSorting: false,
+    enableHiding: false
   },
   {
     id: 'actions',

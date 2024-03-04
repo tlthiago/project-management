@@ -40,7 +40,8 @@ export function CreateTeamForm() {
 
   const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
     queryKey: ['members', department],
-    queryFn: () => getMembersByDepartment({ department })
+    queryFn: () => getMembersByDepartment({ department }),
+    enabled: !!department
   });
 
   const queryClient = useQueryClient();
@@ -59,7 +60,7 @@ export function CreateTeamForm() {
         chapas.push(member.CHAPA)
       }
     })
-  })
+  });
 
   const form = useForm<z.infer<typeof teamSchema>>({
     resolver: zodResolver(teamSchema),
@@ -76,7 +77,7 @@ export function CreateTeamForm() {
       queryClient.invalidateQueries({ queryKey: ['teams', department] });
       queryClient.invalidateQueries({ queryKey: ['members', department] });
     }
-  })
+  });
   
   async function onSubmit(teamData: z.infer<typeof teamSchema>) {
     try {
@@ -84,7 +85,6 @@ export function CreateTeamForm() {
         teamName: teamData.teamName,
         department: department,
         chapas: chapas,
-        members: teamData.members,
         usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB'
       })
 

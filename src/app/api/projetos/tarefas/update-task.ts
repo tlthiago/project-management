@@ -10,12 +10,10 @@ export interface UpdateTaskBody {
   dataInicio?: string
   dataFim?: string
   descricao?: string
-  chapas?: string[]
-  responsaveis: string[]
   prioridade?: string
+  usuInclusao?: string
   added?: MemberData
   removed?: MemberData
-  usuInclusao?: string
 }
 
 export async function updateTask({

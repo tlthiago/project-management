@@ -8,7 +8,7 @@ import { UsersAvatar } from '@/components/users-avatar';
 
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
-import { GetArchivedProjectsResponse } from '@/app/api/projetos/get-archived-projects';
+import { GetArchivedProjectsResponse } from '@/app/api/arquivados/get-archived-projects';
 import Status from '@/components/status';
 import Priority from '@/components/priority';
 
@@ -61,10 +61,10 @@ export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
     }
   },
   {
-    accessorKey: 'RESPONSAVEIS',
+    accessorKey: 'MEMBROS',
     header: () => <div>Responsáveis</div>,
     cell: ({ row }) => {
-      return <UsersAvatar members={row.getValue('RESPONSAVEIS')} />
+      return <UsersAvatar members={row.getValue('MEMBROS')} />
     }
   },
   {

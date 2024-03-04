@@ -5,18 +5,20 @@ export interface GetProjectByIdParams {
 }
 
 export interface GetProjectByIdResponse {
-  ID: string;
+  ID: number;
   NOME: string;
   DATA_INICIO: string;
   DATA_FIM: string;
   DESCRICAO: string;
-  SETOR: string;
+  DEPARTAMENTO: string;
+  STATUS: string;
+  PRIORIDADE: string;
+  DATA_INCLUSAO: string;
+  ATRASADO: string;
   EQUIPES_ID: string;
   EQUIPES: string;
   CHAPAS: string;
-  RESPONSAVEIS: string;
-  STATUS: string;
-  PRIORIDADE: string;
+  MEMBROS: string;
 };
 
 export async function getProjectById({ projectId }: GetProjectByIdParams) {

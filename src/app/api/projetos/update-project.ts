@@ -14,11 +14,6 @@ export interface UpdateProjectBody {
   prioridade?: string
   removed?: TeamMemberData
   added?: TeamMemberData
-  setor?: string
-  equipesId?: number[]
-  equipes?: string[]
-  chapas?: string[]
-  responsaveis?: string[]
   usuInclusao?: string
 }
 
@@ -31,11 +26,6 @@ export async function updateProject({
   prioridade,
   removed,
   added,
-  setor,
-  equipesId,
-  equipes,
-  chapas,
-  responsaveis,
   usuInclusao
 }: UpdateProjectBody) {
   const projectData = {
@@ -46,11 +36,6 @@ export async function updateProject({
     prioridade,
     removed,
     added,
-    setor,
-    equipesId,
-    equipes,
-    chapas,
-    responsaveis,
     usuInclusao
   };
   

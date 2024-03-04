@@ -24,7 +24,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { archiveProject } from '@/app/api/projetos/archive-project';
+import { archiveProject } from '@/app/api/arquivados/archive-project';
 import { UpdateProjectForm } from '../update-project-form';
 import { useSession } from 'next-auth/react';
 import { GetMemberByChapaResponse, getMemberByChapa } from '@/app/api/departments/get-member-by-chapa';

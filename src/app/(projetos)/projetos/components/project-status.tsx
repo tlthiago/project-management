@@ -32,28 +32,39 @@ export default function ProjectStatus({ projectId, status }: ProjectStatusProps)
   
   const handleStatusChange = async (status: string) => {
     switch (status) {
-      case 'Atrasado':
-        await UpdateProjectStatusFn({ 
-          id: projectId,
-          status: status
-        });
-        break;
       case 'Pendente':
         await UpdateProjectStatusFn({ 
-          id: projectId,
+          projectId: projectId,
           status: status
         });
         break;
       case 'Em andamento':
         await UpdateProjectStatusFn({ 
-          id: projectId,
+          projectId: projectId,
           status: status
         });
         break;
       case 'Finalizado':
         await UpdateProjectStatusFn({ 
-          id: projectId,
+          projectId: projectId,
           status: status
+        });
+        break;
+    }
+  }
+
+  const updateProjectStatus = async (status: string) => {
+    switch (status) {
+      case 'Pendente':
+        await UpdateProjectStatusFn({ 
+          projectId: projectId,
+          status: 'Em andamento'
+        });
+        break;
+      case 'Em andamento':
+        await UpdateProjectStatusFn({ 
+          projectId: projectId,
+          status: 'Finalizado'
         });
         break;
     }
@@ -75,12 +86,6 @@ export default function ProjectStatus({ projectId, status }: ProjectStatusProps)
           <SelectValue placeholder={<Status status={status} />} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="Atrasado">
-            <div className="flex items-center text-rose-600 font-semibold">
-              <HelpCircle className="mr-2 h-4 w-4 " />
-              <span>Atrasado</span>
-            </div>
-          </SelectItem>
           <SelectItem value="Pendente">
             <div className="flex items-center">
               <Circle className="mr-2 h-4 w-4 " />
@@ -102,7 +107,10 @@ export default function ProjectStatus({ projectId, status }: ProjectStatusProps)
         </SelectContent>
       </Select>
       ) : (
-        <Status status={status} />
+        <Button disabled={isPending || status === 'Finalizado'} variant="outline" className="flex items-center gap-1" onClick={() => updateProjectStatus(status)}>
+          <Status status={status} />
+          {status !== "Finalizado" && <ChevronRight className="size-4" />}
+        </Button>
       )}
     </>
   )

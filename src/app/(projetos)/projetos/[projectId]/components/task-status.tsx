@@ -35,31 +35,21 @@ export default function TaskStatus({ projectId, taskId, status }: TaskStatusProp
   
   const handleStatusChange = async (status: string) => {
     switch (status) {
-      case 'Atrasado':
-        await UpdateTaskStatusFn({ 
-          taskId: taskId,
-          projectId: projectId,
-          status: status
-        });
-        break;
       case 'Pendente':
         await UpdateTaskStatusFn({ 
           taskId: taskId,
-          projectId: projectId,
           status: status
         });
         break;
       case 'Em andamento':
         await UpdateTaskStatusFn({ 
           taskId: taskId,
-          projectId: projectId,
           status: status
         });
         break;
       case 'Finalizado':
         await UpdateTaskStatusFn({ 
           taskId: taskId,
-          projectId: projectId,
           status: status
         });
         break;
@@ -68,24 +58,15 @@ export default function TaskStatus({ projectId, taskId, status }: TaskStatusProp
 
   const updateTaskStatus = async (status: string) => {
     switch (status) {
-      case 'Atrasado':
-        await UpdateTaskStatusFn({ 
-          taskId: taskId,
-          projectId: projectId,
-          status: 'Em andamento'
-        });
-        break;
       case 'Pendente':
         await UpdateTaskStatusFn({ 
           taskId: taskId,
-          projectId: projectId,
           status: 'Em andamento'
         });
         break;
       case 'Em andamento':
         await UpdateTaskStatusFn({ 
           taskId: taskId,
-          projectId: projectId,
           status: 'Finalizado'
         });
         break;
@@ -108,12 +89,6 @@ export default function TaskStatus({ projectId, taskId, status }: TaskStatusProp
           <SelectValue placeholder={<Status status={status} />} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="Atrasado">
-            <div className="flex items-center text-rose-600 font-semibold">
-              <HelpCircle className="mr-2 h-4 w-4 " />
-              <span>Atrasado</span>
-            </div>
-          </SelectItem>
           <SelectItem value="Pendente">
             <div className="flex items-center">
               <Circle className="mr-2 h-4 w-4 " />

@@ -6,9 +6,7 @@ export interface CreateTaskBody {
   dataInicio: string
   dataFim: string
   descricao: string
-  setor: string
   chapas: string[]
-  responsaveis: string[]
   prioridade: string
   usuInclusao: string
 }
@@ -19,9 +17,7 @@ export async function createTask({
   dataInicio,
   dataFim,
   descricao,
-  setor,
   chapas,
-  responsaveis,
   prioridade,
   usuInclusao
 }: CreateTaskBody) {
@@ -30,9 +26,7 @@ export async function createTask({
     dataInicio,
     dataFim,
     descricao,
-    setor,
     chapas,
-    responsaveis,
     prioridade,
     usuInclusao
   };
