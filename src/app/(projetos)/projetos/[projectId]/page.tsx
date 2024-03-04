@@ -1,8 +1,16 @@
-'use client'
+'use client';
 
-import { Kanban, MoreVertical, Plus, Star, Table } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { MoreVertical } from 'lucide-react';
+import { useState } from 'react';
 
 import { TaskContainer } from '@/app/(projetos)/projetos/[projectId]/components/kanban/task-container';
+import {
+  getProjectById,
+  GetProjectByIdResponse
+} from '@/app/api/projetos/get-project-by-id';
+import Priority from '@/components/priority';
+import Status from '@/components/status';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -11,27 +19,20 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TabsContent } from '@/components/ui/tabs';
 import { Tabs } from '@/components/ui/tabs';
-
-import { ProjectDetails } from './components/project-details';
 import { UsersAvatar } from '@/components/users-avatar';
+
+import {
+  getTasksByProject,
+  GetTasksByProjectResponse
+} from '../../../api/projetos/tarefas/get-tasks-by-project';
 import { CreateTaskForm } from './components/create-task-form';
+import { ProjectDetails } from './components/project-details';
 import { columns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
-import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { GetTasksByProjectResponse, getTasksByProject } from '../../../api/projetos/tarefas/get-tasks-by-project';
-import Status from '@/components/status';
-import Priority from '@/components/priority';
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 
-export default function Project({
-  params
-}: {
-  params: { projectId: string };
-}) {  
+export default function Project({ params }: { params: { projectId: string } }) {
   const projectId: string = params.projectId;
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -54,24 +55,25 @@ export default function Project({
 
   const dataInicio = new Date(dataInicioString);
   const dataFim = new Date(dataFimString);
-  
+
   return (
     <div className="space-y-3">
-      <Card className='grid grid-cols-4'>
-        <CardHeader className='col-span-3'>
+      <Card className="grid grid-cols-4">
+        <CardHeader className="col-span-3">
           <CardTitle className="flex items-center justify-between">
-            <span className="line-clamp-1 max-w-7xl">
-              {project?.NOME}
-            </span>
+            <span className="line-clamp-1 max-w-7xl">{project?.NOME}</span>
           </CardTitle>
           <CardDescription className="line-clamp-1 max-w-6xl">
             {project?.DESCRICAO}
           </CardDescription>
         </CardHeader>
-        <div className='col-span-1 p-4 flex justify-end gap-2'>
-          <div className='space-y-2 text-sm'>
-            <div>Datas: {dataInicio.toLocaleDateString('pt-BR')} a {dataFim.toLocaleDateString('pt-BR')}</div>
-            <div className='flex gap-1'>
+        <div className="col-span-1 flex justify-end gap-2 p-4">
+          <div className="space-y-2 text-sm">
+            <div>
+              Datas: {dataInicio.toLocaleDateString('pt-BR')} a{' '}
+              {dataFim.toLocaleDateString('pt-BR')}
+            </div>
+            <div className="flex gap-1">
               <span>Status:</span>
               <Status status={project?.STATUS} />
             </div>
@@ -79,8 +81,8 @@ export default function Project({
               <span>Prioridade: </span>
               <Priority priority={project?.PRIORIDADE} />
             </div>
-            <div className='line-clamp-1'>Equipes: {project?.EQUIPES}</div>
-            <div className='flex items-center gap-1'>
+            <div className="line-clamp-1">Equipes: {project?.EQUIPES}</div>
+            <div className="flex items-center gap-1">
               <span>Membros:</span>
               <UsersAvatar members={project?.MEMBROS} />
             </div>
@@ -103,10 +105,7 @@ export default function Project({
                 <DialogTrigger asChild>
                   <Button variant="default">Criar tarefa</Button>
                 </DialogTrigger>
-                <CreateTaskForm
-                  projectId={projectId}
-                  open={createTaskForm}
-                />
+                <CreateTaskForm projectId={projectId} open={createTaskForm} />
               </Dialog>
               {/* <TabsList className="bg-muted">
                 <TabsTrigger value="kanban">
@@ -125,7 +124,7 @@ export default function Project({
               <TaskContainer title="EM PROGRESSO" />
               <TaskContainer title="FINALIZADO" />
             </TabsContent>
-              <TabsContent value="table" className="px-5">
+            <TabsContent value="table" className="px-5">
               <DataTable columns={columns} data={tasks} />
             </TabsContent>
           </Tabs>

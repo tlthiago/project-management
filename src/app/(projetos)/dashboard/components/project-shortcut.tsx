@@ -1,6 +1,7 @@
-import Priority from "@/components/priority";
-import Status from "@/components/status";
 import Link from 'next/link';
+
+import Priority from '@/components/priority';
+import Status from '@/components/status';
 
 interface ProjectShortcutProps {
   id: number;
@@ -10,7 +11,7 @@ interface ProjectShortcutProps {
   priority: string;
 }
 
-export default function ProjectShortcut({ 
+export default function ProjectShortcut({
   id,
   name,
   teams,
@@ -19,16 +20,18 @@ export default function ProjectShortcut({
 }: ProjectShortcutProps) {
   return (
     <Link href={`projetos/${id}`}>
-      <div className="grid grid-cols-3 rounded-md items-center p-3 border mb-1">
+      <div className="mb-1 grid grid-cols-3 items-center rounded-md border p-3">
         <div className="col-span-2">
-          <div className='font-semibold line-clamp-1'>{name}</div>
-          <div className='text-xs text-muted-foreground line-clamp-1'>{teams}</div>
+          <div className="line-clamp-1 font-semibold">{name}</div>
+          <div className="line-clamp-1 text-xs text-muted-foreground">
+            {teams}
+          </div>
         </div>
-        <div className='flex text-sm justify-between gap-px'>
+        <div className="flex justify-between gap-px text-sm">
           <Status status={status} />
           <Priority priority={priority} />
         </div>
       </div>
     </Link>
-  )
+  );
 }

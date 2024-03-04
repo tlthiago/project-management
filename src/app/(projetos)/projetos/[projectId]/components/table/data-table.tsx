@@ -35,15 +35,15 @@ interface DataTableProps<TData, TValue> {
 
 export function DataTable<TData, TValue>({
   columns,
-  data,
+  data
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
-      'ID': false,
-      'PROJETO_ID': false,
-      'CHAPAS': false,
-      'ATRASADO': false
+      ID: false,
+      PROJETO_ID: false,
+      CHAPAS: false,
+      ATRASADO: false
     });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

@@ -1,20 +1,24 @@
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
+
+import { updateMemberRole } from '@/app/api/departments/update-member-role';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { updateMemberRole } from '@/app/api/departments/update-member-role';
+  SelectValue
+} from '@/components/ui/select';
 
 export interface UpdateMemberRoleProps {
   chapa: string;
   role: string;
 }
 
-export default function UpdateMemberRole({ chapa, role }: UpdateMemberRoleProps) {
+export default function UpdateMemberRole({
+  chapa,
+  role
+}: UpdateMemberRoleProps) {
   const handleChangeRole = async (role: string) => {
     try {
       await updateMemberRoleFn({
@@ -26,7 +30,7 @@ export default function UpdateMemberRole({ chapa, role }: UpdateMemberRoleProps)
     } catch {
       toast.error('Erro ao atualizar a função, contate o administrador.');
     }
-  }
+  };
 
   const { mutateAsync: updateMemberRoleFn, isPending } = useMutation({
     mutationFn: updateMemberRole
@@ -34,7 +38,11 @@ export default function UpdateMemberRole({ chapa, role }: UpdateMemberRoleProps)
 
   return (
     <div>
-      <Select disabled={isPending} defaultValue={role} onValueChange={handleChangeRole}>
+      <Select
+        disabled={isPending}
+        defaultValue={role}
+        onValueChange={handleChangeRole}
+      >
         <SelectTrigger>
           <SelectValue placeholder={role} />
         </SelectTrigger>
@@ -44,5 +52,5 @@ export default function UpdateMemberRole({ chapa, role }: UpdateMemberRoleProps)
         </SelectContent>
       </Select>
     </div>
-  )
+  );
 }

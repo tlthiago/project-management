@@ -1,17 +1,17 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
+import { useState } from 'react';
 
+import { GetTasksByProjectResponse } from '@/app/api/projetos/tarefas/get-tasks-by-project';
+import Priority from '@/components/priority';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { UsersAvatar } from '@/components/users-avatar';
 
 import { TaskDetails } from '../task-details';
+import TaskStatus from '../task-status';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
-import { GetTasksByProjectResponse } from '@/app/api/projetos/tarefas/get-tasks-by-project';
-import Priority from '@/components/priority';
-import { useState } from 'react';
-import TaskStatus from '../task-status';
 
 export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
   {
@@ -38,13 +38,15 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
       return (
         <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
           <DialogTrigger asChild>
-            <span className={`cursor-pointer font-semibold ${atrasado === 'S ' ? 'text-rose-500' : ''}`}>
+            <span
+              className={`cursor-pointer font-semibold ${atrasado === 'S ' ? 'text-rose-500' : ''}`}
+            >
               {row.getValue('NOME')}
             </span>
           </DialogTrigger>
           <TaskDetails open={isDetailsOpen} taskId={row.getValue('ID')} />
         </Dialog>
-      )
+      );
     }
   },
   {
@@ -52,9 +54,11 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
     header: () => <div>Descrição</div>,
     cell: ({ row }) => {
       const atrasado = row.getValue('ATRASADO');
-      
+
       return (
-        <div className={`line-clamp-1 max-w-96 ${atrasado === 'S ' ? 'text-rose-500 font-semibold' : ''}`}>
+        <div
+          className={`line-clamp-1 max-w-96 ${atrasado === 'S ' ? 'font-semibold text-rose-500' : ''}`}
+        >
           {row.getValue('DESCRICAO')}
         </div>
       );
@@ -70,7 +74,11 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
       const dataInicio = new Date(dataInicioString);
       const atrasado = row.getValue('ATRASADO');
 
-      return <div className={atrasado === 'S ' ? 'text-rose-500 font-semibold' : ''}>{dataInicio.toLocaleDateString('pt-BR')}</div>;
+      return (
+        <div className={atrasado === 'S ' ? 'font-semibold text-rose-500' : ''}>
+          {dataInicio.toLocaleDateString('pt-BR')}
+        </div>
+      );
     }
   },
   {
@@ -83,14 +91,18 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
       const dataFim = new Date(dataFimString);
       const atrasado = row.getValue('ATRASADO');
 
-      return <div className={atrasado === 'S ' ? 'text-rose-500 font-semibold' : ''}>{dataFim.toLocaleDateString('pt-BR')}</div>;
+      return (
+        <div className={atrasado === 'S ' ? 'font-semibold text-rose-500' : ''}>
+          {dataFim.toLocaleDateString('pt-BR')}
+        </div>
+      );
     }
   },
   {
     accessorKey: 'MEMBROS',
     header: () => <div>Membros</div>,
     cell: ({ row }) => {
-      return <UsersAvatar members={row.getValue('MEMBROS')} />
+      return <UsersAvatar members={row.getValue('MEMBROS')} />;
     }
   },
   {
@@ -98,9 +110,7 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
     header: () => <div>Chapas</div>,
     cell: ({ row }) => {
       return (
-        <div className="line-clamp-1 max-w-96">
-          {row.getValue('CHAPAS')}
-        </div>
+        <div className="line-clamp-1 max-w-96">{row.getValue('CHAPAS')}</div>
       );
     },
     enableHiding: false
@@ -108,14 +118,16 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
   {
     accessorKey: 'STATUS',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status"/>
+      <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
       const projectId: number = row.getValue('PROJETO_ID');
       const taskId: number = row.getValue('ID');
       const status: string = row.getValue('STATUS');
-  
-      return <TaskStatus projectId={projectId} taskId={taskId} status={status} />;
+
+      return (
+        <TaskStatus projectId={projectId} taskId={taskId} status={status} />
+      );
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -127,7 +139,7 @@ export const columns: ColumnDef<GetTasksByProjectResponse>[] = [
       <DataTableColumnHeader column={column} title="Prioridade" />
     ),
     cell: ({ row }) => {
-      return <Priority priority={row.getValue('PRIORIDADE')} />
+      return <Priority priority={row.getValue('PRIORIDADE')} />;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));

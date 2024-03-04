@@ -2,11 +2,11 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 
-import { DataTableColumnHeader } from './data-table-column-header';
-import { DataTableRowActions } from './data-table-row-actions';
 import { GetMembersByDepartmentResponse } from '@/app/api/departments/get-members-by-department';
 import { UserAvatar } from '@/components/user-avatar';
+
 import UpdateMemberRole from '../../update-member-role';
+import { DataTableColumnHeader } from './data-table-column-header';
 
 export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
   {
@@ -23,14 +23,16 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className='flex items-center gap-2'>
+        <div className="flex items-center gap-2">
           <UserAvatar member={row.getValue('NOME')} />
-          <div className='flex flex-col'>
+          <div className="flex flex-col">
             <span className="font-semibold">{row.getValue('NOME')}</span>
-            <span className="text-xs text-muted-foreground">{row.getValue('CARGO')}</span>
+            <span className="text-xs text-muted-foreground">
+              {row.getValue('CARGO')}
+            </span>
           </div>
         </div>
-      )
+      );
     }
   },
   {
@@ -53,7 +55,7 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Equipes" />
     ),
     cell: ({ row }) => {
-      return <span>{row.getValue('EQUIPE_ID')}</span>
+      return <span>{row.getValue('EQUIPE_ID')}</span>;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -67,11 +69,11 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Equipes" />
     ),
     cell: ({ row }) => {
-      return <span>{row.getValue('EQUIPE')}</span>
+      return <span>{row.getValue('EQUIPE')}</span>;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
-    },
+    }
   },
   {
     accessorKey: 'FUNCAO',
@@ -79,12 +81,17 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Função" />
     ),
     cell: ({ row }) => {
-      return <UpdateMemberRole chapa={row.getValue('CHAPA')} role={row.getValue('FUNCAO')} />
+      return (
+        <UpdateMemberRole
+          chapa={row.getValue('CHAPA')}
+          role={row.getValue('FUNCAO')}
+        />
+      );
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     }
-  },
+  }
   // {
   //   id: 'actions',
   //   cell: ({ row }) => <DataTableRowActions row={row} />

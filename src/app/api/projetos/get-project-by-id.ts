@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
 
 export interface GetProjectByIdParams {
-  projectId: string
+  projectId: string;
 }
 
 export interface GetProjectByIdResponse {
@@ -19,10 +19,12 @@ export interface GetProjectByIdResponse {
   EQUIPES: string;
   CHAPAS: string;
   MEMBROS: string;
-};
+}
 
 export async function getProjectById({ projectId }: GetProjectByIdParams) {
-  const response = await api.get<GetProjectByIdResponse>(`/projects/${projectId}`)
+  const response = await api.get<GetProjectByIdResponse>(
+    `/projects/${projectId}`
+  );
 
   return response.data;
 }

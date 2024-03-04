@@ -19,10 +19,15 @@ export interface GetProjectsByDepartmentResponse {
   EQUIPES: string;
   CHAPAS: string;
   MEMBROS: string;
-};
+}
 
-export async function getProjectsByDepartment({ department }: GetProjectsByDepartmentBody) {
-  const response = await api.post<GetProjectsByDepartmentResponse[]>('projects', { department });
-  
+export async function getProjectsByDepartment({
+  department
+}: GetProjectsByDepartmentBody) {
+  const response = await api.post<GetProjectsByDepartmentResponse[]>(
+    'projects',
+    { department }
+  );
+
   return response.data;
 }

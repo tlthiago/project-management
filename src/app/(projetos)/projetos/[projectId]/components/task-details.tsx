@@ -1,3 +1,11 @@
+import { useQuery } from '@tanstack/react-query';
+
+import {
+  getTaskById,
+  GetTaskByIdResponse
+} from '@/app/api/projetos/tarefas/get-task-by-id';
+import Priority from '@/components/priority';
+import Status from '@/components/status';
 import {
   DialogContent,
   DialogHeader,
@@ -7,13 +15,9 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
 import { UsersAvatar } from '@/components/users-avatar';
+
 import { TaskComment } from './task-comment';
-import { GetTaskByIdResponse, getTaskById } from '@/app/api/projetos/tarefas/get-task-by-id';
-import { useQuery } from '@tanstack/react-query';
-import Status from '@/components/status';
-import Priority from '@/components/priority';
 
 interface TaskDetailsProps {
   taskId: string;
@@ -25,7 +29,7 @@ export function TaskDetails({ taskId, open }: TaskDetailsProps) {
     queryKey: ['task', taskId],
     queryFn: () => getTaskById({ taskId }),
     enabled: open
-  })
+  });
 
   const dataInicioString: string = task?.DATA_INICIO || '';
   const dataFimString: string = task?.DATA_FIM || '';
@@ -59,7 +63,10 @@ export function TaskDetails({ taskId, open }: TaskDetailsProps) {
           <TableRow>
             <TableCell className="text-muted-foreground">Datas</TableCell>
             <TableCell className="text-right">
-              <span>{dataInicio.toLocaleDateString('pt-BR')} a {dataFim.toLocaleDateString('pt-BR')}</span>
+              <span>
+                {dataInicio.toLocaleDateString('pt-BR')} a{' '}
+                {dataFim.toLocaleDateString('pt-BR')}
+              </span>
             </TableCell>
           </TableRow>
 
@@ -68,7 +75,7 @@ export function TaskDetails({ taskId, open }: TaskDetailsProps) {
               Responsáveis
             </TableCell>
             <TableCell className="flex justify-end gap-1">
-             <UsersAvatar members={task?.MEMBROS} />
+              <UsersAvatar members={task?.MEMBROS} />
             </TableCell>
           </TableRow>
         </TableBody>

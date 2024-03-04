@@ -1,6 +1,6 @@
-import NextAuth from "next-auth";
+import 'next-auth';
 
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     user: {
       CODUSUARIO: string;
@@ -11,6 +11,6 @@ declare module "next-auth" {
       LOGINID: string;
       CHAPA: string;
       SETOR: string;
-    }
+    };
   }
 }

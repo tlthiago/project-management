@@ -1,3 +1,11 @@
+import { useQuery } from '@tanstack/react-query';
+
+import {
+  getProjectById,
+  GetProjectByIdResponse
+} from '@/app/api/projetos/get-project-by-id';
+import Priority from '@/components/priority';
+import Status from '@/components/status';
 import {
   DialogContent,
   DialogHeader,
@@ -5,16 +13,11 @@ import {
 } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
 import { UsersAvatar } from '@/components/users-avatar';
-import { useQuery } from '@tanstack/react-query';
-import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
-import Status from '@/components/status';
-import Priority from '@/components/priority';
 
 interface ProjectDetailsProps {
-  projectId?: string
-  open: boolean
+  projectId?: string;
+  open: boolean;
 }
 
 export function ProjectDetails({ projectId, open }: ProjectDetailsProps) {
@@ -22,7 +25,7 @@ export function ProjectDetails({ projectId, open }: ProjectDetailsProps) {
     queryKey: ['project', projectId],
     queryFn: () => getProjectById({ projectId }),
     enabled: open
-  })
+  });
 
   const dataInicioString: string = project?.DATA_INICIO || '';
   const dataFimString: string = project?.DATA_FIM || '';
@@ -55,7 +58,8 @@ export function ProjectDetails({ projectId, open }: ProjectDetailsProps) {
             <TableCell className="text-muted-foreground">Datas</TableCell>
             <TableCell className="text-right">
               <span>
-                {dataInicio.toLocaleDateString('pt-BR')} a {dataFim.toLocaleDateString('pt-BR')}
+                {dataInicio.toLocaleDateString('pt-BR')} a{' '}
+                {dataFim.toLocaleDateString('pt-BR')}
               </span>
             </TableCell>
           </TableRow>

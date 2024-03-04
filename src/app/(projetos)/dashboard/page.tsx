@@ -1,26 +1,31 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Circle,
+  SquareStackIcon,
+  Timer
+} from 'lucide-react';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+
+import {
+  getProjectsByDepartment,
+  GetProjectsByDepartmentResponse
+} from '@/app/api/projetos/get-projects-by-department';
+import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   CardDescription,
-  CardFooter
+  CardHeader,
+  CardTitle
 } from '@/components/ui/card';
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent
-} from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { AlertCircle, Circle, Timer, CheckCircle2, SquareStackIcon } from "lucide-react";
-import { useSession } from 'next-auth/react';
-import { useQuery } from '@tanstack/react-query';
-import { getProjectsByDepartment, GetProjectsByDepartmentResponse } from '@/app/api/projetos/get-projects-by-department';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import ProjectShortcut from './components/project-shortcut';
-import Link from 'next/link';
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -32,22 +37,37 @@ export default function Dashboard() {
     enabled: !!department
   });
 
-  const last5Projects = projects.slice().sort((a, b) => new Date(b.DATA_INCLUSAO).getTime() - new Date(a.DATA_INCLUSAO).getTime()).slice(0, 5);
+  const last5Projects = projects
+    .slice()
+    .sort(
+      (a, b) =>
+        new Date(b.DATA_INCLUSAO).getTime() -
+        new Date(a.DATA_INCLUSAO).getTime()
+    )
+    .slice(0, 5);
 
-  const delayedProjects = projects?.filter(project => project.ATRASADO === 'S ');
-  const pendingProjects = projects?.filter(project => project.STATUS === 'Pendente');
-  const inProgressProjects = projects?.filter(project => project.STATUS === 'Em andamento');
-  const finishedProjects = projects?.filter(project => project.STATUS === 'Finalizado');
+  const delayedProjects = projects?.filter(
+    (project) => project.ATRASADO === 'S '
+  );
+  const pendingProjects = projects?.filter(
+    (project) => project.STATUS === 'Pendente'
+  );
+  const inProgressProjects = projects?.filter(
+    (project) => project.STATUS === 'Em andamento'
+  );
+  const finishedProjects = projects?.filter(
+    (project) => project.STATUS === 'Finalizado'
+  );
 
   return (
-    <div className='space-y-5'>
+    <div className="space-y-5">
       <Tabs defaultValue="overview" className="space-y-4">
         <div className="flex justify-between">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <div className="flex items-center space-x-2">
             {/* <CalendarDateRangePicker /> */}
           </div>
-          <div className='space-x-2'>
+          <div className="space-x-2">
             <Button>Download</Button>
             <TabsList>
               <TabsTrigger value="overview">Visão geral</TabsTrigger>
@@ -70,14 +90,18 @@ export default function Dashboard() {
                 <div className="text-2xl font-bold">{projects?.length}</div>
               </CardContent>
             </Card>
-            <Link href='/projetos'>
-              <Card className='text-rose-500'>
+            <Link href="/projetos">
+              <Card className="text-rose-500">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Atrasados</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Atrasados
+                  </CardTitle>
                   <AlertCircle className="size-5" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold ">{delayedProjects.length}</div>
+                  <div className="text-2xl font-bold ">
+                    {delayedProjects.length}
+                  </div>
                 </CardContent>
               </Card>
             </Link>
@@ -87,7 +111,9 @@ export default function Dashboard() {
                 <Circle className="size-5" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{pendingProjects.length}</div>
+                <div className="text-2xl font-bold">
+                  {pendingProjects.length}
+                </div>
               </CardContent>
             </Card>
             <Card>
@@ -98,7 +124,9 @@ export default function Dashboard() {
                 <Timer className="size-5" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{inProgressProjects.length}</div>
+                <div className="text-2xl font-bold">
+                  {inProgressProjects.length}
+                </div>
               </CardContent>
             </Card>
             <Card>
@@ -109,7 +137,9 @@ export default function Dashboard() {
                 <CheckCircle2 className="size-5" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{finishedProjects.length}</div>
+                <div className="text-2xl font-bold">
+                  {finishedProjects.length}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -118,9 +148,7 @@ export default function Dashboard() {
               <CardHeader>
                 <CardTitle>Visão geral</CardTitle>
               </CardHeader>
-              <CardContent className="pl-2">
-                {/* <Overview /> */}
-              </CardContent>
+              <CardContent className="pl-2">{/* <Overview /> */}</CardContent>
             </Card>
             <Card className="col-span-4 2xl:col-span-3">
               <CardHeader>
@@ -130,16 +158,17 @@ export default function Dashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                {last5Projects.map(project => {
+                {last5Projects.map((project) => {
                   return (
-                    <ProjectShortcut key={project.ID}
+                    <ProjectShortcut
+                      key={project.ID}
                       id={project.ID}
                       name={project.NOME}
                       teams={project.EQUIPES}
                       status={project.STATUS}
                       priority={project.PRIORIDADE}
                     />
-                  ) 
+                  );
                 })}
               </CardContent>
             </Card>

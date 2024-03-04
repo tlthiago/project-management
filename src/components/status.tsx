@@ -1,4 +1,4 @@
-import { HelpCircle, Circle, Timer, CheckCircle2, Archive } from "lucide-react";
+import { Archive, CheckCircle2, Circle, HelpCircle, Timer } from 'lucide-react';
 
 export interface StatusProps {
   status?: string;
@@ -12,10 +12,10 @@ export default function Status({ status }: StatusProps) {
           <Archive className="mr-2 h-4 w-4 " />
           <span>{status}</span>
         </div>
-      )
+      );
     case 'Atrasado':
       return (
-        <div className="flex items-center text-rose-600 font-semibold">
+        <div className="flex items-center font-semibold text-rose-600">
           <HelpCircle className="mr-2 h-4 w-4 " />
           <span>{status}</span>
         </div>

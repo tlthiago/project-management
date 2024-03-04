@@ -4,10 +4,8 @@ export interface UnarchiveProjectParams {
   projectId: string;
 }
 
-export async function unarchiveProject({
-  projectId
-}: UnarchiveProjectParams) {
+export async function unarchiveProject({ projectId }: UnarchiveProjectParams) {
   const response = await api.put(`/projects/unarchive/${projectId}`);
 
-  return response.data
+  return response.data;
 }

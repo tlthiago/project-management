@@ -4,7 +4,7 @@ export const projectSchema = z.object({
   nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }),
   datas: z.object({
     dataInicio: z.coerce.date(),
-    dataFim: z.coerce.date(),
+    dataFim: z.coerce.date()
   }),
   descricao: z.string().min(1, { message: 'Descreva o projeto.' }),
   equipes: z

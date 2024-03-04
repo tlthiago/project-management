@@ -1,23 +1,27 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 
+import {
+  getMemberByChapa,
+  GetMemberByChapaResponse
+} from '@/app/api/departments/get-member-by-chapa';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { useState } from 'react';
+
+import { DeleteTaskDialog } from '../delete-task-dialog';
 import { TaskDetails } from '../task-details';
 import { UpdateTaskForm } from '../update-task-form';
-import { DeleteTaskDialog } from '../delete-task-dialog';
-import { useSession } from 'next-auth/react';
-import { useQuery } from '@tanstack/react-query';
-import { GetMemberByChapaResponse, getMemberByChapa } from '@/app/api/departments/get-member-by-chapa';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -58,7 +62,7 @@ export function DataTableRowActions<TData>({
           </DialogTrigger>
           <TaskDetails open={isDetailsOpen} taskId={row.getValue('ID')} />
         </Dialog>
-        {member?.FUNCAO === 'Administrador' && 
+        {member?.FUNCAO === 'Administrador' && (
           <>
             <Dialog open={isUpdateTaskOpen} onOpenChange={setIsUpdateTaskOpen}>
               <DialogTrigger asChild>
@@ -66,7 +70,11 @@ export function DataTableRowActions<TData>({
                   Editar
                 </DropdownMenuItem>
               </DialogTrigger>
-              <UpdateTaskForm open={isUpdateTaskOpen} projectId={row.getValue('PROJETO_ID')} taskId={row.getValue('ID')} />
+              <UpdateTaskForm
+                open={isUpdateTaskOpen}
+                projectId={row.getValue('PROJETO_ID')}
+                taskId={row.getValue('ID')}
+              />
             </Dialog>
             <Dialog>
               <DialogTrigger asChild>
@@ -77,7 +85,7 @@ export function DataTableRowActions<TData>({
               <DeleteTaskDialog taskId={row.getValue('ID')} />
             </Dialog>
           </>
-        }
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -1,34 +1,44 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ArrowDown, ArrowRight, ArrowUp, CalendarDays } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { DateRange } from 'react-day-picker';
-import { useController, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import * as z from 'zod';
 
+import {
+  getMembersByDepartment,
+  GetMembersByDepartmentResponse
+} from '@/app/api/departments/get-members-by-department';
+import {
+  getTeamsByDepartment,
+  GetTeamsByDepartmentResponse
+} from '@/app/api/departments/get-teams-by-department';
+import { createProject } from '@/app/api/projetos/create-project';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
+  dialogCloseFn,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  dialogCloseFn
+  DialogTitle
 } from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Label } from '@/components/ui/label';
+  FormMessage
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MultiSelect } from '@/components/ui/multi-select';
 import {
@@ -45,12 +55,6 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { createProject } from '@/app/api/projetos/create-project';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { useSession } from 'next-auth/react';
-import { GetTeamsByDepartmentResponse, getTeamsByDepartment } from '@/app/api/departments/get-teams-by-department';
-import { GetMembersByDepartmentResponse, getMembersByDepartment } from '@/app/api/departments/get-members-by-department';
 
 const formSchema = z.object({
   nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }),
@@ -60,16 +64,18 @@ const formSchema = z.object({
   }),
   descricao: z.string().min(1, { message: 'Descreva o projeto.' }),
   equipes: z
-    .array(z.string()).min(1, { message: 'Selecione pelo menos uma equipe.' }),
+    .array(z.string())
+    .min(1, { message: 'Selecione pelo menos uma equipe.' }),
   responsaveis: z
-    .array(z.string()).min(1, { message: 'Selecione pelo menos um responsável.' }),
+    .array(z.string())
+    .min(1, { message: 'Selecione pelo menos um responsável.' }),
   prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
 });
 
 export function CreateProjectForm() {
   const { data: session } = useSession();
   const department = session?.user.SETOR ?? '';
-  
+
   const [range, setRange] = useState<DateRange | undefined>({
     from: new Date(),
     to: new Date(new Date().setDate(new Date().getDate() + 1))
@@ -85,8 +91,8 @@ export function CreateProjectForm() {
     queryFn: () => getMembersByDepartment({ department })
   });
 
-  const teamsList: string[] = teams.map(team => team.NOME);
-  
+  const teamsList: string[] = teams.map((team) => team.NOME);
+
   const [team, setTeam] = useState<string[]>([]);
   const [teamsId, setTeamsId] = useState<number[]>([]);
   const [membersList, setMembersList] = useState<string[]>([]);
@@ -99,16 +105,18 @@ export function CreateProjectForm() {
     teams.map((team) => {
       selectedTeams.map((selectedTeam) => {
         if (selectedTeam === team.NOME) {
-          selectedTeamsId.push(team.ID);          
-          const teamMembers: string[] = team.MEMBROS.split(", ");
+          selectedTeamsId.push(team.ID);
+          const teamMembers: string[] = team.MEMBROS.split(', ');
           filteredMembers.push(...teamMembers);
         }
       });
     });
 
-    const removedTeam = team.filter(team => !selectedTeams.includes(team));
+    const removedTeam = team.filter((team) => !selectedTeams.includes(team));
     if (removedTeam.length > 0) {
-      const updatedMembers = member.filter(member => filteredMembers.includes(member));
+      const updatedMembers = member.filter((member) =>
+        filteredMembers.includes(member)
+      );
       setMember(updatedMembers);
     }
 
@@ -121,9 +129,9 @@ export function CreateProjectForm() {
   member.map((selectedMember) => {
     members.map((member) => {
       if (selectedMember === member.NOME) {
-        membersChapas.push(member.CHAPA)
+        membersChapas.push(member.CHAPA);
       }
-    })
+    });
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -157,7 +165,9 @@ export function CreateProjectForm() {
     try {
       await createProjectFn({
         nome: projectData.nome,
-        dataInicio: format(projectData.datas.from, 'yyyy-MM-dd', { locale: ptBR }),
+        dataInicio: format(projectData.datas.from, 'yyyy-MM-dd', {
+          locale: ptBR
+        }),
         dataFim: format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
         descricao: projectData.descricao,
         departamento: department,
@@ -166,7 +176,7 @@ export function CreateProjectForm() {
         equipesId: teamsId,
         chapas: membersChapas
       });
-      
+
       toast.success('Projeto criado com sucesso!');
       dialogCloseFn();
     } catch {
@@ -184,7 +194,7 @@ export function CreateProjectForm() {
         </DialogDescription>
       </DialogHeader>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
             name="nome"
@@ -208,24 +218,25 @@ export function CreateProjectForm() {
                 <FormControl>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button 
+                      <Button
                         variant="outline"
                         className={cn(
-                        'w-60 justify-start text-left font-normal',
-                        !field.value && 'text-muted-foreground'
-                        )}>
-                          <CalendarDays className='mr-2 size-4' />
-                          {field.value.from && field.value.to
-                            ? `${format(field.value.from, 'P', {
-                                locale: ptBR
-                              })} a ${format(field.value.to, 'P', {
-                                locale: ptBR
-                              })}`
-                            : 'Selecione as datas'}
+                          'w-60 justify-start text-left font-normal',
+                          !field.value && 'text-muted-foreground'
+                        )}
+                      >
+                        <CalendarDays className="mr-2 size-4" />
+                        {field.value.from && field.value.to
+                          ? `${format(field.value.from, 'P', {
+                              locale: ptBR
+                            })} a ${format(field.value.to, 'P', {
+                              locale: ptBR
+                            })}`
+                          : 'Selecione as datas'}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className='flex w-auto p-0'>
-                      <Calendar 
+                    <PopoverContent className="flex w-auto p-0">
+                      <Calendar
                         mode="range"
                         selected={{
                           from: field.value.from,
@@ -239,7 +250,7 @@ export function CreateProjectForm() {
                           setRange({
                             from: range?.from,
                             to: range?.to
-                          })
+                          });
                         }}
                         disabled={{ before: new Date() }}
                       />
@@ -247,11 +258,23 @@ export function CreateProjectForm() {
                   </Popover>
                 </FormControl>
                 {form.formState.errors.datas?.from ? (
-                  form.formState.errors.datas?.from.type == 'invalid_date' ? <span className="text-sm font-medium text-destructive">As datas devem ser selecionadas</span>
-                  : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.from.message}</span>
+                  form.formState.errors.datas?.from.type == 'invalid_date' ? (
+                    <span className="text-sm font-medium text-destructive">
+                      As datas devem ser selecionadas
+                    </span>
+                  ) : (
+                    <span className="text-sm font-medium text-destructive">
+                      {form.formState.errors.datas?.from.message}
+                    </span>
+                  )
+                ) : form.formState.errors.datas?.to?.type == 'invalid_date' ? (
+                  <span className="text-sm font-medium text-destructive">
+                    Selecione a data final
+                  </span>
                 ) : (
-                  form.formState.errors.datas?.to?.type == 'invalid_date' ? <span className="text-sm font-medium text-destructive">Selecione a data final</span>
-                  : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.to?.message}</span>
+                  <span className="text-sm font-medium text-destructive">
+                    {form.formState.errors.datas?.to?.message}
+                  </span>
                 )}
               </FormItem>
             )}
@@ -264,7 +287,7 @@ export function CreateProjectForm() {
               <FormItem>
                 <FormLabel>Descrição</FormLabel>
                 <FormControl>
-                  <Textarea placeholder='Descreva o projeto' {...field} />
+                  <Textarea placeholder="Descreva o projeto" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -278,7 +301,7 @@ export function CreateProjectForm() {
               <FormItem>
                 <FormLabel>Equipes</FormLabel>
                 <FormControl>
-                  <MultiSelect 
+                  <MultiSelect
                     options={teamsList.map((teamName, index) => ({
                       value: teamName,
                       label: teamName,
@@ -306,7 +329,7 @@ export function CreateProjectForm() {
               <FormItem>
                 <FormLabel>Responsáveis</FormLabel>
                 <FormControl>
-                  <MultiSelect 
+                  <MultiSelect
                     options={membersList.map((memberName, index) => ({
                       value: memberName,
                       label: memberName,
@@ -338,10 +361,7 @@ export function CreateProjectForm() {
               <FormItem>
                 <FormLabel>Prioridade</FormLabel>
                 <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-60">
                         <SelectValue placeholder="Selecione a prioridade" />
@@ -351,7 +371,7 @@ export function CreateProjectForm() {
                       <SelectItem value="Baixa">
                         <div className="flex gap-3">
                           <div className="flex items-center">
-                            <ArrowDown className='size-4' />
+                            <ArrowDown className="size-4" />
                           </div>
                           <span>Baixa</span>
                         </div>
@@ -359,7 +379,7 @@ export function CreateProjectForm() {
                       <SelectItem value="Média">
                         <div className="flex gap-3">
                           <div className="flex items-center">
-                            <ArrowRight className='size-4' />
+                            <ArrowRight className="size-4" />
                           </div>
                           <span>Média</span>
                         </div>
@@ -367,7 +387,7 @@ export function CreateProjectForm() {
                       <SelectItem value="Alta">
                         <div className="flex gap-3">
                           <div className="flex items-center">
-                            <ArrowUp className='size-4' />
+                            <ArrowUp className="size-4" />
                           </div>
                           <span>Alta</span>
                         </div>
@@ -382,7 +402,9 @@ export function CreateProjectForm() {
 
           <div className="flex justify-center">
             <DialogFooter>
-              <Button disabled={form.formState.isSubmitting} type="submit">Criar projeto</Button>
+              <Button disabled={form.formState.isSubmitting} type="submit">
+                Criar projeto
+              </Button>
             </DialogFooter>
           </div>
         </form>

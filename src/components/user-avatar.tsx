@@ -28,7 +28,9 @@ export function UserAvatar({ member }: UsersAvatarProps) {
       <Tooltip>
         <TooltipTrigger asChild>
           <Avatar className="h-7 w-7">
-            <AvatarFallback className="bg-muted text-xs">{initials}</AvatarFallback>
+            <AvatarFallback className="bg-muted text-xs">
+              {initials}
+            </AvatarFallback>
           </Avatar>
         </TooltipTrigger>
         <TooltipContent>{member}</TooltipContent>

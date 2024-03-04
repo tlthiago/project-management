@@ -19,10 +19,15 @@ export interface GetArchivedProjectsResponse {
   EQUIPES: string;
   CHAPAS: string;
   MEMBROS: string;
-};
+}
 
-export async function getArchivedProjects({ department }: GetArchivedProjectsByDepartmentBody) {
-  const response = await api.post<GetArchivedProjectsResponse[]>('/archived-projects', { department });
+export async function getArchivedProjects({
+  department
+}: GetArchivedProjectsByDepartmentBody) {
+  const response = await api.post<GetArchivedProjectsResponse[]>(
+    '/archived-projects',
+    { department }
+  );
 
   return response.data;
 }

@@ -1,8 +1,20 @@
-'use client'
+'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
-import { GetProjectsByDepartmentResponse, getProjectsByDepartment } from '@/app/api/projetos/get-projects-by-department';
+import {
+  getMemberByChapa,
+  GetMemberByChapaResponse
+} from '@/app/api/departments/get-member-by-chapa';
+import {
+  getProjectsByDepartment,
+  GetProjectsByDepartmentResponse
+} from '@/app/api/projetos/get-projects-by-department';
+import {
+  getProjectsByChapa,
+  GetProjectsByChapaResponse
+} from '@/app/api/projetos/get-projects-by-member';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
@@ -10,9 +22,6 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { CreateProjectForm } from './components/create-project-form';
 import { columns } from './components/data-table/columns';
 import { DataTable } from './components/data-table/data-table';
-import { useSession } from 'next-auth/react';
-import { GetMemberByChapaResponse, getMemberByChapa } from '@/app/api/departments/get-member-by-chapa';
-import { GetProjectsByChapaResponse, getProjectsByChapa } from '@/app/api/projetos/get-projects-by-member';
 
 export default function Projects() {
   const { data: session } = useSession();
@@ -28,33 +37,37 @@ export default function Projects() {
   });
 
   if (member?.FUNCAO === 'Administrador' && department) {
-    const { data: adminProjects = [] } = useQuery<GetProjectsByDepartmentResponse[]>({
+    const { data: adminProjects = [] } = useQuery<
+      GetProjectsByDepartmentResponse[]
+    >({
       queryKey: ['projects', department],
       queryFn: () => getProjectsByDepartment({ department }),
       enabled: !!department
     });
     projects = adminProjects;
   } else {
-    const { data: memberProjects = [] } = useQuery<GetProjectsByChapaResponse[]>({
+    const { data: memberProjects = [] } = useQuery<
+      GetProjectsByChapaResponse[]
+    >({
       queryKey: ['projects', chapa],
       queryFn: () => getProjectsByChapa({ chapa }),
       enabled: !!chapa
     });
     projects = memberProjects;
   }
-  
+
   return (
     <div className="space-y-5">
       <div className="flex justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Projetos</h1>
-        {member?.FUNCAO === 'Administrador' && 
+        {member?.FUNCAO === 'Administrador' && (
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="default">Criar projeto</Button>
             </DialogTrigger>
             <CreateProjectForm />
           </Dialog>
-        }
+        )}
       </div>
       <Card>
         <CardContent className="pt-5">

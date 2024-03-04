@@ -1,15 +1,28 @@
-'use client'
+'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import {
   Archive,
   LayoutDashboard,
   PlusCircle,
-  Settings,
   SquareStackIcon,
   Users
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 
 import { CreateProjectForm } from '@/app/(projetos)/projetos/components/create-project-form';
+import {
+  getMemberByChapa,
+  GetMemberByChapaResponse
+} from '@/app/api/departments/get-member-by-chapa';
+import {
+  getProjectsByDepartment,
+  GetProjectsByDepartmentResponse
+} from '@/app/api/projetos/get-projects-by-department';
+import {
+  getProjectsByChapa,
+  GetProjectsByChapaResponse
+} from '@/app/api/projetos/get-projects-by-member';
 
 import { Dialog, DialogTrigger } from '../ui/dialog';
 import { ScrollArea } from '../ui/scroll-area';
@@ -18,13 +31,6 @@ import { NavItem } from './nav-item';
 import { Profile } from './profile';
 import { ProjectItem } from './project-item';
 import { ThemeToggle } from './theme-toggle';
-
-import { useQuery } from '@tanstack/react-query';
-
-import { GetProjectsByDepartmentResponse, getProjectsByDepartment } from '@/app/api/projetos/get-projects-by-department';
-import { GetMemberByChapaResponse, getMemberByChapa } from '@/app/api/departments/get-member-by-chapa';
-import { useSession } from 'next-auth/react';
-import { GetProjectsByChapaResponse, getProjectsByChapa } from '@/app/api/projetos/get-projects-by-member';
 
 export function Sidebar() {
   const { data: session } = useSession();
@@ -42,14 +48,18 @@ export function Sidebar() {
   });
 
   if (member?.FUNCAO === 'Administrador' && department) {
-    const { data: adminProjects = [] } = useQuery<GetProjectsByDepartmentResponse[]>({
+    const { data: adminProjects = [] } = useQuery<
+      GetProjectsByDepartmentResponse[]
+    >({
       queryKey: ['projects', department],
       queryFn: () => getProjectsByDepartment({ department }),
       enabled: !!department
     });
     projects = adminProjects;
   } else {
-    const { data: memberProjects = [] } = useQuery<GetProjectsByChapaResponse[]>({
+    const { data: memberProjects = [] } = useQuery<
+      GetProjectsByChapaResponse[]
+    >({
       queryKey: ['projects', chapa],
       queryFn: () => getProjectsByChapa({ chapa }),
       enabled: !!chapa
@@ -72,19 +82,23 @@ export function Sidebar() {
       </div>
       <Separator />
       <nav>
-        {member?.FUNCAO === 'Administrador' && 
+        {member?.FUNCAO === 'Administrador' && (
           <>
-            <NavItem link="/dashboard" title="Dashboard" icon={LayoutDashboard} />
+            <NavItem
+              link="/dashboard"
+              title="Dashboard"
+              icon={LayoutDashboard}
+            />
             <NavItem link="/membros" title="Membros" icon={Users} />
           </>
-        }
+        )}
         <NavItem link="/projetos" title="Projetos" icon={SquareStackIcon} />
       </nav>
       <Separator />
       <nav className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="">Seus projetos</span>
-          {member?.FUNCAO === 'Administrador' && 
+          {member?.FUNCAO === 'Administrador' && (
             <>
               <Dialog>
                 <DialogTrigger>
@@ -93,15 +107,23 @@ export function Sidebar() {
                 <CreateProjectForm />
               </Dialog>
             </>
-          }
+          )}
         </div>
-        {member?.FUNCAO === 'Administrador' && 
+        {member?.FUNCAO === 'Administrador' && (
           <NavItem link="/arquivados" title="Arquivados" icon={Archive} />
-        }
+        )}
         <ScrollArea className="rounded border xl:h-28 2xl:h-96">
-          {projects && projects.map(project => {
-            return <ProjectItem key={project.ID} projectId={project.ID} title={project.NOME} link={`/projetos/${project.ID}`} />
-          })}
+          {projects &&
+            projects.map((project) => {
+              return (
+                <ProjectItem
+                  key={project.ID}
+                  projectId={project.ID}
+                  title={project.NOME}
+                  link={`/projetos/${project.ID}`}
+                />
+              );
+            })}
         </ScrollArea>
       </nav>
       <div className="flex flex-col gap-6">

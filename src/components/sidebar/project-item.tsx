@@ -1,12 +1,16 @@
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
+import { UpdateProjectForm } from '@/app/(projetos)/projetos/components/update-project-form';
+import { archiveProject } from '@/app/api/arquivados/archive-project';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '../ui/dropdown-menu';
+  getMemberByChapa,
+  GetMemberByChapaResponse
+} from '@/app/api/departments/get-member-by-chapa';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,14 +21,14 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { useSession } from 'next-auth/react';
-import { GetMemberByChapaResponse, getMemberByChapa } from '@/app/api/departments/get-member-by-chapa';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { UpdateProjectForm } from '@/app/(projetos)/projetos/components/update-project-form';
-import { toast } from 'sonner';
-import { archiveProject } from '@/app/api/arquivados/archive-project';
-import { useState } from 'react';
 import { queryClient } from '@/lib/react-query';
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '../ui/dropdown-menu';
 
 interface ProjectItemsProps {
   projectId: number;
@@ -59,8 +63,8 @@ export function ProjectItem({ projectId, link, title }: ProjectItemsProps) {
     try {
       await archiveProjectFn({
         projectId: projectId
-      })
-      
+      });
+
       toast.success('O projeto foi arquivado!');
     } catch {
       toast.error('Erro ao arquivar o projeto, contate o administrador.');
@@ -80,41 +84,48 @@ export function ProjectItem({ projectId, link, title }: ProjectItemsProps) {
           <Link href={link}>
             <DropdownMenuItem>Abrir</DropdownMenuItem>
           </Link>
-          {member?.FUNCAO === 'Administrador' && 
-          <>
-            <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-              <DialogTrigger asChild>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  Editar
-                </DropdownMenuItem>
-              </DialogTrigger>
-              <UpdateProjectForm open={isDetailsOpen} projectId={projectIdString} />
-            </Dialog>
-            <Dialog>
-              <DialogTrigger asChild>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  Arquivar
-                </DropdownMenuItem>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Arquivar projeto</DialogTitle>
-                </DialogHeader>
-                Tem certeza que deseja arquivar o projeto?
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="secondary">Cancelar</Button>
-                  </DialogClose>
-                  <DialogClose asChild>
-                    <Button variant="destructive" type="submit" onClick={() => handleSubmit(projectIdString)}>
-                      Arquivar
-                    </Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </>
-        }
+          {member?.FUNCAO === 'Administrador' && (
+            <>
+              <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+                <DialogTrigger asChild>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    Editar
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <UpdateProjectForm
+                  open={isDetailsOpen}
+                  projectId={projectIdString}
+                />
+              </Dialog>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    Arquivar
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Arquivar projeto</DialogTitle>
+                  </DialogHeader>
+                  Tem certeza que deseja arquivar o projeto?
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="secondary">Cancelar</Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                      <Button
+                        variant="destructive"
+                        type="submit"
+                        onClick={() => handleSubmit(projectIdString)}
+                      >
+                        Arquivar
+                      </Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

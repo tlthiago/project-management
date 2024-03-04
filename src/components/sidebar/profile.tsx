@@ -1,14 +1,15 @@
-import { User, LogOut } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { signOut, useSession } from 'next-auth/react';
 
-import { Avatar, AvatarFallback } from '../ui/avatar';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { signOut, useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+  TooltipTrigger
+} from '@/components/ui/tooltip';
+
+import { Avatar, AvatarFallback } from '../ui/avatar';
 
 export function Profile() {
   const { data: session } = useSession();
@@ -20,22 +21,22 @@ export function Profile() {
       redirect: false
     });
 
-    router.replace('/')
+    router.replace('/');
   }
 
   return (
     <div className="grid grid-cols-profile items-center gap-3">
       <Avatar>
         <AvatarFallback className="bg-zinc-200 dark:bg-muted">
-          <User className='text-muted-foreground' />
+          <User className="text-muted-foreground" />
         </AvatarFallback>
       </Avatar>
-      <div className="flex flex-1 flex-col truncate gap-1">
+      <div className="flex flex-1 flex-col gap-1 truncate">
         <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-100">
-          { session?.user.CODUSUARIO }
+          {session?.user.CODUSUARIO}
         </span>
         <span className="truncate text-sm text-zinc-500 dark:text-zinc-100">
-          { session?.user.NROEMPRESA }
+          {session?.user.NROEMPRESA}
         </span>
       </div>
       <TooltipProvider>
@@ -54,7 +55,6 @@ export function Profile() {
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      
     </div>
   );
 }

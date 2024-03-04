@@ -1,8 +1,8 @@
-import { getServerSession } from 'next-auth';
-import { nextAuthOptions } from "@/utils/authOptions";
 import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
 
 import { Sidebar } from '@/components/sidebar/sidebar';
+import { nextAuthOptions } from '@/utils/authOptions';
 
 export default async function ProjectsLayout({
   children
@@ -18,7 +18,7 @@ export default async function ProjectsLayout({
   return (
     <div className="grid min-h-screen grid-cols-app">
       <Sidebar />
-      <main className='px-4 pb-12 pt-6'>{children}</main>
+      <main className="px-4 pb-12 pt-6">{children}</main>
     </div>
   );
 }

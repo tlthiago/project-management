@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
 
 export interface GetTaskByIdParams {
-  taskId?: string
+  taskId?: string;
 }
 
 export interface GetTaskByIdResponse {
@@ -17,10 +17,12 @@ export interface GetTaskByIdResponse {
   ATRASADO: string;
   CHAPAS: string;
   MEMBROS: string;
-};
+}
 
 export async function getTaskById({ taskId }: GetTaskByIdParams) {
-  const response = await api.get<GetTaskByIdResponse>(`/projects/tasks/${taskId}`)
+  const response = await api.get<GetTaskByIdResponse>(
+    `/projects/tasks/${taskId}`
+  );
 
   return response.data;
 }

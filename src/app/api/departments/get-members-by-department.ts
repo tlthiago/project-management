@@ -13,10 +13,15 @@ export interface GetMembersByDepartmentResponse {
   FUNCAO: string;
   EQUIPE_ID: number;
   EQUIPE: string;
-};
+}
 
-export async function getMembersByDepartment({ department }: GetMembersByDepartmentBody) {
-  const response = await api.post<GetMembersByDepartmentResponse[]>('/members', { department });
+export async function getMembersByDepartment({
+  department
+}: GetMembersByDepartmentBody) {
+  const response = await api.post<GetMembersByDepartmentResponse[]>(
+    '/members',
+    { department }
+  );
 
   return response.data;
 }

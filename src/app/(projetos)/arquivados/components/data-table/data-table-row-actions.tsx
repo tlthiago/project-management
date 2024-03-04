@@ -1,8 +1,13 @@
 'use client';
 
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
+import { unarchiveProject } from '@/app/api/arquivados/unarchive-project';
+import { deleteProject } from '@/app/api/projetos/delete-project';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -19,11 +24,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { unarchiveProject } from '@/app/api/arquivados/unarchive-project';
-import { toast } from 'sonner';
-import { deleteProject } from '@/app/api/projetos/delete-project';
-import { useSession } from 'next-auth/react';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -35,7 +35,7 @@ export function DataTableRowActions<TData>({
   const { data: session } = useSession();
   const department = session?.user.SETOR ?? '';
   const chapa = session?.user.CHAPA ?? '';
-  
+
   const queryClient = useQueryClient();
 
   const { mutateAsync: unarchiveProjectFn } = useMutation({
@@ -45,14 +45,14 @@ export function DataTableRowActions<TData>({
       queryClient.invalidateQueries({ queryKey: ['projects', department] });
       queryClient.invalidateQueries({ queryKey: ['projects', chapa] });
     }
-  })
+  });
 
   async function handleUnarchiveProject(projectId: string) {
     try {
       await unarchiveProjectFn({
         projectId: projectId
-      })
-      
+      });
+
       toast.success('O projeto foi restaurado!');
     } catch {
       toast.error('Erro ao restaurar o projeto, contate o administrador.');
@@ -64,14 +64,14 @@ export function DataTableRowActions<TData>({
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['archived-projects'] });
     }
-  })
+  });
 
   async function handleSubmit(projectId: string) {
     try {
       await deleteProjectFn({
         projectId: projectId
-      })
-      
+      });
+
       toast.success('O projeto foi excluído!');
     } catch {
       toast.error('Erro ao excluir o projeto, contate o administrador.');
@@ -91,7 +91,11 @@ export function DataTableRowActions<TData>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem onClick={() => handleUnarchiveProject(row.getValue('ID'))}>Restaurar</DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => handleUnarchiveProject(row.getValue('ID'))}
+          >
+            Restaurar
+          </DropdownMenuItem>
           <DialogTrigger asChild>
             <DropdownMenuItem>Excluir</DropdownMenuItem>
           </DialogTrigger>
@@ -108,7 +112,11 @@ export function DataTableRowActions<TData>({
             <Button variant="secondary">Cancelar</Button>
           </DialogClose>
           <DialogClose asChild>
-            <Button variant="destructive" type="submit" onClick={() => handleSubmit(row.getValue('ID'))}>
+            <Button
+              variant="destructive"
+              type="submit"
+              onClick={() => handleSubmit(row.getValue('ID'))}
+            >
               Excluir
             </Button>
           </DialogClose>

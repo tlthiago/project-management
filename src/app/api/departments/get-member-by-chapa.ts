@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
 
 interface GetMemberByChapaParams {
-  chapa: string
+  chapa: string;
 }
 
 export interface GetMemberByChapaResponse {
@@ -13,10 +13,10 @@ export interface GetMemberByChapaResponse {
   EQUIPE_ID: number;
   EQUIPE: string;
   FUNCAO: string;
-};
+}
 
 export async function getMemberByChapa({ chapa }: GetMemberByChapaParams) {
-  const response = await api.get<GetMemberByChapaResponse>(`/member/${ chapa }`);
+  const response = await api.get<GetMemberByChapaResponse>(`/member/${chapa}`);
 
   return response.data;
 }

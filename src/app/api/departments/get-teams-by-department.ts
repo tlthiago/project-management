@@ -10,10 +10,14 @@ export interface GetTeamsByDepartmentResponse {
   SETOR: string;
   MEMBROS: string;
   CHAPAS: string[];
-};
+}
 
-export async function getTeamsByDepartment({ department }: GetTeamsByDepartmentBody) {
-  const response = await api.post<GetTeamsByDepartmentResponse[]>('/teams', { department });
+export async function getTeamsByDepartment({
+  department
+}: GetTeamsByDepartmentBody) {
+  const response = await api.post<GetTeamsByDepartmentResponse[]>('/teams', {
+    department
+  });
 
   return response.data;
 }

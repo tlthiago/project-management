@@ -28,7 +28,9 @@ const UserAvatar: React.FC<{ member: string }> = ({ member }) => {
       <Tooltip>
         <TooltipTrigger asChild>
           <Avatar className="h-7 w-7">
-            <AvatarFallback className="bg-muted text-xs">{initials}</AvatarFallback>
+            <AvatarFallback className="bg-muted text-xs">
+              {initials}
+            </AvatarFallback>
           </Avatar>
         </TooltipTrigger>
         <TooltipContent>{member}</TooltipContent>
@@ -38,13 +40,14 @@ const UserAvatar: React.FC<{ member: string }> = ({ member }) => {
 };
 
 export function UsersAvatar({ members }: UsersAvatarProps) {
-  const membersArray: string[] = members?.split(',').map((name) => name.trim()) || [];
+  const membersArray: string[] =
+    members?.split(',').map((name) => name.trim()) || [];
 
   return (
-    <div className='flex gap-1'>
+    <div className="flex gap-1">
       {membersArray.map((member, index) => (
         <UserAvatar key={index} member={member} />
       ))}
     </div>
-  )
+  );
 }

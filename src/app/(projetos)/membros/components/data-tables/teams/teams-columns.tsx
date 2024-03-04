@@ -2,11 +2,11 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 
+import { GetTeamsByDepartmentResponse } from '@/app/api/departments/get-teams-by-department';
 import { UsersAvatar } from '@/components/users-avatar';
 
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
-import { GetTeamsByDepartmentResponse } from '@/app/api/departments/get-teams-by-department';
 
 export const teamsColumns: ColumnDef<GetTeamsByDepartmentResponse>[] = [
   {
@@ -22,7 +22,7 @@ export const teamsColumns: ColumnDef<GetTeamsByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Equipes" />
     ),
     cell: ({ row }) => {
-      return <span className='font-semibold'>{row.getValue('NOME')}</span>;
+      return <span className="font-semibold">{row.getValue('NOME')}</span>;
     }
   },
   {
@@ -40,7 +40,7 @@ export const teamsColumns: ColumnDef<GetTeamsByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Chapas" />
     ),
     cell: ({ row }) => {
-      return <span className='font-semibold'>{row.getValue('CHAPAS')}</span>;
+      return <span className="font-semibold">{row.getValue('CHAPAS')}</span>;
     },
     enableSorting: false,
     enableHiding: false

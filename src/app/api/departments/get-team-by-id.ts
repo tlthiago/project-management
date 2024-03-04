@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
 
 export interface GetTeamByIdParams {
-  teamId: string
+  teamId: string;
 }
 
 export interface GetTeamByIdResponse {
@@ -12,10 +12,10 @@ export interface GetTeamByIdResponse {
   CHAPAS: string;
   USU_INCLUSAO: string;
   DATA_INCLUSAO: string;
-};
+}
 
-export async function getTeamById({ teamId }: GetTeamByIdParams) {  
-  const response = await api.get<GetTeamByIdResponse>(`/teams/${teamId}`)
-  
+export async function getTeamById({ teamId }: GetTeamByIdParams) {
+  const response = await api.get<GetTeamByIdResponse>(`/teams/${teamId}`);
+
   return response.data;
 }

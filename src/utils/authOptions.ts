@@ -1,6 +1,7 @@
-import { api } from '@/lib/axios';
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+
+import { api } from '@/lib/axios';
 
 export const nextAuthOptions: NextAuthOptions = {
   providers: [
@@ -12,13 +13,13 @@ export const nextAuthOptions: NextAuthOptions = {
       },
 
       async authorize(credentials, req) {
-        const response = await api.post('/login', { 
-          username: credentials?.username, 
+        const response = await api.post('/login', {
+          username: credentials?.username,
           password: credentials?.password
-        })
+        });
 
         const user = await response.data;
-        
+
         if (user && response.status === 200) {
           return user;
         }
@@ -28,15 +29,15 @@ export const nextAuthOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      user && (token.user = user)
+      user && (token.user = user);
       return token;
     },
     async session({ session, token }) {
-      session = token.user as any
+      session = token.user as any;
       return session;
     }
   },
   pages: {
-    signIn: "/"
+    signIn: '/'
   }
-}
+};

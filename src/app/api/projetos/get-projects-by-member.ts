@@ -19,10 +19,12 @@ export interface GetProjectsByChapaResponse {
   EQUIPES: string;
   CHAPAS: string;
   MEMBROS: string;
-};
+}
 
 export async function getProjectsByChapa({ chapa }: GetProjectsByChapaParams) {
-  const response = await api.get<GetProjectsByChapaResponse[]>(`/projects-by-chapa/${chapa}`);
+  const response = await api.get<GetProjectsByChapaResponse[]>(
+    `/projects-by-chapa/${chapa}`
+  );
 
   return response.data;
 }

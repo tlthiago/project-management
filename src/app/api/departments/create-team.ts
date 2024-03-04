@@ -1,10 +1,10 @@
 import { api } from '@/lib/axios';
 
 export interface CreateTeamBody {
-  teamName: string
-  department: string
-  chapas: string[]
-  usuInclusao: string
+  teamName: string;
+  department: string;
+  chapas: string[];
+  usuInclusao: string;
 }
 
 export async function createTeam({
@@ -19,6 +19,6 @@ export async function createTeam({
     chapas,
     usuInclusao
   };
-  
-  await api.post("/teams/create", teamData);
+
+  await api.post('/teams/create', teamData);
 }

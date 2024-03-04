@@ -1,44 +1,50 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUp,
-  CalendarDays,
-  ChevronsUpDown,
-  X
-} from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, CalendarDays } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import * as z from 'zod';
 
-import { departments } from '@/app/api/data/data';
-import { Badge } from '@/components/ui/badge';
+import {
+  getMembersByDepartment,
+  GetMembersByDepartmentResponse
+} from '@/app/api/departments/get-members-by-department';
+import {
+  getProjectById,
+  GetProjectByIdResponse
+} from '@/app/api/projetos/get-project-by-id';
+import {
+  getTaskById,
+  GetTaskByIdResponse
+} from '@/app/api/projetos/tarefas/get-task-by-id';
+import { updateTask } from '@/app/api/projetos/tarefas/update-task';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
+  dialogCloseFn,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  dialogCloseFn
+  DialogTitle
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { MultiSelect } from '@/components/ui/multi-select';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { MultiSelect } from '@/components/ui/multi-select';
 import {
   Popover,
   PopoverContent,
@@ -53,20 +59,13 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { GetTaskByIdResponse, getTaskById } from '@/app/api/projetos/tarefas/get-task-by-id';
-import { updateTask } from '@/app/api/projetos/tarefas/update-task';
-import { GetProjectByIdResponse, getProjectById } from '@/app/api/projetos/get-project-by-id';
-import { useSession } from 'next-auth/react';
-import { GetMembersByDepartmentResponse, getMembersByDepartment } from '@/app/api/departments/get-members-by-department';
 
 export const taskSchema = z.object({
   nome: z.string().min(1, { message: 'O nome da tarefa deve ser informado.' }),
   datas: z.object({
-      from: z.coerce.date(),
-      to: z.coerce.date()
-    }),
+    from: z.coerce.date(),
+    to: z.coerce.date()
+  }),
   descricao: z.string().min(1, { message: 'Descreva a tarefa.' }),
   responsaveis: z
     .array(z.string())
@@ -80,7 +79,11 @@ interface updateTaskFormProps {
   open: boolean;
 }
 
-export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps ) {
+export function UpdateTaskForm({
+  projectId,
+  taskId,
+  open
+}: updateTaskFormProps) {
   const { data: session } = useSession();
   const department = session?.user.SETOR ?? '';
 
@@ -91,7 +94,7 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
     queryFn: () => getProjectById({ projectId }),
     enabled: open
   });
-  
+
   const { data: task } = useQuery<GetTaskByIdResponse>({
     queryKey: ['task', taskId],
     queryFn: () => getTaskById({ taskId }),
@@ -109,34 +112,36 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
   const [member, setMember] = useState<string[]>([]);
 
   useEffect(() => {
-    setMember(task?.MEMBROS.split(',') || [])
+    setMember(task?.MEMBROS.split(',') || []);
   }, [task]);
 
   const dataInicio: string = new Date().toString();
-  const dataFim: string = new Date(new Date().setDate(new Date().getDate() + 1)).toString();
+  const dataFim: string = new Date(
+    new Date().setDate(new Date().getDate() + 1)
+  ).toString();
 
   const membersChapas: string[] = [];
 
   member.map((selectedMember) => {
     members.map((member) => {
       if (selectedMember === member.NOME) {
-        membersChapas.push(member.CHAPA)
+        membersChapas.push(member.CHAPA);
       }
-    })
+    });
   });
 
   const removed: { chapas: string[] } = { chapas: [] };
 
   const currentChapas = task?.CHAPAS.split(',') || [];
-  currentChapas.forEach(chapa => {
+  currentChapas.forEach((chapa) => {
     if (!membersChapas.includes(chapa)) {
-      removed.chapas?.push(chapa)
+      removed.chapas?.push(chapa);
     }
   });
 
   const added: { chapas: string[] } = { chapas: [] };
 
-  membersChapas.forEach(chapa => {
+  membersChapas.forEach((chapa) => {
     if (!currentChapas.includes(chapa)) {
       added.chapas?.push(chapa);
     }
@@ -147,7 +152,9 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
     values: {
       nome: task?.NOME ?? '',
       datas: {
-        from: task?.DATA_INICIO ? new Date(task?.DATA_INICIO) : new Date(dataInicio),
+        from: task?.DATA_INICIO
+          ? new Date(task?.DATA_INICIO)
+          : new Date(dataInicio),
         to: task?.DATA_FIM ? new Date(task?.DATA_FIM) : new Date(dataFim)
       },
       descricao: task?.DESCRICAO ?? '',
@@ -170,15 +177,30 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
       await updateTaskFn({
         taskId: taskId,
         nome: taskData.nome !== task?.NOME ? taskData.nome : undefined,
-        dataInicio: format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) !== task?.DATA_INICIO.split('T', 1)[0] ? format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) : undefined,
-        dataFim: format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) !== task?.DATA_FIM.split('T', 1)[0] ? format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) : undefined,
-        descricao: taskData.descricao !== task?.DESCRICAO ? taskData.descricao : undefined,
-        prioridade: taskData.prioridade !== task?.PRIORIDADE ? taskData.prioridade : undefined,
+        dataInicio:
+          format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) !==
+          task?.DATA_INICIO.split('T', 1)[0]
+            ? format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR })
+            : undefined,
+        dataFim:
+          format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) !==
+          task?.DATA_FIM.split('T', 1)[0]
+            ? format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR })
+            : undefined,
+        descricao:
+          taskData.descricao !== task?.DESCRICAO
+            ? taskData.descricao
+            : undefined,
+        prioridade:
+          taskData.prioridade !== task?.PRIORIDADE
+            ? taskData.prioridade
+            : undefined,
         added: added.chapas.length > 0 ? added : undefined,
         removed: removed.chapas.length > 0 ? removed : undefined,
-        usuInclusao: added.chapas.length > 0 ? session?.user.CODUSUARIO : undefined
+        usuInclusao:
+          added.chapas.length > 0 ? session?.user.CODUSUARIO : undefined
       });
-      
+
       toast.success('Tarefa atualizada com sucesso!');
       dialogCloseFn();
     } catch {
@@ -196,7 +218,7 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
         </DialogDescription>
       </DialogHeader>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
             name="nome"
@@ -220,24 +242,25 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
                 <FormControl>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button 
+                      <Button
                         variant="outline"
                         className={cn(
-                        'w-60 justify-start text-left font-normal',
-                        !field.value && 'text-muted-foreground'
-                        )}>
-                          <CalendarDays className='mr-2 size-4' />
-                          {field.value.from && field.value.to
-                            ? `${format(field.value.from, 'P', {
-                                locale: ptBR
-                              })} a ${format(field.value.to, 'P', {
-                                locale: ptBR
-                              })}`
-                            : 'Selecione as datas'}
+                          'w-60 justify-start text-left font-normal',
+                          !field.value && 'text-muted-foreground'
+                        )}
+                      >
+                        <CalendarDays className="mr-2 size-4" />
+                        {field.value.from && field.value.to
+                          ? `${format(field.value.from, 'P', {
+                              locale: ptBR
+                            })} a ${format(field.value.to, 'P', {
+                              locale: ptBR
+                            })}`
+                          : 'Selecione as datas'}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className='flex w-auto p-0'>
-                      <Calendar 
+                    <PopoverContent className="flex w-auto p-0">
+                      <Calendar
                         mode="range"
                         selected={{
                           from: field.value.from,
@@ -251,18 +274,30 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
                           setRange({
                             from: range?.from,
                             to: range?.to
-                          })
+                          });
                         }}
                       />
                     </PopoverContent>
                   </Popover>
                 </FormControl>
                 {form.formState.errors.datas?.from ? (
-                  form.formState.errors.datas?.from.type == 'invalid_date' ? <span className="text-sm font-medium text-destructive">As datas devem ser selecionadas.</span>
-                  : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.from.message}</span>
+                  form.formState.errors.datas?.from.type == 'invalid_date' ? (
+                    <span className="text-sm font-medium text-destructive">
+                      As datas devem ser selecionadas.
+                    </span>
+                  ) : (
+                    <span className="text-sm font-medium text-destructive">
+                      {form.formState.errors.datas?.from.message}
+                    </span>
+                  )
+                ) : form.formState.errors.datas?.to?.type == 'invalid_date' ? (
+                  <span className="text-sm font-medium text-destructive">
+                    Selecione a data final.
+                  </span>
                 ) : (
-                  form.formState.errors.datas?.to?.type == 'invalid_date' ? <span className="text-sm font-medium text-destructive">Selecione a data final.</span>
-                  : <span className="text-sm font-medium text-destructive">{form.formState.errors.datas?.to?.message}</span>
+                  <span className="text-sm font-medium text-destructive">
+                    {form.formState.errors.datas?.to?.message}
+                  </span>
                 )}
               </FormItem>
             )}
@@ -275,7 +310,7 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
               <FormItem>
                 <FormLabel>Descrição</FormLabel>
                 <FormControl>
-                  <Textarea placeholder='Descreva a tarefa' {...field} />
+                  <Textarea placeholder="Descreva a tarefa" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -289,7 +324,7 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
               <FormItem>
                 <FormLabel>Responsáveis</FormLabel>
                 <FormControl>
-                  <MultiSelect 
+                  <MultiSelect
                     options={membersList.map((memberName, index) => ({
                       value: memberName,
                       label: memberName,
@@ -316,10 +351,7 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
               <FormItem>
                 <FormLabel>Prioridade</FormLabel>
                 <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-60">
                         <SelectValue placeholder="Selecione a prioridade" />
@@ -329,7 +361,7 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
                       <SelectItem value="Baixa">
                         <div className="flex gap-3">
                           <div className="flex items-center">
-                            <ArrowDown className='size-4' />
+                            <ArrowDown className="size-4" />
                           </div>
                           <span>Baixa</span>
                         </div>
@@ -337,7 +369,7 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
                       <SelectItem value="Média">
                         <div className="flex gap-3">
                           <div className="flex items-center">
-                            <ArrowRight className='size-4' />
+                            <ArrowRight className="size-4" />
                           </div>
                           <span>Média</span>
                         </div>
@@ -345,7 +377,7 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
                       <SelectItem value="Alta">
                         <div className="flex gap-3">
                           <div className="flex items-center">
-                            <ArrowUp className='size-4' />
+                            <ArrowUp className="size-4" />
                           </div>
                           <span>Alta</span>
                         </div>
@@ -360,10 +392,14 @@ export function UpdateTaskForm( { projectId, taskId, open }: updateTaskFormProps
 
           <div className="flex justify-center">
             <DialogFooter>
-              <Button disabled={(
-                form.formState.isSubmitting,
-                !form.formState.isDirty
-              )} type="submit">Atualizar tarefa</Button>
+              <Button
+                disabled={
+                  (form.formState.isSubmitting, !form.formState.isDirty)
+                }
+                type="submit"
+              >
+                Atualizar tarefa
+              </Button>
             </DialogFooter>
           </div>
         </form>

@@ -1,6 +1,8 @@
-'use client'
+'use client';
 
+import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -8,9 +10,6 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-import { signIn } from 'next-auth/react';
-import { Loader2 } from 'lucide-react';
 
 const signInForm = z.object({
   username: z.string(),
@@ -38,12 +37,12 @@ export default function Login() {
       username: transformedData.username,
       password: transformedData.password,
       redirect: false
-    })
+    });
 
     if (result?.error) {
       console.log(result);
       toast.error('Usuário não encontrado.');
-      return
+      return;
     }
 
     toast.success('Usuário autenticado.');
@@ -72,7 +71,7 @@ export default function Login() {
                   id="username"
                   type="text"
                   className="uppercase"
-                  placeholder='A_NOME'
+                  placeholder="A_NOME"
                   {...register('username')}
                 ></Input>
               </div>
@@ -81,15 +80,13 @@ export default function Login() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder='••••••••'
+                  placeholder="••••••••"
                   {...register('password')}
                 ></Input>
               </div>
               <div className="flex justify-center">
                 {!isSubmitting ? (
-                  <Button type="submit">
-                  Entrar
-                  </Button>
+                  <Button type="submit">Entrar</Button>
                 ) : (
                   <Button disabled>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

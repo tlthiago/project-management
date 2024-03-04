@@ -1,9 +1,18 @@
 'use client';
 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
+import { archiveProject } from '@/app/api/arquivados/archive-project';
+import {
+  getMemberByChapa,
+  GetMemberByChapaResponse
+} from '@/app/api/departments/get-member-by-chapa';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,13 +30,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { archiveProject } from '@/app/api/arquivados/archive-project';
 import { UpdateProjectForm } from '../update-project-form';
-import { useSession } from 'next-auth/react';
-import { GetMemberByChapaResponse, getMemberByChapa } from '@/app/api/departments/get-member-by-chapa';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -37,7 +40,7 @@ export function DataTableRowActions<TData>({
   row
 }: DataTableRowActionsProps<TData>) {
   const queryClient = useQueryClient();
-  
+
   const { data: session } = useSession();
   const chapa = session?.user.CHAPA ?? '';
 
@@ -60,8 +63,8 @@ export function DataTableRowActions<TData>({
     try {
       await archiveProjectFn({
         projectId: projectId
-      })
-      
+      });
+
       toast.success('O projeto foi arquivado!');
     } catch {
       toast.error('Erro ao arquivar o projeto, contate o administrador.');
@@ -83,7 +86,7 @@ export function DataTableRowActions<TData>({
         <Link href={`projetos/${row.getValue('ID')}`}>
           <DropdownMenuItem>Abrir</DropdownMenuItem>
         </Link>
-        {member?.FUNCAO === 'Administrador' && 
+        {member?.FUNCAO === 'Administrador' && (
           <>
             <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
               <DialogTrigger asChild>
@@ -91,7 +94,10 @@ export function DataTableRowActions<TData>({
                   Editar
                 </DropdownMenuItem>
               </DialogTrigger>
-              <UpdateProjectForm open={isDetailsOpen} projectId={row.getValue('ID')} />
+              <UpdateProjectForm
+                open={isDetailsOpen}
+                projectId={row.getValue('ID')}
+              />
             </Dialog>
             <Dialog>
               <DialogTrigger asChild>
@@ -109,7 +115,11 @@ export function DataTableRowActions<TData>({
                     <Button variant="secondary">Cancelar</Button>
                   </DialogClose>
                   <DialogClose asChild>
-                    <Button variant="destructive" type="submit" onClick={() => handleSubmit(row.getValue('ID'))}>
+                    <Button
+                      variant="destructive"
+                      type="submit"
+                      onClick={() => handleSubmit(row.getValue('ID'))}
+                    >
                       Arquivar
                     </Button>
                   </DialogClose>
@@ -117,7 +127,7 @@ export function DataTableRowActions<TData>({
               </DialogContent>
             </Dialog>
           </>
-        }
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

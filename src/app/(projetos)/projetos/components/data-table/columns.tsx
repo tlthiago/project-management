@@ -4,12 +4,12 @@ import { ColumnDef } from '@tanstack/react-table';
 import Link from 'next/link';
 
 import { GetProjectsByDepartmentResponse } from '@/app/api/projetos/get-projects-by-department';
+import Priority from '@/components/priority';
 import { UsersAvatar } from '@/components/users-avatar';
 
+import ProjectStatus from '../project-status';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
-import Priority from '@/components/priority';
-import ProjectStatus from '../project-status';
 
 export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
   {
@@ -24,14 +24,18 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Nome" />
     ),
-    cell: ({ row }) => { 
+    cell: ({ row }) => {
       const atrasado = row.getValue('ATRASADO');
-      
+
       return (
         <Link href={`projetos/${row.getValue('ID')}`}>
-          <span className={`font-semibold ${atrasado === 'S ' ? 'text-rose-500' : ''}`}>{row.getValue('NOME')}</span>
+          <span
+            className={`font-semibold ${atrasado === 'S ' ? 'text-rose-500' : ''}`}
+          >
+            {row.getValue('NOME')}
+          </span>
         </Link>
-      )
+      );
     }
   },
   {
@@ -44,7 +48,11 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
       const dataInicio = new Date(dataInicioString);
       const atrasado = row.getValue('ATRASADO');
 
-      return <div className={atrasado === 'S ' ? 'text-rose-500 font-semibold' : ''}>{dataInicio.toLocaleDateString('pt-BR')}</div>;
+      return (
+        <div className={atrasado === 'S ' ? 'font-semibold text-rose-500' : ''}>
+          {dataInicio.toLocaleDateString('pt-BR')}
+        </div>
+      );
     }
   },
   {
@@ -57,7 +65,11 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
       const dataFim = new Date(dataFimString);
       const atrasado = row.getValue('ATRASADO');
 
-      return <div className={atrasado === 'S ' ? 'text-rose-500 font-semibold' : ''}>{dataFim.toLocaleDateString('pt-BR')}</div>;
+      return (
+        <div className={atrasado === 'S ' ? 'font-semibold text-rose-500' : ''}>
+          {dataFim.toLocaleDateString('pt-BR')}
+        </div>
+      );
     }
   },
   {
@@ -68,7 +80,13 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
     cell: ({ row }) => {
       const atrasado = row.getValue('ATRASADO');
 
-      return <div className={`line-clamp-1 max-w-96 ${atrasado === 'S ' ? 'text-rose-500 font-semibold' : ''}`}>{row.getValue('EQUIPES')}</div>
+      return (
+        <div
+          className={`line-clamp-1 max-w-96 ${atrasado === 'S ' ? 'font-semibold text-rose-500' : ''}`}
+        >
+          {row.getValue('EQUIPES')}
+        </div>
+      );
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -78,7 +96,7 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
     accessorKey: 'MEMBROS',
     header: () => <div>Membros</div>,
     cell: ({ row }) => {
-      return <UsersAvatar members={row.getValue('MEMBROS')} />
+      return <UsersAvatar members={row.getValue('MEMBROS')} />;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -105,7 +123,7 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Prioridade" />
     ),
     cell: ({ row }) => {
-      return <Priority priority={row.getValue('PRIORIDADE')} />
+      return <Priority priority={row.getValue('PRIORIDADE')} />;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));

@@ -40,9 +40,9 @@ export function DataTableMembers<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
-      'CHAPA': false,
-      'CARGO': false,
-      'EQUIPE_ID': false,
+      CHAPA: false,
+      CARGO: false,
+      EQUIPE_ID: false
     });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

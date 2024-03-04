@@ -1,5 +1,3 @@
-import { UserAvatar } from '@/components/users-avatar';
-
 export function TaskComment() {
   return (
     <div className="flex gap-2">

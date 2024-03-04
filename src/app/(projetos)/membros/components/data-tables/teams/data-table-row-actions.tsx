@@ -1,8 +1,13 @@
 'use client';
 
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
+import { deleteTeam } from '@/app/api/departments/delete-team';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -19,12 +24,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { deleteTeam } from '@/app/api/departments/delete-team';
+
 import { UpdateTeamForm } from '../../update-team-form';
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -37,23 +38,23 @@ export function DataTableRowActions<TData>({
   const department = session?.user.SETOR ?? '';
 
   const [isUpdateTeamOpen, setIsUpdateTeamOpen] = useState(false);
-  
+
   const queryClient = useQueryClient();
-  
+
   const { mutateAsync: deleteTeamFn } = useMutation({
     mutationFn: deleteTeam,
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['teams', department] });
       queryClient.invalidateQueries({ queryKey: ['members', department] });
     }
-  })
+  });
 
   async function handleSubmit(teamId: string) {
     try {
       await deleteTeamFn({
         teamId: teamId
-      })
-      
+      });
+
       toast.success('A equipe foi excluída!');
     } catch {
       toast.error('Erro ao excluir a equipe, contate o administrador.');
@@ -75,9 +76,14 @@ export function DataTableRowActions<TData>({
         <DropdownMenuContent align="end" className="w-[160px]">
           <Dialog open={isUpdateTeamOpen} onOpenChange={setIsUpdateTeamOpen}>
             <DialogTrigger asChild>
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Editar</DropdownMenuItem>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                Editar
+              </DropdownMenuItem>
             </DialogTrigger>
-            <UpdateTeamForm open={isUpdateTeamOpen} teamId={row.getValue('ID')} />
+            <UpdateTeamForm
+              open={isUpdateTeamOpen}
+              teamId={row.getValue('ID')}
+            />
           </Dialog>
           <DialogTrigger asChild>
             <DropdownMenuItem>Excluir</DropdownMenuItem>
@@ -95,7 +101,11 @@ export function DataTableRowActions<TData>({
             <Button variant="secondary">Cancelar</Button>
           </DialogClose>
           <DialogClose asChild>
-            <Button variant="destructive" type="submit" onClick={() => handleSubmit(row.getValue('ID'))}>
+            <Button
+              variant="destructive"
+              type="submit"
+              onClick={() => handleSubmit(row.getValue('ID'))}
+            >
               Excluir
             </Button>
           </DialogClose>

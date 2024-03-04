@@ -1,5 +1,10 @@
+import { useQuery } from '@tanstack/react-query';
 import { MessageCircleMore } from 'lucide-react';
 
+import {
+  getTaskById,
+  GetTaskByIdResponse
+} from '@/app/api/projetos/tarefas/get-task-by-id';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -11,10 +16,7 @@ import {
 } from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 
-import { UserAvatar } from '@/components/users-avatar';
 import { TaskDetails } from '../task-details';
-import { GetTaskByIdResponse, getTaskById } from '@/app/api/projetos/tarefas/get-task-by-id';
-import { useQuery } from '@tanstack/react-query';
 
 export interface TaskCardProps {
   projectId: string;
@@ -25,7 +27,7 @@ export function TaskCard({ projectId, taskId }: TaskCardProps) {
   const { data: task } = useQuery<GetTaskByIdResponse>({
     queryKey: ['task', taskId],
     queryFn: () => getTaskById({ projectId, taskId })
-  })
+  });
 
   return (
     <Dialog>

@@ -40,8 +40,8 @@ export function DataTableTeams<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
-      'ID': false,
-      'CHAPAS': false
+      ID: false,
+      CHAPAS: false
     });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

@@ -5,6 +5,9 @@ interface UpdateMemberRoleParams {
   role: string;
 }
 
-export async function updateMemberRole({ chapa, role }: UpdateMemberRoleParams) {
+export async function updateMemberRole({
+  chapa,
+  role
+}: UpdateMemberRoleParams) {
   await api.put(`/member/${chapa}`, { role });
 }

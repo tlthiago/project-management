@@ -4,10 +4,8 @@ export interface RestoreTaskParams {
   taskId: string;
 }
 
-export async function restoreTask({
-  taskId
-}: RestoreTaskParams) {
+export async function restoreTask({ taskId }: RestoreTaskParams) {
   const response = await api.put(`/projects/tasks/restore/${taskId}`);
 
-  return response.data
+  return response.data;
 }

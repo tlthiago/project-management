@@ -1,11 +1,11 @@
 import { api } from '@/lib/axios';
 
 export interface UpdateTeamBody {
-  teamId: string
-  teamName?: string
-  removed?: string[]
-  added?: string[]
-  usuInclusao: string
+  teamId: string;
+  teamName?: string;
+  removed?: string[];
+  added?: string[];
+  usuInclusao: string;
 }
 
 export async function updateTeam({
@@ -21,6 +21,6 @@ export async function updateTeam({
     added,
     usuInclusao
   };
-  
+
   await api.put(`/teams/${teamId}`, teamData);
 }
