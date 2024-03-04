@@ -3,10 +3,8 @@
 import { ColumnDef } from '@tanstack/react-table';
 
 import { GetArchivedProjectsResponse } from '@/app/api/arquivados/get-archived-projects';
-import { Project } from '@/app/api/data/schema';
 import Priority from '@/components/priority';
 import Status from '@/components/status';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { UsersAvatar } from '@/components/users-avatar';
 
 import { DataTableColumnHeader } from './data-table-column-header';
