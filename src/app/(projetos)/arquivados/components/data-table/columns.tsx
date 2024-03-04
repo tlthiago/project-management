@@ -2,15 +2,15 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 
+import { GetArchivedProjectsResponse } from '@/app/api/arquivados/get-archived-projects';
 import { Project } from '@/app/api/data/schema';
+import Priority from '@/components/priority';
+import Status from '@/components/status';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { UsersAvatar } from '@/components/users-avatar';
 
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
-import { GetArchivedProjectsResponse } from '@/app/api/arquivados/get-archived-projects';
-import Status from '@/components/status';
-import Priority from '@/components/priority';
 
 export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
   {
@@ -26,7 +26,7 @@ export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
       <DataTableColumnHeader column={column} title="Nome" />
     ),
     cell: ({ row }) => {
-      return <span className="font-semibold">{row.getValue('NOME')}</span>
+      return <span className="font-semibold">{row.getValue('NOME')}</span>;
     }
   },
   {
@@ -57,14 +57,16 @@ export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
       <DataTableColumnHeader column={column} title="Equipes" />
     ),
     cell: ({ row }) => {
-      return <div className='line-clamp-1 max-w-96'>{row.getValue('EQUIPES')}</div>
+      return (
+        <div className="line-clamp-1 max-w-96">{row.getValue('EQUIPES')}</div>
+      );
     }
   },
   {
     accessorKey: 'MEMBROS',
     header: () => <div>Responsáveis</div>,
     cell: ({ row }) => {
-      return <UsersAvatar members={row.getValue('MEMBROS')} />
+      return <UsersAvatar members={row.getValue('MEMBROS')} />;
     }
   },
   {
@@ -73,7 +75,7 @@ export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
-      return <Status status={row.getValue('STATUS')} />
+      return <Status status={row.getValue('STATUS')} />;
     }
   },
   {
@@ -82,7 +84,7 @@ export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
       <DataTableColumnHeader column={column} title="Prioridade" />
     ),
     cell: ({ row }) => {
-      return <Priority priority={row.getValue('PRIORIDADE')} />
+      return <Priority priority={row.getValue('PRIORIDADE')} />;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
