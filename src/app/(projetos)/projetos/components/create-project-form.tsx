@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ArrowDown, ArrowRight, ArrowUp, CalendarDays } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -98,12 +98,12 @@ export function CreateProjectForm() {
   const [membersList, setMembersList] = useState<string[]>([]);
   const [member, setMember] = useState<string[]>([]);
 
-  const handleTeamsChange = (selectedTeams: string[]) => {
+  const handleTeamsChange = (teamValue: string[]) => {
     const filteredMembers: string[] = [];
     const selectedTeamsId: number[] = [];
 
     teams.map((team) => {
-      selectedTeams.map((selectedTeam) => {
+      teamValue.map((selectedTeam) => {
         if (selectedTeam === team.NOME) {
           selectedTeamsId.push(team.ID);
           const teamMembers: string[] = team.MEMBROS.split(', ');
@@ -112,7 +112,10 @@ export function CreateProjectForm() {
       });
     });
 
-    const removedTeam = team.filter((team) => !selectedTeams.includes(team));
+    const removedTeam = team.filter((teamName) => {
+      return !teamValue.includes(teamName);
+    });
+
     if (removedTeam.length > 0) {
       const updatedMembers = member.filter((member) =>
         filteredMembers.includes(member)
@@ -145,6 +148,12 @@ export function CreateProjectForm() {
       prioridade: ''
     }
   });
+
+  useEffect(() => {
+    const teamValue = form.watch('equipes');
+    setTeam(teamValue);
+    handleTeamsChange(teamValue);
+  }, [form.watch('equipes')]);
 
   const queryClient = useQueryClient();
 
@@ -307,8 +316,6 @@ export function CreateProjectForm() {
                     selected={team}
                     onChange={(selectedTeams) => {
                       field.onChange(selectedTeams);
-                      setTeam(selectedTeams);
-                      handleTeamsChange(selectedTeams);
                     }}
                     className="max-w-[462px]"
                     placeholder="Selecione a(s) equipe(s)"

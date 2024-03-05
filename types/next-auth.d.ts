@@ -1,7 +1,7 @@
 import 'next-auth';
 
 declare module 'next-auth' {
-  interface Session {
+  export interface Session {
     user: {
       CODUSUARIO: string;
       USUARIO: number;
@@ -11,6 +11,6 @@ declare module 'next-auth' {
       LOGINID: string;
       CHAPA: string;
       SETOR: string;
-    }
+    };
   }
 }

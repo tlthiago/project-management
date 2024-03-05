@@ -134,12 +134,12 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
 
   const teamsList: string[] = teams.map((team) => team.NOME);
 
-  const handleTeamsChange = (selectedTeams: string[]) => {
+  const handleTeamsChange = (teamValue: string[]) => {
     const filteredMembers: string[] = [];
     const selectedTeamsId: number[] = [];
 
     teams.map((team) => {
-      selectedTeams.map((selectedTeam) => {
+      teamValue.map((selectedTeam) => {
         if (selectedTeam === team.NOME) {
           selectedTeamsId.push(team.ID);
           const teamMembers: string[] = team.MEMBROS.split(', ');
@@ -148,7 +148,10 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
       });
     });
 
-    const removedTeam = team.filter((team) => !selectedTeams.includes(team));
+    const removedTeam = team.filter((teamName) => {
+      return !teamValue.includes(teamName);
+    });
+
     if (removedTeam.length > 0) {
       const updatedMembers = member.filter((member) =>
         filteredMembers.includes(member)
@@ -233,6 +236,12 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
     resolver: zodResolver(formSchema),
     values: formValues
   });
+
+  useEffect(() => {
+    const teamValue = form.watch('equipes');
+    setTeam(teamValue);
+    handleTeamsChange(teamValue);
+  }, [form.watch('equipes')]);
 
   const queryClient = useQueryClient();
 
@@ -412,8 +421,6 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
                     selected={team}
                     onChange={(selectedTeams) => {
                       field.onChange(selectedTeams);
-                      setTeam(selectedTeams);
-                      handleTeamsChange(selectedTeams);
                     }}
                     className="max-w-[462px]"
                     placeholder="Selecione a(s) equipe(s)"
