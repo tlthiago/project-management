@@ -47,7 +47,7 @@ export default function Dashboard() {
     .slice(0, 5);
 
   const delayedProjects = projects?.filter(
-    (project) => project.ATRASADO === 'S '
+    (project) => project.ATRASADO === 'S'
   );
   const pendingProjects = projects?.filter(
     (project) => project.STATUS === 'Pendente'

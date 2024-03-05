@@ -1,5 +1,6 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
@@ -8,29 +9,38 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 const signInForm = z.object({
-  username: z.string(),
-  password: z.string()
+  username: z.string().min(1, { message: 'Digite o usuário.' }),
+  password: z.string().min(1, { message: 'Digite a senha.' })
 });
 
 type SignInForm = z.infer<typeof signInForm>;
 
 export default function Login() {
-  const {
-    register,
-    handleSubmit,
-    formState: { isSubmitting }
-  } = useForm<SignInForm>();
-
   const router = useRouter();
 
-  async function handleSignIn(data: SignInForm) {
+  const form = useForm<z.infer<typeof signInForm>>({
+    resolver: zodResolver(signInForm),
+    defaultValues: {
+      username: '',
+      password: ''
+    }
+  });
+
+  async function onSubmit(userData: z.infer<typeof signInForm>) {
     const transformedData: SignInForm = {
-      username: data.username.toUpperCase(),
-      password: data.password.toUpperCase()
+      username: userData.username.toUpperCase(),
+      password: userData.password.toUpperCase()
     };
 
     const result = await signIn('credentials', {
@@ -64,37 +74,55 @@ export default function Login() {
                 SISTEMAS WEB
               </h1>
             </div>
-            <form onSubmit={handleSubmit(handleSignIn)} className="space-y-4">
-              <div>
-                <Label htmlFor="username">Usuário:</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  className="uppercase"
-                  placeholder="A_NOME"
-                  {...register('username')}
-                ></Input>
-              </div>
-              <div>
-                <Label htmlFor="password">Senha:</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  {...register('password')}
-                ></Input>
-              </div>
-              <div className="flex justify-center">
-                {!isSubmitting ? (
-                  <Button type="submit">Entrar</Button>
-                ) : (
-                  <Button disabled>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Carregando
-                  </Button>
-                )}
-              </div>
-            </form>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Usuário:</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="uppercase"
+                          placeholder="A_NOME"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Senha:</FormLabel>
+                      <FormControl>
+                        <Input type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-center">
+                  {!form.formState.isSubmitting ? (
+                    <Button type="submit">Entrar</Button>
+                  ) : (
+                    <Button disabled>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Carregando
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </Form>
           </div>
         </div>
       </div>

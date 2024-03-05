@@ -91,16 +91,9 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
     enabled: open
   });
 
-  // const dataInicio: string = new Date().toString();
-  // const dataFim: string = new Date(
-  //   new Date().setDate(new Date().getDate() + 1)
-  // ).toString();
-
   const [range, setRange] = useState<DateRange | undefined>({
-    from: project?.DATA_INICIO ? new Date(project?.DATA_INICIO) : new Date(),
-    to: project?.DATA_FIM
-      ? new Date(project?.DATA_FIM)
-      : new Date(new Date().setDate(new Date().getDate() + 1))
+    from: new Date(),
+    to: new Date(new Date().setDate(new Date().getDate() + 1))
   });
 
   const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
@@ -131,6 +124,13 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
     setMember(project?.MEMBROS.split(',') || []);
     handleTeamsChange(project?.EQUIPES.split(',') || []);
   }, [project]);
+
+  const dataInicio: string = range?.to
+    ? range.to.toString()
+    : new Date().toString();
+  const dataFim: string = range?.from
+    ? range?.from.toString()
+    : new Date(new Date().setDate(new Date().getDate() + 1)).toString();
 
   const teamsList: string[] = teams.map((team) => team.NOME);
 
@@ -218,19 +218,16 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
   const formValues = {
     nome: project?.NOME ?? '',
     datas: {
-      from: new Date(),
-      to: new Date(new Date().setDate(new Date().getDate() + 1))
+      from: project?.DATA_INICIO
+        ? new Date(project?.DATA_INICIO)
+        : new Date(dataInicio),
+      to: project?.DATA_FIM ? new Date(project?.DATA_FIM) : new Date(dataFim)
     },
     descricao: project?.DESCRICAO ?? '',
     equipes: project?.EQUIPES.split(',') || [],
     responsaveis: project?.MEMBROS.split(',') || [],
     prioridade: project?.PRIORIDADE || ''
   };
-
-  if (range?.from && range?.to) {
-    formValues.datas.from = range.from;
-    formValues.datas.to = range.to;
-  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

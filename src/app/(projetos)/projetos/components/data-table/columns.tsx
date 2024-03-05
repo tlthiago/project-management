@@ -30,7 +30,7 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
       return (
         <Link href={`projetos/${row.getValue('ID')}`}>
           <span
-            className={`font-semibold ${atrasado === 'S ' ? 'text-rose-500' : ''}`}
+            className={`font-semibold ${atrasado === 'S' ? 'text-rose-500' : ''}`}
           >
             {row.getValue('NOME')}
           </span>
@@ -49,7 +49,7 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
       const atrasado = row.getValue('ATRASADO');
 
       return (
-        <div className={atrasado === 'S ' ? 'font-semibold text-rose-500' : ''}>
+        <div className={atrasado === 'S' ? 'font-semibold text-rose-500' : ''}>
           {dataInicio.toLocaleDateString('pt-BR')}
         </div>
       );
@@ -66,7 +66,7 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
       const atrasado = row.getValue('ATRASADO');
 
       return (
-        <div className={atrasado === 'S ' ? 'font-semibold text-rose-500' : ''}>
+        <div className={atrasado === 'S' ? 'font-semibold text-rose-500' : ''}>
           {dataFim.toLocaleDateString('pt-BR')}
         </div>
       );
@@ -82,7 +82,7 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
 
       return (
         <div
-          className={`line-clamp-1 max-w-96 ${atrasado === 'S ' ? 'font-semibold text-rose-500' : ''}`}
+          className={`line-clamp-1 max-w-96 ${atrasado === 'S' ? 'font-semibold text-rose-500' : ''}`}
         >
           {row.getValue('EQUIPES')}
         </div>

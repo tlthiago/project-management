@@ -22,7 +22,7 @@ export function DataTableToolbar<TData>({
   const delayedTotalValue = table
     .getColumn('ATRASADO')
     ?.getFacetedUniqueValues()
-    .get('S ');
+    .get('S');
 
   return (
     <div className="flex items-center justify-between">
@@ -53,7 +53,7 @@ export function DataTableToolbar<TData>({
           variant="outline"
           size="sm"
           className="h-8 border-dashed"
-          onClick={() => table.getColumn('ATRASADO')?.setFilterValue('S ')}
+          onClick={() => table.getColumn('ATRASADO')?.setFilterValue('S')}
         >
           <PlusCircle className="mr-2 h-4 w-4" />
           <div className="space-x-2">

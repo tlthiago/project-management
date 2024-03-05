@@ -41,7 +41,7 @@ export const DataTableColumns = () => {
           <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
             <DialogTrigger asChild>
               <span
-                className={`cursor-pointer font-semibold ${atrasado === 'S ' ? 'text-rose-500' : ''}`}
+                className={`cursor-pointer font-semibold ${atrasado === 'S' ? 'text-rose-500' : ''}`}
               >
                 {row.getValue('NOME')}
               </span>
@@ -59,7 +59,7 @@ export const DataTableColumns = () => {
 
         return (
           <div
-            className={`line-clamp-1 max-w-96 ${atrasado === 'S ' ? 'font-semibold text-rose-500' : ''}`}
+            className={`line-clamp-1 max-w-96 ${atrasado === 'S' ? 'font-semibold text-rose-500' : ''}`}
           >
             {row.getValue('DESCRICAO')}
           </div>
@@ -78,7 +78,7 @@ export const DataTableColumns = () => {
 
         return (
           <div
-            className={atrasado === 'S ' ? 'font-semibold text-rose-500' : ''}
+            className={atrasado === 'S' ? 'font-semibold text-rose-500' : ''}
           >
             {dataInicio.toLocaleDateString('pt-BR')}
           </div>
@@ -97,7 +97,7 @@ export const DataTableColumns = () => {
 
         return (
           <div
-            className={atrasado === 'S ' ? 'font-semibold text-rose-500' : ''}
+            className={atrasado === 'S' ? 'font-semibold text-rose-500' : ''}
           >
             {dataFim.toLocaleDateString('pt-BR')}
           </div>
