@@ -57,7 +57,7 @@ export function CreateTeamForm() {
     .filter((member) => member.EQUIPE == 'Não alocado')
     .map((member) => member.NOME);
 
-  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
 
   const chapas: string[] = [];
 

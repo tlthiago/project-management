@@ -5,7 +5,7 @@ export interface GetProjectsByChapaParams {
 }
 
 export interface GetProjectsByChapaResponse {
-  ID: string;
+  ID: number;
   NOME: string;
   DATA_INICIO: string;
   DATA_FIM: string;

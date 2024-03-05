@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { MoreVertical } from 'lucide-react';
 import { useState } from 'react';
 
-import { TaskContainer } from '@/app/(projetos)/projetos/[projectId]/components/kanban/task-container';
+// import { TaskContainer } from '@/app/(projetos)/projetos/[projectId]/components/kanban/task-container';
 import {
   getProjectById,
   GetProjectByIdResponse
@@ -29,7 +29,7 @@ import {
 } from '../../../api/projetos/tarefas/get-tasks-by-project';
 import { CreateTaskForm } from './components/create-task-form';
 import { ProjectDetails } from './components/project-details';
-import { columns } from './components/table/columns';
+import { DataTableColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 
 export default function Project({ params }: { params: { projectId: string } }) {
@@ -119,13 +119,13 @@ export default function Project({ params }: { params: { projectId: string } }) {
               </TabsList> */}
             </div>
             <TabsContent value="kanban" className="flex">
-              <TaskContainer title="ATRASADO" />
+              {/* <TaskContainer title="ATRASADO" />
               <TaskContainer title="PENDENTE" />
               <TaskContainer title="EM PROGRESSO" />
-              <TaskContainer title="FINALIZADO" />
+              <TaskContainer title="FINALIZADO" /> */}
             </TabsContent>
             <TabsContent value="table" className="px-5">
-              <DataTable columns={columns} data={tasks} />
+              <DataTable columns={DataTableColumns().columns} data={tasks} />
             </TabsContent>
           </Tabs>
         </CardHeader>

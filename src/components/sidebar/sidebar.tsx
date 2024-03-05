@@ -39,31 +39,30 @@ export function Sidebar() {
 
   const chapa = session?.user.CHAPA ?? '';
 
-  let projects: any = [];
-
   const { data: member } = useQuery<GetMemberByChapaResponse>({
     queryKey: ['member', chapa],
     queryFn: () => getMemberByChapa({ chapa }),
     enabled: !!chapa
   });
 
+  const { data: adminProjects = [] } = useQuery<
+    GetProjectsByDepartmentResponse[]
+  >({
+    queryKey: ['projects', department],
+    queryFn: () => getProjectsByDepartment({ department }),
+    enabled: !!department
+  });
+
+  const { data: memberProjects = [] } = useQuery<GetProjectsByChapaResponse[]>({
+    queryKey: ['projects', chapa],
+    queryFn: () => getProjectsByChapa({ chapa }),
+    enabled: !!chapa
+  });
+
+  let projects = [];
   if (member?.FUNCAO === 'Administrador' && department) {
-    const { data: adminProjects = [] } = useQuery<
-      GetProjectsByDepartmentResponse[]
-    >({
-      queryKey: ['projects', department],
-      queryFn: () => getProjectsByDepartment({ department }),
-      enabled: !!department
-    });
     projects = adminProjects;
   } else {
-    const { data: memberProjects = [] } = useQuery<
-      GetProjectsByChapaResponse[]
-    >({
-      queryKey: ['projects', chapa],
-      queryFn: () => getProjectsByChapa({ chapa }),
-      enabled: !!chapa
-    });
     projects = memberProjects;
   }
 

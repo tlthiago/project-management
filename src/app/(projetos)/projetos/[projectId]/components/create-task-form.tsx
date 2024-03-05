@@ -112,10 +112,7 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
     resolver: zodResolver(taskSchema),
     defaultValues: {
       nome: '',
-      datas: {
-        from: new Date(),
-        to: new Date(new Date().setDate(new Date().getDate() + 1))
-      },
+      datas: range,
       descricao: '',
       responsaveis: [],
       prioridade: ''

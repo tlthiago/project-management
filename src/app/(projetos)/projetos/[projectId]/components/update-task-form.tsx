@@ -107,7 +107,12 @@ export function UpdateTaskForm({
     enabled: open
   });
 
-  const [range, setRange] = useState<DateRange | undefined>();
+  const [range, setRange] = useState<DateRange | undefined>({
+    from: project?.DATA_INICIO ? new Date(project?.DATA_INICIO) : new Date(),
+    to: project?.DATA_FIM
+      ? new Date(project?.DATA_FIM)
+      : new Date(new Date().setDate(new Date().getDate() + 1))
+  });
   const membersList: string[] = project?.MEMBROS.split(',') || [];
   const [member, setMember] = useState<string[]>([]);
 
@@ -115,10 +120,10 @@ export function UpdateTaskForm({
     setMember(task?.MEMBROS.split(',') || []);
   }, [task]);
 
-  const dataInicio: string = new Date().toString();
-  const dataFim: string = new Date(
-    new Date().setDate(new Date().getDate() + 1)
-  ).toString();
+  // const dataInicio: string = new Date().toString();
+  // const dataFim: string = new Date(
+  //   new Date().setDate(new Date().getDate() + 1)
+  // ).toString();
 
   const membersChapas: string[] = [];
 
@@ -147,20 +152,25 @@ export function UpdateTaskForm({
     }
   });
 
+  const formValues = {
+    nome: project?.NOME ?? '',
+    datas: {
+      from: new Date(),
+      to: new Date(new Date().setDate(new Date().getDate() + 1))
+    },
+    descricao: project?.DESCRICAO ?? '',
+    responsaveis: project?.MEMBROS.split(',') || [],
+    prioridade: project?.PRIORIDADE || ''
+  };
+
+  if (range?.from && range?.to) {
+    formValues.datas.from = range.from;
+    formValues.datas.to = range.to;
+  }
+
   const form = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
-    values: {
-      nome: task?.NOME ?? '',
-      datas: {
-        from: task?.DATA_INICIO
-          ? new Date(task?.DATA_INICIO)
-          : new Date(dataInicio),
-        to: task?.DATA_FIM ? new Date(task?.DATA_FIM) : new Date(dataFim)
-      },
-      descricao: task?.DESCRICAO ?? '',
-      responsaveis: task?.MEMBROS.split(',') || [],
-      prioridade: task?.PRIORIDADE || ''
-    }
+    values: formValues
   });
 
   const queryClient = useQueryClient();

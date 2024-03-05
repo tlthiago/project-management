@@ -12,7 +12,7 @@ export const nextAuthOptions: NextAuthOptions = {
         password: { label: 'password', type: 'text' }
       },
 
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         const response = await api.post('/login', {
           username: credentials?.username,
           password: credentials?.password
@@ -33,7 +33,7 @@ export const nextAuthOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      session = token.user as any;
+      session = token.user;
       return session;
     }
   },

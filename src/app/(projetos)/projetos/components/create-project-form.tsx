@@ -138,10 +138,7 @@ export function CreateProjectForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: '',
-      datas: {
-        from: new Date(),
-        to: new Date(new Date().setDate(new Date().getDate() + 1))
-      },
+      datas: range,
       descricao: '',
       equipes: [],
       responsaveis: [],

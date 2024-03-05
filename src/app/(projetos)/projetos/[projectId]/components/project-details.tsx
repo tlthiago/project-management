@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UsersAvatar } from '@/components/users-avatar';
 
 interface ProjectDetailsProps {
-  projectId?: string;
+  projectId: string;
   open: boolean;
 }
 

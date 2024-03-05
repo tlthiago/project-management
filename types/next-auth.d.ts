@@ -11,6 +11,6 @@ declare module 'next-auth' {
       LOGINID: string;
       CHAPA: string;
       SETOR: string;
-    };
+    }
   }
 }
