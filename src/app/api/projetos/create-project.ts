@@ -2,9 +2,9 @@ import { api } from '@/lib/axios';
 
 export interface CreateProjectBody {
   nome: string;
-  dataInicio: string;
-  dataFim: string;
-  descricao: string;
+  dataInicio?: string;
+  dataFim?: string;
+  descricao?: string;
   departamento: string;
   prioridade: string;
   usuInclusao: string;

@@ -1,9 +1,8 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Row } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
-import Link from 'next/link';
+import { MoreVertical } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -24,7 +23,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -33,19 +31,20 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 
-import { UpdateProjectForm } from '../update-project-form';
+import { UpdateProjectForm } from '../../components/update-project-form';
+import { ProjectDetails } from './project-details';
 
-interface DataTableRowActionsProps<TData> {
-  row: Row<TData>;
+export interface UpdateProjectFormProps {
+  projectId: string;
 }
 
-export function DataTableRowActions<TData>({
-  row
-}: DataTableRowActionsProps<TData>) {
+export function ProjectProperties({ projectId }: UpdateProjectFormProps) {
   const queryClient = useQueryClient();
 
   const { data: session } = useSession();
   const chapa = session?.user.CHAPA ?? '';
+
+  const router = useRouter();
 
   const { data: member } = useQuery<GetMemberByChapaResponse>({
     queryKey: ['member', chapa],
@@ -57,10 +56,12 @@ export function DataTableRowActions<TData>({
     mutationFn: archiveProject,
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      router.replace('/projetos');
     }
   });
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isUpdateProjectFormOpen, setIsUpdateProjectFormOpen] = useState(false);
 
   async function handleSubmit(projectId: string) {
     try {
@@ -76,30 +77,32 @@ export function DataTableRowActions<TData>({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-        >
-          <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Abrir menu</span>
-        </Button>
+      <DropdownMenuTrigger className="ml-auto">
+        <MoreVertical className="h-5 w-5" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
-        <Link href={`projetos/${row.getValue('ID')}`}>
-          <DropdownMenuItem>Abrir</DropdownMenuItem>
-        </Link>
+      <DropdownMenuContent>
+        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+          <DialogTrigger asChild>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              Abrir
+            </DropdownMenuItem>
+          </DialogTrigger>
+          <ProjectDetails open={isDetailsOpen} projectId={projectId} />
+        </Dialog>
         {member?.FUNCAO === 'Administrador' && (
           <>
-            <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+            <Dialog
+              open={isUpdateProjectFormOpen}
+              onOpenChange={setIsUpdateProjectFormOpen}
+            >
               <DialogTrigger asChild>
                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                   Editar
                 </DropdownMenuItem>
               </DialogTrigger>
               <UpdateProjectForm
-                open={isDetailsOpen}
-                projectId={row.getValue('ID')}
+                open={isUpdateProjectFormOpen}
+                projectId={projectId}
               />
             </Dialog>
             <AlertDialog>
@@ -119,7 +122,7 @@ export function DataTableRowActions<TData>({
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
                   <AlertDialogAction
                     type="submit"
-                    onClick={() => handleSubmit(row.getValue('ID'))}
+                    onClick={() => handleSubmit(projectId)}
                   >
                     Arquivar
                   </AlertDialogAction>

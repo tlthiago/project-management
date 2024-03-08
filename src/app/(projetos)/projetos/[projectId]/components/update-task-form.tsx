@@ -7,7 +7,6 @@ import { ptBR } from 'date-fns/locale';
 import { ArrowDown, ArrowRight, ArrowUp, CalendarDays } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { DateRange } from 'react-day-picker';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
@@ -60,18 +59,31 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
-export const taskSchema = z.object({
-  nome: z.string().min(1, { message: 'O nome da tarefa deve ser informado.' }),
-  datas: z.object({
-    from: z.coerce.date(),
-    to: z.coerce.date()
-  }),
-  descricao: z.string().min(1, { message: 'Descreva a tarefa.' }),
-  responsaveis: z
-    .array(z.string())
-    .min(1, { message: 'Selecione pelo menos um responsável.' }),
-  prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
-});
+export const taskSchema = z
+  .object({
+    nome: z
+      .string()
+      .min(1, { message: 'O nome da tarefa deve ser informado.' }),
+    datas: z
+      .object({
+        from: z.coerce.date().optional(),
+        to: z.coerce.date().optional()
+      })
+      .optional(),
+    descricao: z.string().optional(),
+    responsaveis: z
+      .array(z.string())
+      .min(1, { message: 'Selecione pelo menos um responsável.' }),
+    prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
+  })
+  .superRefine(({ datas }, refinementContext) => {
+    if (datas?.from && !datas?.to) {
+      return refinementContext.addIssue({
+        code: z.ZodIssueCode.invalid_date,
+        path: ['datas']
+      });
+    }
+  });
 
 interface updateTaskFormProps {
   projectId: string;
@@ -107,23 +119,12 @@ export function UpdateTaskForm({
     enabled: open
   });
 
-  const [range, setRange] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(new Date().setDate(new Date().getDate() + 1))
-  });
   const membersList: string[] = project?.MEMBROS.split(',') || [];
   const [member, setMember] = useState<string[]>([]);
 
   useEffect(() => {
     setMember(task?.MEMBROS.split(',') || []);
   }, [task]);
-
-  const dataInicio: string = range?.to
-    ? range.to.toString()
-    : new Date().toString();
-  const dataFim: string = range?.from
-    ? range?.from.toString()
-    : new Date(new Date().setDate(new Date().getDate() + 1)).toString();
 
   const membersChapas: string[] = [];
 
@@ -156,13 +157,14 @@ export function UpdateTaskForm({
     resolver: zodResolver(taskSchema),
     values: {
       nome: task?.NOME ?? '',
-      datas: {
-        from: task?.DATA_INICIO
-          ? new Date(task?.DATA_INICIO)
-          : new Date(dataInicio),
-        to: task?.DATA_FIM ? new Date(task?.DATA_FIM) : new Date(dataFim)
-      },
-      descricao: task?.DESCRICAO ?? '',
+      datas:
+        task?.DATA_INICIO && task?.DATA_FIM
+          ? {
+              from: new Date(task?.DATA_INICIO),
+              to: new Date(task?.DATA_FIM)
+            }
+          : undefined,
+      descricao: task?.DESCRICAO ?? undefined,
       responsaveis: task?.MEMBROS.split(',') || [],
       prioridade: task?.PRIORIDADE || ''
     }
@@ -178,20 +180,50 @@ export function UpdateTaskForm({
   });
 
   async function onSubmit(taskData: z.infer<typeof taskSchema>) {
+    const dataInicio: string | null | undefined =
+      taskData.datas?.from !== undefined && task?.DATA_INICIO === null
+        ? format(taskData.datas.from, 'yyyy-MM-dd', {
+            locale: ptBR
+          })
+        : taskData.datas?.from !== undefined &&
+            task?.DATA_INICIO &&
+            format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) !==
+              task?.DATA_INICIO.split('T', 1)[0]
+          ? format(taskData.datas.from, 'yyyy-MM-dd', {
+              locale: ptBR
+            })
+          : taskData.datas?.from !== undefined &&
+              task?.DATA_INICIO &&
+              format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) ===
+                task?.DATA_INICIO.split('T', 1)[0]
+            ? undefined
+            : null;
+
+    const dataFim: string | null | undefined =
+      taskData.datas?.to !== undefined && project?.DATA_FIM === null
+        ? format(taskData.datas.to, 'yyyy-MM-dd', {
+            locale: ptBR
+          })
+        : taskData.datas?.to !== undefined &&
+            project?.DATA_FIM &&
+            format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) !==
+              project?.DATA_FIM.split('T', 1)[0]
+          ? format(taskData.datas.to, 'yyyy-MM-dd', {
+              locale: ptBR
+            })
+          : taskData.datas?.to !== undefined &&
+              project?.DATA_FIM &&
+              format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) ===
+                project?.DATA_FIM.split('T', 1)[0]
+            ? undefined
+            : null;
+
     try {
       await updateTaskFn({
         taskId: taskId,
         nome: taskData.nome !== task?.NOME ? taskData.nome : undefined,
-        dataInicio:
-          format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) !==
-          task?.DATA_INICIO.split('T', 1)[0]
-            ? format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR })
-            : undefined,
-        dataFim:
-          format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) !==
-          task?.DATA_FIM.split('T', 1)[0]
-            ? format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR })
-            : undefined,
+        dataInicio: dataInicio,
+        dataFim: dataFim,
         descricao:
           taskData.descricao !== task?.DESCRICAO
             ? taskData.descricao
@@ -255,28 +287,28 @@ export function UpdateTaskForm({
                         )}
                       >
                         <CalendarDays className="mr-2 size-4" />
-                        {field.value.from && field.value.to
+                        {field.value?.from && field.value?.to
                           ? `${format(field.value.from, 'P', {
                               locale: ptBR
                             })} a ${format(field.value.to, 'P', {
                               locale: ptBR
                             })}`
-                          : 'Selecione as datas'}
+                          : field.value?.from
+                            ? `${format(field.value.from, 'P', {
+                                locale: ptBR
+                              })} a `
+                            : 'Selecione as datas'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="flex w-auto p-0">
                       <Calendar
                         mode="range"
                         selected={{
-                          from: field.value.from,
-                          to: field.value.to
+                          from: field.value?.from,
+                          to: field.value?.to
                         }}
                         onSelect={(range) => {
                           field.onChange({
-                            from: range?.from,
-                            to: range?.to
-                          });
-                          setRange({
                             from: range?.from,
                             to: range?.to
                           });
@@ -285,25 +317,11 @@ export function UpdateTaskForm({
                     </PopoverContent>
                   </Popover>
                 </FormControl>
-                {form.formState.errors.datas?.from ? (
-                  form.formState.errors.datas?.from.type == 'invalid_date' ? (
-                    <span className="text-sm font-medium text-destructive">
-                      As datas devem ser selecionadas.
-                    </span>
-                  ) : (
-                    <span className="text-sm font-medium text-destructive">
-                      {form.formState.errors.datas?.from.message}
-                    </span>
-                  )
-                ) : form.formState.errors.datas?.to?.type == 'invalid_date' ? (
+                {field.value?.from && !field.value.to ? (
                   <span className="text-sm font-medium text-destructive">
-                    Selecione a data final.
+                    Selecione a data final
                   </span>
-                ) : (
-                  <span className="text-sm font-medium text-destructive">
-                    {form.formState.errors.datas?.to?.message}
-                  </span>
-                )}
+                ) : null}
               </FormItem>
             )}
           />

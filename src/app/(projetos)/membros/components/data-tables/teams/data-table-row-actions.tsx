@@ -8,16 +8,19 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { deleteTeam } from '@/app/api/departments/delete-team';
-import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,7 +65,7 @@ export function DataTableRowActions<TData>({
   }
 
   return (
-    <Dialog>
+    <AlertDialog>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -85,32 +88,29 @@ export function DataTableRowActions<TData>({
               teamId={row.getValue('ID')}
             />
           </Dialog>
-          <DialogTrigger asChild>
+          <AlertDialogTrigger asChild>
             <DropdownMenuItem>Excluir</DropdownMenuItem>
-          </DialogTrigger>
+          </AlertDialogTrigger>
         </DropdownMenuContent>
       </DropdownMenu>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Excluir projeto</DialogTitle>
-        </DialogHeader>
-        Tem certeza que deseja excluir a equipe? Essa ação não pode ser
-        desfeita.
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary">Cancelar</Button>
-          </DialogClose>
-          <DialogClose asChild>
-            <Button
-              variant="destructive"
-              type="submit"
-              onClick={() => handleSubmit(row.getValue('ID'))}
-            >
-              Excluir
-            </Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Excluir projeto</AlertDialogTitle>
+          <AlertDialogDescription>
+            Tem certeza que deseja excluir a equipe? Essa ação não pode ser
+            desfeita.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            type="submit"
+            onClick={() => handleSubmit(row.getValue('ID'))}
+          >
+            Excluir
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

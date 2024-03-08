@@ -19,10 +19,8 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
-  const delayedTotalValue = table
-    .getColumn('ATRASADO')
-    ?.getFacetedUniqueValues()
-    .get('S');
+  const delayedTotalValue =
+    table.getColumn('ATRASADO')?.getFacetedUniqueValues().get('S') ?? 0;
 
   return (
     <div className="flex items-center justify-between">

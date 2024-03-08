@@ -50,7 +50,9 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
 
       return (
         <div className={atrasado === 'S' ? 'font-semibold text-rose-500' : ''}>
-          {dataInicio.toLocaleDateString('pt-BR')}
+          {dataInicioString === null
+            ? dataInicioString
+            : dataInicio.toLocaleDateString('pt-BR')}
         </div>
       );
     }
@@ -67,7 +69,9 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
 
       return (
         <div className={atrasado === 'S' ? 'font-semibold text-rose-500' : ''}>
-          {dataFim.toLocaleDateString('pt-BR')}
+          {dataFimString === null
+            ? dataFimString
+            : dataFim.toLocaleDateString('pt-BR')}
         </div>
       );
     }

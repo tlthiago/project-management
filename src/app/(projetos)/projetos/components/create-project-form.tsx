@@ -7,7 +7,6 @@ import { ptBR } from 'date-fns/locale';
 import { ArrowDown, ArrowRight, ArrowUp, CalendarDays } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { DateRange } from 'react-day-picker';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
@@ -56,30 +55,38 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
-const formSchema = z.object({
-  nome: z.string().min(1, { message: 'O nome do projeto deve ser informado.' }),
-  datas: z.object({
-    from: z.coerce.date(),
-    to: z.coerce.date()
-  }),
-  descricao: z.string().min(1, { message: 'Descreva o projeto.' }),
-  equipes: z
-    .array(z.string())
-    .min(1, { message: 'Selecione pelo menos uma equipe.' }),
-  responsaveis: z
-    .array(z.string())
-    .min(1, { message: 'Selecione pelo menos um responsável.' }),
-  prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
-});
+const formSchema = z
+  .object({
+    nome: z
+      .string()
+      .min(1, { message: 'O nome do projeto deve ser informado.' }),
+    datas: z
+      .object({
+        from: z.coerce.date().optional(),
+        to: z.coerce.date().optional()
+      })
+      .optional(),
+    descricao: z.string().optional(),
+    equipes: z
+      .array(z.string())
+      .min(1, { message: 'Selecione pelo menos uma equipe.' }),
+    responsaveis: z
+      .array(z.string())
+      .min(1, { message: 'Selecione pelo menos um responsável.' }),
+    prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
+  })
+  .superRefine(({ datas }, refinementContext) => {
+    if (datas?.from && !datas?.to) {
+      return refinementContext.addIssue({
+        code: z.ZodIssueCode.invalid_date,
+        path: ['datas']
+      });
+    }
+  });
 
 export function CreateProjectForm() {
   const { data: session } = useSession();
   const department = session?.user.SETOR ?? '';
-
-  const [range, setRange] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(new Date().setDate(new Date().getDate() + 1))
-  });
 
   const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
     queryKey: ['teams', department],
@@ -141,8 +148,6 @@ export function CreateProjectForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: '',
-      datas: range,
-      descricao: '',
       equipes: [],
       responsaveis: [],
       prioridade: ''
@@ -171,11 +176,15 @@ export function CreateProjectForm() {
     try {
       await createProjectFn({
         nome: projectData.nome,
-        dataInicio: format(projectData.datas.from, 'yyyy-MM-dd', {
-          locale: ptBR
-        }),
-        dataFim: format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
-        descricao: projectData.descricao,
+        dataInicio: projectData.datas?.from
+          ? format(projectData.datas.from, 'yyyy-MM-dd', {
+              locale: ptBR
+            })
+          : undefined,
+        dataFim: projectData.datas?.to
+          ? format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR })
+          : undefined,
+        descricao: projectData.descricao ?? undefined,
         departamento: department,
         prioridade: projectData.prioridade,
         usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB',
@@ -206,7 +215,9 @@ export function CreateProjectForm() {
             name="nome"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome do projeto</FormLabel>
+                <FormLabel>
+                  Nome do projeto <span className="text-rose-600">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="Digite o nome do projeto" {...field} />
                 </FormControl>
@@ -232,56 +243,41 @@ export function CreateProjectForm() {
                         )}
                       >
                         <CalendarDays className="mr-2 size-4" />
-                        {field.value.from && field.value.to
+                        {field.value?.from && field.value?.to
                           ? `${format(field.value.from, 'P', {
                               locale: ptBR
                             })} a ${format(field.value.to, 'P', {
                               locale: ptBR
                             })}`
-                          : 'Selecione as datas'}
+                          : field.value?.from
+                            ? `${format(field.value.from, 'P', {
+                                locale: ptBR
+                              })} a `
+                            : 'Selecione as datas'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="flex w-auto p-0">
                       <Calendar
                         mode="range"
                         selected={{
-                          from: field.value.from,
-                          to: field.value.to
+                          from: field.value?.from,
+                          to: field.value?.to
                         }}
                         onSelect={(range) => {
                           field.onChange({
                             from: range?.from,
                             to: range?.to
                           });
-                          setRange({
-                            from: range?.from,
-                            to: range?.to
-                          });
                         }}
-                        disabled={{ before: new Date() }}
                       />
                     </PopoverContent>
                   </Popover>
                 </FormControl>
-                {form.formState.errors.datas?.from ? (
-                  form.formState.errors.datas?.from.type == 'invalid_date' ? (
-                    <span className="text-sm font-medium text-destructive">
-                      As datas devem ser selecionadas
-                    </span>
-                  ) : (
-                    <span className="text-sm font-medium text-destructive">
-                      {form.formState.errors.datas?.from.message}
-                    </span>
-                  )
-                ) : form.formState.errors.datas?.to?.type == 'invalid_date' ? (
+                {field.value?.from && !field.value.to ? (
                   <span className="text-sm font-medium text-destructive">
                     Selecione a data final
                   </span>
-                ) : (
-                  <span className="text-sm font-medium text-destructive">
-                    {form.formState.errors.datas?.to?.message}
-                  </span>
-                )}
+                ) : null}
               </FormItem>
             )}
           />
@@ -305,7 +301,9 @@ export function CreateProjectForm() {
             name="equipes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Equipes</FormLabel>
+                <FormLabel>
+                  Equipes <span className="text-rose-600">*</span>
+                </FormLabel>
                 <FormControl>
                   <MultiSelect
                     options={teamsList.map((teamName, index) => ({
@@ -331,7 +329,9 @@ export function CreateProjectForm() {
             name="responsaveis"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Responsáveis</FormLabel>
+                <FormLabel>
+                  Responsáveis <span className="text-rose-600">*</span>
+                </FormLabel>
                 <FormControl>
                   <MultiSelect
                     options={membersList.map((memberName, index) => ({
@@ -363,7 +363,9 @@ export function CreateProjectForm() {
             name="prioridade"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Prioridade</FormLabel>
+                <FormLabel>
+                  Prioridade <span className="text-rose-600">*</span>
+                </FormLabel>
                 <FormControl>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>

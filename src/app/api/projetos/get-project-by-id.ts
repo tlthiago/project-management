@@ -7,9 +7,9 @@ export interface GetProjectByIdParams {
 export interface GetProjectByIdResponse {
   ID: number;
   NOME: string;
-  DATA_INICIO: string;
-  DATA_FIM: string;
-  DESCRICAO: string;
+  DATA_INICIO: string | null;
+  DATA_FIM: string | null;
+  DESCRICAO: string | null;
   DEPARTAMENTO: string;
   STATUS: string;
   PRIORIDADE: string;

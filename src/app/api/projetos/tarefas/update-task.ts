@@ -7,8 +7,8 @@ interface MemberData {
 export interface UpdateTaskBody {
   taskId: string;
   nome?: string;
-  dataInicio?: string;
-  dataFim?: string;
+  dataInicio?: string | null;
+  dataFim?: string | null;
   descricao?: string;
   prioridade?: string;
   usuInclusao?: string;
@@ -37,6 +37,8 @@ export async function updateTask({
     removed,
     usuInclusao
   };
+
+  console.log(taskData);
 
   await api.put(`/projects/tasks/${taskId}`, taskData);
 }

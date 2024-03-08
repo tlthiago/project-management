@@ -8,8 +8,8 @@ interface TeamMemberData {
 export interface UpdateProjectBody {
   projectId: string;
   nome?: string;
-  dataInicio?: string;
-  dataFim?: string;
+  dataInicio?: string | null;
+  dataFim?: string | null;
   descricao?: string;
   prioridade?: string;
   removed?: TeamMemberData;

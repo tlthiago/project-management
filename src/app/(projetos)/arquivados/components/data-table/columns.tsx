@@ -62,7 +62,7 @@ export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
   },
   {
     accessorKey: 'MEMBROS',
-    header: () => <div>Responsáveis</div>,
+    header: () => <div>Membros</div>,
     cell: ({ row }) => {
       return <UsersAvatar members={row.getValue('MEMBROS')} />;
     }

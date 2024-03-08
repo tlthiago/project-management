@@ -7,7 +7,6 @@ import { ptBR } from 'date-fns/locale';
 import { ArrowDown, ArrowRight, ArrowUp, CalendarDays } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { DateRange } from 'react-day-picker';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
@@ -61,18 +60,31 @@ interface createTaskFormProps {
   open: boolean;
 }
 
-export const taskSchema = z.object({
-  nome: z.string().min(1, { message: 'O nome da tarefa deve ser informado.' }),
-  datas: z.object({
-    from: z.coerce.date(),
-    to: z.coerce.date()
-  }),
-  descricao: z.string().min(1, { message: 'Descreva a tarefa.' }),
-  responsaveis: z
-    .array(z.string())
-    .min(1, { message: 'Selecione pelo menos um responsável.' }),
-  prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
-});
+export const taskSchema = z
+  .object({
+    nome: z
+      .string()
+      .min(1, { message: 'O nome da tarefa deve ser informado.' }),
+    datas: z
+      .object({
+        from: z.coerce.date().optional(),
+        to: z.coerce.date().optional()
+      })
+      .optional(),
+    descricao: z.string().optional(),
+    responsaveis: z
+      .array(z.string())
+      .min(1, { message: 'Selecione pelo menos um responsável.' }),
+    prioridade: z.string().min(1, { message: 'Selecione a prioridade.' })
+  })
+  .superRefine(({ datas }, refinementContext) => {
+    if (datas?.from && !datas?.to) {
+      return refinementContext.addIssue({
+        code: z.ZodIssueCode.invalid_date,
+        path: ['datas']
+      });
+    }
+  });
 
 export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
   const { data: session } = useSession();
@@ -88,11 +100,6 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
     queryKey: ['members', department],
     queryFn: () => getMembersByDepartment({ department }),
     enabled: !!open
-  });
-
-  const [range, setRange] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(new Date().setDate(new Date().getDate() + 1))
   });
 
   const membersList: string[] = project?.MEMBROS.split(',') || [];
@@ -112,8 +119,6 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
     resolver: zodResolver(taskSchema),
     defaultValues: {
       nome: '',
-      datas: range,
-      descricao: '',
       responsaveis: [],
       prioridade: ''
     }
@@ -135,9 +140,13 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
       await createTaskFn({
         projectId: projectId,
         nome: taskData.nome,
-        dataInicio: format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR }),
-        dataFim: format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }),
-        descricao: taskData.descricao,
+        dataInicio: taskData.datas?.from
+          ? format(taskData.datas.from, 'yyyy-MM-dd', { locale: ptBR })
+          : undefined,
+        dataFim: taskData.datas?.to
+          ? format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR })
+          : undefined,
+        descricao: taskData.descricao ?? undefined,
         chapas: membersChapas,
         prioridade: taskData.prioridade,
         usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB'
@@ -166,7 +175,9 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
             name="nome"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome da tarefa</FormLabel>
+                <FormLabel>
+                  Nome da tarefa <span className="text-rose-600">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="Digite o nome da tarefa" {...field} />
                 </FormControl>
@@ -192,10 +203,10 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
                         )}
                       >
                         <CalendarDays className="mr-2 size-4" />
-                        {field.value.from && field.value.to
-                          ? `${format(field.value.from, 'P', {
+                        {field.value?.from && field.value?.to
+                          ? `${format(field.value?.from, 'P', {
                               locale: ptBR
-                            })} a ${format(field.value.to, 'P', {
+                            })} a ${format(field.value?.to, 'P', {
                               locale: ptBR
                             })}`
                           : 'Selecione as datas'}
@@ -205,43 +216,24 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
                       <Calendar
                         mode="range"
                         selected={{
-                          from: field.value.from,
-                          to: field.value.to
+                          from: field.value?.from,
+                          to: field.value?.to
                         }}
                         onSelect={(range) => {
                           field.onChange({
                             from: range?.from,
                             to: range?.to
                           });
-                          setRange({
-                            from: range?.from,
-                            to: range?.to
-                          });
                         }}
-                        disabled={{ before: new Date() }}
                       />
                     </PopoverContent>
                   </Popover>
                 </FormControl>
-                {form.formState.errors.datas?.from ? (
-                  form.formState.errors.datas?.from.type == 'invalid_date' ? (
-                    <span className="text-sm font-medium text-destructive">
-                      As datas devem ser selecionadas.
-                    </span>
-                  ) : (
-                    <span className="text-sm font-medium text-destructive">
-                      {form.formState.errors.datas?.from.message}
-                    </span>
-                  )
-                ) : form.formState.errors.datas?.to?.type == 'invalid_date' ? (
+                {field.value?.from && !field.value.to ? (
                   <span className="text-sm font-medium text-destructive">
-                    Selecione a data final.
+                    Selecione a data final
                   </span>
-                ) : (
-                  <span className="text-sm font-medium text-destructive">
-                    {form.formState.errors.datas?.to?.message}
-                  </span>
-                )}
+                ) : null}
               </FormItem>
             )}
           />
@@ -265,7 +257,9 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
             name="responsaveis"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Responsáveis</FormLabel>
+                <FormLabel>
+                  Responsáveis <span className="text-rose-600">*</span>
+                </FormLabel>
                 <FormControl>
                   <MultiSelect
                     options={membersList.map((memberName, index) => ({
@@ -294,7 +288,9 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
             name="prioridade"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Prioridade</FormLabel>
+                <FormLabel>
+                  Prioridade <span className="text-rose-600">*</span>
+                </FormLabel>
                 <FormControl>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>

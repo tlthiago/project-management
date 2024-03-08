@@ -1,6 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -11,16 +13,18 @@ import {
   getMemberByChapa,
   GetMemberByChapaResponse
 } from '@/app/api/departments/get-member-by-chapa';
-import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { queryClient } from '@/lib/react-query';
 
 import {
@@ -42,6 +46,11 @@ export function ProjectItem({ projectId, link, title }: ProjectItemsProps) {
   const chapa = session?.user.CHAPA ?? '';
   const projectIdString = projectId.toString();
 
+  const router = useRouter();
+  const pathname = usePathname();
+  const pathnameParts = pathname.split('/');
+  const pathnameId = pathnameParts.pop();
+
   const { data: member } = useQuery<GetMemberByChapaResponse>({
     queryKey: ['member', chapa],
     queryFn: () => getMemberByChapa({ chapa }),
@@ -56,6 +65,10 @@ export function ProjectItem({ projectId, link, title }: ProjectItemsProps) {
       queryClient.invalidateQueries({ queryKey: ['projects', department] });
       queryClient.invalidateQueries({ queryKey: ['projects', chapa] });
       queryClient.invalidateQueries({ queryKey: ['archived-projects'] });
+
+      if (pathnameId && pathnameId === projectIdString) {
+        router.replace('/projetos');
+      }
     }
   });
 
@@ -97,33 +110,30 @@ export function ProjectItem({ projectId, link, title }: ProjectItemsProps) {
                   projectId={projectIdString}
                 />
               </Dialog>
-              <Dialog>
-                <DialogTrigger asChild>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     Arquivar
                   </DropdownMenuItem>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Arquivar projeto</DialogTitle>
-                  </DialogHeader>
-                  Tem certeza que deseja arquivar o projeto?
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button variant="secondary">Cancelar</Button>
-                    </DialogClose>
-                    <DialogClose asChild>
-                      <Button
-                        variant="destructive"
-                        type="submit"
-                        onClick={() => handleSubmit(projectIdString)}
-                      >
-                        Arquivar
-                      </Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Arquivar projeto</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Tem certeza que deseja arquivar o projeto?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      type="submit"
+                      onClick={() => handleSubmit(projectIdString)}
+                    >
+                      Arquivar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </>
           )}
         </DropdownMenuContent>

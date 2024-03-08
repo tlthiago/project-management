@@ -1,7 +1,6 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { MoreVertical } from 'lucide-react';
 import { useState } from 'react';
 
 // import { TaskContainer } from '@/app/(projetos)/projetos/[projectId]/components/kanban/task-container';
@@ -28,14 +27,15 @@ import {
   GetTasksByProjectResponse
 } from '../../../api/projetos/tarefas/get-tasks-by-project';
 import { CreateTaskForm } from './components/create-task-form';
-import { ProjectDetails } from './components/project-details';
+// import { ProjectDetails } from './components/project-details';
+import { ProjectProperties } from './components/project-properties';
 import { DataTableColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 
 export default function Project({ params }: { params: { projectId: string } }) {
   const projectId: string = params.projectId;
 
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  // const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [createTaskForm, setCreateTaskForm] = useState(false);
 
   const { data: project } = useQuery<GetProjectByIdResponse>({
@@ -50,11 +50,16 @@ export default function Project({ params }: { params: { projectId: string } }) {
     enabled: !!projectId
   });
 
-  const dataInicioString: string = project?.DATA_INICIO || '';
-  const dataFimString: string = project?.DATA_FIM || '';
+  const dataInicioString: string | null = project?.DATA_INICIO || null;
+  const dataFimString: string | null = project?.DATA_FIM || null;
 
-  const dataInicio = new Date(dataInicioString);
-  const dataFim = new Date(dataFimString);
+  let dataInicio: Date = new Date();
+  let dataFim: Date = new Date();
+
+  if (dataInicioString !== null && dataFimString !== null) {
+    dataInicio = new Date(dataInicioString);
+    dataFim = new Date(dataFimString);
+  }
 
   return (
     <div className="space-y-3">
@@ -70,8 +75,13 @@ export default function Project({ params }: { params: { projectId: string } }) {
         <div className="col-span-1 flex justify-end gap-2 p-4">
           <div className="space-y-2 text-sm">
             <div>
-              Datas: {dataInicio.toLocaleDateString('pt-BR')} a{' '}
-              {dataFim.toLocaleDateString('pt-BR')}
+              Datas:{' '}
+              {dataInicioString === null
+                ? dataInicioString
+                : `${dataInicio.toLocaleDateString('pt-BR')} a `}
+              {dataFimString === null
+                ? dataFimString
+                : dataFim.toLocaleDateString('pt-BR')}
             </div>
             <div className="flex gap-1">
               <span>Status:</span>
@@ -87,14 +97,9 @@ export default function Project({ params }: { params: { projectId: string } }) {
               <UsersAvatar members={project?.MEMBROS} />
             </div>
           </div>
-          <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-            <DialogTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
-            </DialogTrigger>
-            <ProjectDetails open={isDetailsOpen} projectId={projectId} />
-          </Dialog>
+          <div className="hover:text-zinc-500">
+            <ProjectProperties projectId={projectId} />
+          </div>
         </div>
       </Card>
       <Card>

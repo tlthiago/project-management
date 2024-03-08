@@ -31,11 +31,16 @@ export function TaskDetails({ taskId, open }: TaskDetailsProps) {
     enabled: open
   });
 
-  const dataInicioString: string = task?.DATA_INICIO || '';
-  const dataFimString: string = task?.DATA_FIM || '';
+  const dataInicioString: string | null = task?.DATA_INICIO || null;
+  const dataFimString: string | null = task?.DATA_FIM || null;
 
-  const dataInicio = new Date(dataInicioString);
-  const dataFim = new Date(dataFimString);
+  let dataInicio: Date = new Date();
+  let dataFim: Date = new Date();
+
+  if (dataInicioString !== null && dataFimString !== null) {
+    dataInicio = new Date(dataInicioString);
+    dataFim = new Date(dataFimString);
+  }
 
   return (
     <DialogContent>
@@ -64,8 +69,12 @@ export function TaskDetails({ taskId, open }: TaskDetailsProps) {
             <TableCell className="text-muted-foreground">Datas</TableCell>
             <TableCell className="text-right">
               <span>
-                {dataInicio.toLocaleDateString('pt-BR')} a{' '}
-                {dataFim.toLocaleDateString('pt-BR')}
+                {dataInicioString === null
+                  ? dataInicioString
+                  : `${dataInicio.toLocaleDateString('pt-BR')} a `}
+                {dataFimString === null
+                  ? dataFimString
+                  : dataFim.toLocaleDateString('pt-BR')}
               </span>
             </TableCell>
           </TableRow>
