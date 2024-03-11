@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 
-import { Sidebar } from '@/components/sidebar/sidebar';
+import { Navbar } from '@/components/navbar/navbar';
+// import { Sidebar } from '@/components/sidebar/sidebar';
 import { nextAuthOptions } from '@/utils/authOptions';
 
 export default async function ProjectsLayout({
@@ -16,9 +17,9 @@ export default async function ProjectsLayout({
   }
 
   return (
-    <div className="grid min-h-screen grid-cols-app">
-      <Sidebar />
-      <main className="px-4 pb-12 pt-6">{children}</main>
+    <div className="flex min-h-screen flex-col antialiased">
+      <Navbar />
+      <main className="flex flex-1 flex-col gap-4 p-4 pt-6">{children}</main>
     </div>
   );
 }

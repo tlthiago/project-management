@@ -12,7 +12,7 @@ import NextAuthSessionProvider from '@/providers/sessionProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Sistemas Web',
+  title: 'Mart Minas Web',
   description: 'Sistemas Web Mart Minas & DOM Atacadista',
   icons: {
     icon: [
