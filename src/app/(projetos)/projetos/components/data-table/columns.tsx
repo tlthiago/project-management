@@ -134,6 +134,15 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
     }
   },
   {
+    accessorKey: 'USU_INCLUSAO',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Criado por" />
+    ),
+    cell: ({ row }) => {
+      return <span>{row.getValue('USU_INCLUSAO')}</span>;
+    }
+  },
+  {
     accessorKey: 'ATRASADO',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Atrasado" />

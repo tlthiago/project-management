@@ -13,7 +13,15 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Sistemas Web',
-  description: 'Sistemas Web Mart Minas & DOM Atacadista'
+  description: 'Sistemas Web Mart Minas & DOM Atacadista',
+  icons: {
+    icon: [
+      {
+        url: '/martband.png',
+        href: '/martband.png'
+      }
+    ]
+  }
 };
 
 export default async function RootLayout({

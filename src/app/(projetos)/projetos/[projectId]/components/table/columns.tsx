@@ -156,6 +156,15 @@ export const DataTableColumns = () => {
       }
     },
     {
+      accessorKey: 'USU_INCLUSAO',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Criada por" />
+      ),
+      cell: ({ row }) => {
+        return <span>{row.getValue('USU_INCLUSAO')}</span>;
+      }
+    },
+    {
       accessorKey: 'ATRASADO',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Atrasado" />

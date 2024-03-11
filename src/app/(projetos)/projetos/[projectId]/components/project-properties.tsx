@@ -80,7 +80,7 @@ export function ProjectProperties({ projectId }: UpdateProjectFormProps) {
       <DropdownMenuTrigger className="ml-auto">
         <MoreVertical className="h-5 w-5" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent align="end">
         <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
           <DialogTrigger asChild>
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>

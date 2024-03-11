@@ -249,9 +249,9 @@ export function UpdateTaskForm({
   return (
     <DialogContent className="max-h-[90vh] overflow-auto">
       <DialogHeader>
-        <DialogTitle>Atualizar projeto</DialogTitle>
+        <DialogTitle>Atualizar tarefa</DialogTitle>
         <DialogDescription>
-          Preencha os campos abaixo com as informações do projeto
+          Preencha os campos abaixo com as informações da tarefa
         </DialogDescription>
       </DialogHeader>
       <Form {...form}>

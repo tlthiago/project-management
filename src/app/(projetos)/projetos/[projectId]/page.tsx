@@ -91,6 +91,10 @@ export default function Project({ params }: { params: { projectId: string } }) {
               <span>Prioridade: </span>
               <Priority priority={project?.PRIORIDADE} />
             </div>
+            <div>
+              <span>Criado por: </span>
+              <span>{project?.USU_INCLUSAO}</span>
+            </div>
             <div className="line-clamp-1">Equipes: {project?.EQUIPES}</div>
             <div className="flex items-center gap-1">
               <span>Membros:</span>

@@ -13,6 +13,7 @@ export interface GetProjectsByChapaResponse {
   DEPARTAMENTO: string;
   STATUS: string;
   PRIORIDADE: string;
+  USU_INCLUSAO: string;
   DATA_INCLUSAO: string;
   ATRASADO: string;
   EQUIPES_ID: string;
