@@ -60,6 +60,9 @@ export function ProjectProperties({ projectId }: UpdateProjectFormProps) {
     }
   });
 
+  const managerUser =
+    member?.FUNCAO === 'Administrador' || member?.FUNCAO === 'Coordenador';
+
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isUpdateProjectFormOpen, setIsUpdateProjectFormOpen] = useState(false);
 
@@ -89,7 +92,7 @@ export function ProjectProperties({ projectId }: UpdateProjectFormProps) {
           </DialogTrigger>
           <ProjectDetails open={isDetailsOpen} projectId={projectId} />
         </Dialog>
-        {member?.FUNCAO === 'Administrador' && (
+        {managerUser && (
           <>
             <Dialog
               open={isUpdateProjectFormOpen}

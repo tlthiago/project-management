@@ -41,6 +41,9 @@ export default function TaskStatus({
     enabled: !!chapa
   });
 
+  const managerUser =
+    member?.FUNCAO === 'Administrador' || member?.FUNCAO === 'Coordenador';
+
   const handleStatusChange = async (status: string) => {
     switch (status) {
       case 'Pendente':
@@ -91,7 +94,7 @@ export default function TaskStatus({
 
   return (
     <>
-      {member?.FUNCAO === 'Administrador' ? (
+      {managerUser ? (
         <Select onValueChange={handleStatusChange} defaultValue={status}>
           <SelectTrigger disabled={isPending}>
             <SelectValue placeholder={<Status status={status} />} />

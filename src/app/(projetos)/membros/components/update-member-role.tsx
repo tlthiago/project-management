@@ -48,6 +48,7 @@ export default function UpdateMemberRole({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="Membro">Membro</SelectItem>
+          <SelectItem value="Coordenador">Coordenador</SelectItem>
           <SelectItem value="Administrador">Administrador</SelectItem>
         </SelectContent>
       </Select>

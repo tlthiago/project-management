@@ -15,6 +15,10 @@ import {
   getProjectsByChapa,
   GetProjectsByChapaResponse
 } from '@/app/api/projetos/get-projects-by-member';
+import {
+  getProjectsByTeam,
+  GetProjectsByTeamResponse
+} from '@/app/api/projetos/get-projects-by-team';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
@@ -42,8 +46,16 @@ export default function Projects() {
     enabled: !!department
   });
 
+  const { data: coordinatorProjects = [] } = useQuery<
+    GetProjectsByTeamResponse[]
+  >({
+    queryKey: ['coordinator-projects', chapa],
+    queryFn: () => getProjectsByTeam({ department, chapa }),
+    enabled: !!chapa
+  });
+
   const { data: memberProjects = [] } = useQuery<GetProjectsByChapaResponse[]>({
-    queryKey: ['projects', chapa],
+    queryKey: ['member-projects', chapa],
     queryFn: () => getProjectsByChapa({ chapa }),
     enabled: !!chapa
   });
@@ -51,6 +63,8 @@ export default function Projects() {
   let projects = [];
   if (member?.FUNCAO === 'Administrador' && department) {
     projects = adminProjects;
+  } else if (member?.FUNCAO === 'Coordenador' && department) {
+    projects = coordinatorProjects;
   } else {
     projects = memberProjects;
   }
@@ -59,14 +73,21 @@ export default function Projects() {
     <div className="space-y-5">
       <div className="flex justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Projetos</h1>
-        {member?.FUNCAO === 'Administrador' && (
+        {member?.FUNCAO === 'Administrador' ? (
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="default">Criar projeto</Button>
             </DialogTrigger>
             <CreateProjectForm />
           </Dialog>
-        )}
+        ) : member?.FUNCAO === 'Coordenador' ? (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="default">Criar projeto</Button>
+            </DialogTrigger>
+            <CreateProjectForm />
+          </Dialog>
+        ) : null}
       </div>
       <Card>
         <CardContent className="pt-5">

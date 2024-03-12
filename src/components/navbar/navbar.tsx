@@ -46,9 +46,11 @@ export function Navbar() {
                 title="Projetos"
                 icon={SquareStackIcon}
               />
-              {member?.FUNCAO === 'Administrador' && (
+              {member?.FUNCAO === 'Administrador' ? (
                 <NavItem link="/arquivados" title="Arquivados" icon={Archive} />
-              )}
+              ) : member?.FUNCAO === 'Coordenador' ? (
+                <NavItem link="/arquivados" title="Arquivados" icon={Archive} />
+              ) : null}
             </nav>
           </div>
           <div className="flex items-center gap-2">

@@ -39,6 +39,9 @@ export function DataTableRowActions<TData>({
     enabled: !!chapa
   });
 
+  const managerUser =
+    member?.FUNCAO === 'Administrador' || member?.FUNCAO === 'Coordenador';
+
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isUpdateTaskOpen, setIsUpdateTaskOpen] = useState(false);
 
@@ -62,7 +65,7 @@ export function DataTableRowActions<TData>({
           </DialogTrigger>
           <TaskDetails open={isDetailsOpen} taskId={row.getValue('ID')} />
         </Dialog>
-        {member?.FUNCAO === 'Administrador' && (
+        {managerUser && (
           <>
             <Dialog open={isUpdateTaskOpen} onOpenChange={setIsUpdateTaskOpen}>
               <DialogTrigger asChild>

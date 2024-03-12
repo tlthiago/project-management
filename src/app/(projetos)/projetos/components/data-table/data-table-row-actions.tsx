@@ -60,6 +60,9 @@ export function DataTableRowActions<TData>({
     }
   });
 
+  const managerUser =
+    member?.FUNCAO === 'Administrador' || member?.FUNCAO === 'Coordenador';
+
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   async function handleSubmit(projectId: string) {
@@ -89,7 +92,7 @@ export function DataTableRowActions<TData>({
         <Link href={`projetos/${row.getValue('ID')}`}>
           <DropdownMenuItem>Abrir</DropdownMenuItem>
         </Link>
-        {member?.FUNCAO === 'Administrador' && (
+        {managerUser && (
           <>
             <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
               <DialogTrigger asChild>

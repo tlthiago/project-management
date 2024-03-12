@@ -1,8 +1,12 @@
 ## Notas de atualização
 
+### alfa v1.2
+
+A identidade do Mart Minas & DOM foi adicionada ao projeto
+
 ### alfa v1.1
 
-Correçaões e funcionalidades foram adicionadas as páginas:
+Correções e funcionalidades foram adicionadas as páginas:
 
 #### Membros:  
 
