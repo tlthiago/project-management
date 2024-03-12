@@ -25,12 +25,12 @@ export function Navbar() {
   });
 
   return (
-    <nav className="w-full border-b border-gray-200 bg-gradient-to-r from-[#00A451] to-[#052846] dark:border-zinc-900 dark:bg-zinc-950">
+    <nav className="border-b border-gray-200 bg-gradient-to-r from-[#00A451] to-[#052846] dark:border-zinc-900 dark:bg-zinc-950">
       <div className="px-3 py-3 lg:px-5 lg:pl-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center justify-start rtl:justify-end">
             {/* <Sidebar /> */}
-            <nav className="flex">
+            <nav className="flex gap-2">
               {member?.FUNCAO === 'Administrador' && (
                 <>
                   <NavItem

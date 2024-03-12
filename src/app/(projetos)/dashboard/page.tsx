@@ -69,7 +69,7 @@ export default function Dashboard() {
           </div>
           <div className="space-x-2">
             <Button>Download</Button>
-            <TabsList>
+            <TabsList className="bg-neutral-200">
               <TabsTrigger value="overview">Visão geral</TabsTrigger>
               <TabsTrigger value="notifications" disabled>
                 Notificações
@@ -154,7 +154,7 @@ export default function Dashboard() {
               <CardHeader>
                 <CardTitle>Criados recentemente</CardTitle>
                 <CardDescription>
-                  O seu time já criou {projects?.length} projetos.
+                  O seu time criou {projects?.length} projetos este mês.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">

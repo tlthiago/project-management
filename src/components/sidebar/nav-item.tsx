@@ -11,10 +11,10 @@ export function NavItem({ link, title, icon: Icon }: NavItemProps) {
   return (
     <Link
       href={link}
-      className="group flex items-center gap-3 rounded px-3 py-2 hover:border hover:border-neutral-50"
+      className="flex items-center gap-3 rounded px-3 py-2 hover:border hover:border-neutral-50"
     >
       <Icon className="h-5 w-5 text-neutral-50" />
-      <span className="font-medium text-neutral-50">{title}</span>
+      <span className="text-sm font-medium text-neutral-50">{title}</span>
     </Link>
   );
 }

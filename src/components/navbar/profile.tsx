@@ -32,7 +32,7 @@ export function Profile() {
           variant="outline"
           className="flex w-40 items-center gap-2 bg-transparent hover:bg-transparent dark:border-neutral-50"
         >
-          <span className="text-sm font-semibold text-neutral-50">
+          <span className="text-xs font-semibold text-neutral-50">
             {session?.user.CODUSUARIO}
           </span>
           <span className="text-xs text-neutral-50">

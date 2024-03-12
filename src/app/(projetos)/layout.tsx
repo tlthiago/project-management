@@ -19,7 +19,9 @@ export default async function ProjectsLayout({
   return (
     <div className="flex min-h-screen flex-col antialiased">
       <Navbar />
-      <main className="flex flex-1 flex-col gap-4 p-4 pt-6">{children}</main>
+      <main className="flex flex-1 flex-col gap-4 bg-neutral-100 p-4 dark:bg-neutral-900">
+        {children}
+      </main>
     </div>
   );
 }
