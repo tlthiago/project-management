@@ -55,7 +55,7 @@ export default function Membros() {
                 <CreateTeamForm />
               </Dialog>
             )}
-            <TabsList className="bg-muted">
+            <TabsList className="bg-neutral-200">
               <TabsTrigger
                 value="members"
                 onClick={() => setTabsTriggerValue(false)}
