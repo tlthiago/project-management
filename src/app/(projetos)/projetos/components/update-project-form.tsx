@@ -96,6 +96,7 @@ export interface UpdateProjectFormProps {
 export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
   const { data: session } = useSession();
   const department = session?.user.SETOR ?? '';
+  const chapa = session?.user.CHAPA ?? '';
 
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
@@ -113,6 +114,10 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
     queryKey: ['members', department],
     queryFn: () => getMembersByDepartment({ department }),
     enabled: open
+  });
+
+  const loggedMemberData = members.find((member) => {
+    return member.CHAPA === chapa;
   });
 
   const currentTeamsIdString = project?.EQUIPES_ID.split(',') || [];
@@ -441,6 +446,7 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
                     }}
                     className="max-w-[462px]"
                     placeholder="Selecione a(s) equipe(s)"
+                    disabled={loggedMemberData?.FUNCAO === 'Coordenador'}
                   />
                 </FormControl>
                 <FormMessage />

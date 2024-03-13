@@ -12,11 +12,13 @@ import {
 
 export interface UpdateMemberRoleProps {
   chapa: string;
+  team: string;
   role: string;
 }
 
 export default function UpdateMemberRole({
   chapa,
+  team,
   role
 }: UpdateMemberRoleProps) {
   const handleChangeRole = async (role: string) => {
@@ -48,7 +50,9 @@ export default function UpdateMemberRole({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="Membro">Membro</SelectItem>
-          <SelectItem value="Coordenador">Coordenador</SelectItem>
+          <SelectItem disabled={team === 'Não alocado'} value="Coordenador">
+            Coordenador
+          </SelectItem>
           <SelectItem value="Administrador">Administrador</SelectItem>
         </SelectContent>
       </Select>

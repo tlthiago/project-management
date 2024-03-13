@@ -84,6 +84,7 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
       return (
         <UpdateMemberRole
           chapa={row.getValue('CHAPA')}
+          team={row.getValue('EQUIPE')}
           role={row.getValue('FUNCAO')}
         />
       );

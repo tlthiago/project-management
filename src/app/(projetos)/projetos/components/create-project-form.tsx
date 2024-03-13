@@ -87,6 +87,7 @@ const formSchema = z
 export function CreateProjectForm() {
   const { data: session } = useSession();
   const department = session?.user.SETOR ?? '';
+  const chapa = session?.user.CHAPA ?? '';
 
   const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
     queryKey: ['teams', department],
@@ -98,12 +99,23 @@ export function CreateProjectForm() {
     queryFn: () => getMembersByDepartment({ department })
   });
 
+  const loggedMemberData = members.find((member) => {
+    return member.CHAPA === chapa;
+  });
+
   const teamsList: string[] = teams.map((team) => team.NOME);
 
   const [team, setTeam] = useState<string[]>([]);
   const [teamsId, setTeamsId] = useState<number[]>([]);
   const [membersList, setMembersList] = useState<string[]>([]);
   const [member, setMember] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (loggedMemberData?.FUNCAO === 'Coordenador') {
+      setTeam([loggedMemberData.EQUIPE]);
+      handleTeamsChange([loggedMemberData.EQUIPE]);
+    }
+  }, [loggedMemberData]);
 
   const handleTeamsChange = (teamValue: string[]) => {
     const filteredMembers: string[] = [];
@@ -317,6 +329,7 @@ export function CreateProjectForm() {
                     }}
                     className="max-w-[462px]"
                     placeholder="Selecione a(s) equipe(s)"
+                    disabled={loggedMemberData?.FUNCAO === 'Coordenador'}
                   />
                 </FormControl>
                 <FormMessage />
