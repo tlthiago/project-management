@@ -318,7 +318,10 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
         usuInclusao:
           added.chapas.length > 0 || added.teamsId.length > 0
             ? session?.user.CODUSUARIO
-            : undefined
+            : undefined,
+        usuAtualizacao: session?.user.CODUSUARIO
+          ? session?.user.CODUSUARIO
+          : 'MM_WEB'
       });
 
       toast.success('Projeto atualizado com sucesso!');

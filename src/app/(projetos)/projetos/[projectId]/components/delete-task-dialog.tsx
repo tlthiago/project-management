@@ -1,16 +1,18 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
 import { deleteTask } from '@/app/api/projetos/tarefas/delete-task';
 import { restoreTask } from '@/app/api/projetos/tarefas/restore-task';
-import { Button } from '@/components/ui/button';
 import {
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog';
 
 interface deleteTaskDialogProps {
   taskId: string;
@@ -18,6 +20,7 @@ interface deleteTaskDialogProps {
 
 export function DeleteTaskDialog({ taskId }: deleteTaskDialogProps) {
   const queryClient = useQueryClient();
+  const { data: session } = useSession();
 
   const { mutateAsync: deleteTaskFn } = useMutation({
     mutationFn: deleteTask,
@@ -36,7 +39,10 @@ export function DeleteTaskDialog({ taskId }: deleteTaskDialogProps) {
   async function undoDelete(taskId: string) {
     try {
       await restoreTaskFn({
-        taskId: taskId
+        taskId: taskId,
+        usuAtualizacao: session?.user.CODUSUARIO
+          ? session?.user.CODUSUARIO
+          : 'MM_WEB'
       });
 
       toast.success('Tarefa restaurada.');
@@ -48,7 +54,10 @@ export function DeleteTaskDialog({ taskId }: deleteTaskDialogProps) {
   async function handleSubmit(taskId: string) {
     try {
       await deleteTaskFn({
-        taskId: taskId
+        taskId: taskId,
+        usuAtualizacao: session?.user.CODUSUARIO
+          ? session?.user.CODUSUARIO
+          : 'MM_WEB'
       });
 
       toast.success('A tarefa foi excluída!', {
@@ -63,25 +72,19 @@ export function DeleteTaskDialog({ taskId }: deleteTaskDialogProps) {
   }
 
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Excluir tarefa</DialogTitle>
-      </DialogHeader>
-      Tem certeza que deseja excluir a tarefa?
-      <DialogFooter>
-        <DialogClose asChild>
-          <Button variant="secondary">Cancelar</Button>
-        </DialogClose>
-        <DialogClose asChild>
-          <Button
-            variant="destructive"
-            type="submit"
-            onClick={() => handleSubmit(taskId)}
-          >
-            Excluir
-          </Button>
-        </DialogClose>
-      </DialogFooter>
-    </DialogContent>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Excluir tarefa</AlertDialogTitle>
+        <AlertDialogDescription>
+          Tem certeza que deseja excluir a tarefa?
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+        <AlertDialogAction type="submit" onClick={() => handleSubmit(taskId)}>
+          Excluir
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
   );
 }

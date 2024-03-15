@@ -13,7 +13,7 @@ import {
   GetTeamsByDepartmentResponse
 } from '@/app/api/departments/get-teams-by-department';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -45,7 +45,11 @@ export default function Membros() {
     <div>
       <Tabs defaultValue="members" className="space-y-5">
         <div className="flex justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">Membros</h1>
+          {!tabsTrigger ? (
+            <h1 className="text-3xl font-bold tracking-tight">Membros</h1>
+          ) : (
+            <h1 className="text-3xl font-bold tracking-tight">Equipes</h1>
+          )}
           <div className="space-x-2">
             {tabsTrigger && (
               <Dialog>
@@ -72,14 +76,14 @@ export default function Membros() {
           </div>
         </div>
         <Card>
-          <CardHeader>
+          <CardContent className="pt-6">
             <TabsContent value="members" className="mt-0">
               <DataTableMembers columns={membersColumns} data={members} />
             </TabsContent>
             <TabsContent value="teams" className="mt-0">
               <DataTableTeams columns={teamsColumns} data={teams} />
             </TabsContent>
-          </CardHeader>
+          </CardContent>
         </Card>
       </Tabs>
     </div>

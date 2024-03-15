@@ -68,7 +68,10 @@ export function DataTableRowActions<TData>({
   async function handleSubmit(projectId: string) {
     try {
       await archiveProjectFn({
-        projectId: projectId
+        projectId: projectId,
+        usuAtualizacao: session?.user.CODUSUARIO
+          ? session.user.CODUSUARIO
+          : 'MM_WEB'
       });
 
       toast.success('O projeto foi arquivado!');

@@ -235,7 +235,10 @@ export function UpdateTaskForm({
         added: added.chapas.length > 0 ? added : undefined,
         removed: removed.chapas.length > 0 ? removed : undefined,
         usuInclusao:
-          added.chapas.length > 0 ? session?.user.CODUSUARIO : undefined
+          added.chapas.length > 0 ? session?.user.CODUSUARIO : undefined,
+        usuAtualizacao: session?.user.CODUSUARIO
+          ? session?.user.CODUSUARIO
+          : 'MM_WEB'
       });
 
       toast.success('Tarefa atualizada com sucesso!');

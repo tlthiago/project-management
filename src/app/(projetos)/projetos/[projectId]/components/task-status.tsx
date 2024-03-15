@@ -49,19 +49,28 @@ export default function TaskStatus({
       case 'Pendente':
         await UpdateTaskStatusFn({
           taskId: taskId,
-          status: status
+          status: status,
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session?.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
       case 'Em andamento':
         await UpdateTaskStatusFn({
           taskId: taskId,
-          status: status
+          status: status,
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session?.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
       case 'Finalizado':
         await UpdateTaskStatusFn({
           taskId: taskId,
-          status: status
+          status: status,
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session?.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
     }
@@ -72,13 +81,19 @@ export default function TaskStatus({
       case 'Pendente':
         await UpdateTaskStatusFn({
           taskId: taskId,
-          status: 'Em andamento'
+          status: 'Em andamento',
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session?.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
       case 'Em andamento':
         await UpdateTaskStatusFn({
           taskId: taskId,
-          status: 'Finalizado'
+          status: 'Finalizado',
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session?.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
     }

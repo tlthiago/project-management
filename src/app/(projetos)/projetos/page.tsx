@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
 import {
@@ -28,6 +29,7 @@ import { columns } from './components/data-table/columns';
 import { DataTable } from './components/data-table/data-table';
 
 export default function Projects() {
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const department = session?.user.SETOR ?? '';
   const chapa = session?.user.CHAPA ?? '';
@@ -69,6 +71,8 @@ export default function Projects() {
     projects = memberProjects;
   }
 
+  const filterParams: string | null = searchParams.get('filterParams');
+
   return (
     <div className="space-y-5">
       <div className="flex justify-between">
@@ -90,8 +94,12 @@ export default function Projects() {
         ) : null}
       </div>
       <Card>
-        <CardContent className="pt-5">
-          <DataTable columns={columns} data={projects} />
+        <CardContent className="pt-6">
+          <DataTable
+            columns={columns}
+            data={projects}
+            filterParams={filterParams}
+          />
         </CardContent>
       </Card>
     </div>

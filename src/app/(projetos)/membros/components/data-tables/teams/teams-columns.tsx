@@ -19,7 +19,7 @@ export const teamsColumns: ColumnDef<GetTeamsByDepartmentResponse>[] = [
   {
     accessorKey: 'NOME',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Equipes" />
+      <DataTableColumnHeader column={column} title="Nomes" />
     ),
     cell: ({ row }) => {
       return <span className="font-semibold">{row.getValue('NOME')}</span>;

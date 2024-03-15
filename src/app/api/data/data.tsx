@@ -1,10 +1,19 @@
 import {
+  AlertCircle,
   ArrowDown,
   ArrowRight,
   ArrowUp,
+  Check,
   CheckCircle2,
   Circle,
-  Timer
+  PictureInPicture,
+  PlusCircle,
+  RotateCw,
+  SquareStack,
+  Timer,
+  User,
+  Users,
+  XCircle
 } from 'lucide-react';
 
 export const statuses = [
@@ -40,5 +49,71 @@ export const priorities = [
     label: 'Alta',
     value: 'Alta',
     icon: ArrowUp
+  }
+];
+
+export const actions = [
+  {
+    label: 'Criou',
+    value: 'Criou',
+    icon: PlusCircle
+  },
+  {
+    label: 'Inseriu',
+    value: 'Inseriu',
+    icon: PictureInPicture
+  },
+  {
+    label: 'Atualizou',
+    value: 'Atualizou',
+    icon: RotateCw
+  },
+  {
+    label: 'Atrasou',
+    value: 'Atrasou',
+    icon: AlertCircle
+  },
+  {
+    label: 'Excluiu',
+    value: 'Excluiu',
+    icon: XCircle
+  }
+];
+
+export const entities = [
+  {
+    label: 'Projetos',
+    value: 'Projetos',
+    icon: SquareStack
+  },
+  {
+    label: 'Tarefas',
+    value: 'Tarefas',
+    icon: Check
+  },
+  {
+    label: 'Equipes',
+    value: 'Equipes',
+    icon: Users
+  },
+  {
+    label: 'Membros',
+    value: 'Membros',
+    icon: User
+  }
+];
+
+export const functionMember = [
+  {
+    label: 'Membro',
+    value: 'Membro'
+  },
+  {
+    label: 'Coordenador',
+    value: 'Coordenador'
+  },
+  {
+    label: 'Administrador',
+    value: 'Administrador'
   }
 ];

@@ -52,7 +52,10 @@ export function DataTableRowActions<TData>({
   async function handleUnarchiveProject(projectId: string) {
     try {
       await unarchiveProjectFn({
-        projectId: projectId
+        projectId: projectId,
+        usuAtualizacao: session?.user.CODUSUARIO
+          ? session.user.CODUSUARIO
+          : 'MM_WEB'
       });
 
       toast.success('O projeto foi restaurado!');
@@ -71,7 +74,10 @@ export function DataTableRowActions<TData>({
   async function handleSubmit(projectId: string) {
     try {
       await deleteProjectFn({
-        projectId: projectId
+        projectId: projectId,
+        usuAtualizacao: session?.user.CODUSUARIO
+          ? session.user.CODUSUARIO
+          : 'MM_WEB'
       });
 
       toast.success('O projeto foi excluído!');

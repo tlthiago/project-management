@@ -31,19 +31,18 @@ import { DataTableToolbar } from './data-table-toolbar';
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  filterParams?: string | null;
 }
 
 export function DataTable<TData, TValue>({
   columns,
-  data,
-  filterParams
+  data
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
       ID: false,
-      ATRASADO: false
+      USUARIO: false,
+      DEPARTAMENTO: false
     });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -74,7 +73,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} filterParams={filterParams} />
+      <DataTableToolbar table={table} />
       <div className=" rounded-md border">
         <Table>
           <TableHeader>
@@ -118,7 +117,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-44 text-center"
                 >
-                  <div>Nenhum projeto encontrado.</div>
+                  <div>Nenhum registro encontrado.</div>
                 </TableCell>
               </TableRow>
             )}

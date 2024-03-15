@@ -6,6 +6,7 @@ export interface UpdateTeamBody {
   removed?: string[];
   added?: string[];
   usuInclusao: string;
+  usuAtualizacao: string;
 }
 
 export async function updateTeam({
@@ -13,13 +14,15 @@ export async function updateTeam({
   teamName,
   removed,
   added,
-  usuInclusao
+  usuInclusao,
+  usuAtualizacao
 }: UpdateTeamBody) {
   const teamData = {
     teamName,
     removed,
     added,
-    usuInclusao
+    usuInclusao,
+    usuAtualizacao
   };
 
   await api.put(`/teams/${teamId}`, teamData);

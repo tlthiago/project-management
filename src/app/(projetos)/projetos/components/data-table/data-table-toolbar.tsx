@@ -2,6 +2,7 @@
 
 import { Table } from '@tanstack/react-table';
 import { PlusCircle, X } from 'lucide-react';
+import { useEffect } from 'react';
 
 import { priorities, statuses } from '@/app/api/data/data';
 import { Button } from '@/components/ui/button';
@@ -12,15 +13,38 @@ import { DataTableViewOptions } from './data-table-view-options';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  filterParams?: string | null;
 }
 
 export function DataTableToolbar<TData>({
-  table
+  table,
+  filterParams
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
   const delayedTotalValue =
     table.getColumn('ATRASADO')?.getFacetedUniqueValues().get('S') ?? 0;
+
+  useEffect(() => {
+    if (filterParams && filterParams !== null) {
+      switch (filterParams) {
+        case 'ATRASADO':
+          table.getColumn(`${filterParams}`)?.setFilterValue('S');
+          break;
+        case 'Pendente':
+          table.getColumn('STATUS')?.setFilterValue('Pendente');
+          break;
+        case 'Em andamento':
+          table.getColumn('STATUS')?.setFilterValue('Em andamento');
+          break;
+        case 'Finalizado':
+          table.getColumn('STATUS')?.setFilterValue('Finalizado');
+          break;
+      }
+      // table.getColumn('STATUS')?.setFilterValue(initialFilterStatus);
+      // setCurrentFilterStatus(initialFilterStatus);
+    }
+  }, [table]);
 
   return (
     <div className="flex items-center justify-between">
