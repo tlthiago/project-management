@@ -27,7 +27,6 @@ import {
   GetTasksByProjectResponse
 } from '../../../api/projetos/tarefas/get-tasks-by-project';
 import { CreateTaskForm } from './components/create-task-form';
-// import { ProjectDetails } from './components/project-details';
 import { ProjectProperties } from './components/project-properties';
 import { DataTableColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
@@ -35,7 +34,6 @@ import { DataTable } from './components/table/data-table';
 export default function Project({ params }: { params: { projectId: string } }) {
   const projectId: string = params.projectId;
 
-  // const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [createTaskForm, setCreateTaskForm] = useState(false);
 
   const { data: project } = useQuery<GetProjectByIdResponse>({

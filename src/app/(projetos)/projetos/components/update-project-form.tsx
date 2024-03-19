@@ -249,7 +249,10 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
   const { mutateAsync: updateProjectFn } = useMutation({
     mutationFn: updateProject,
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['projects', department] });
+      queryClient.invalidateQueries({
+        queryKey: ['coordinator-projects', chapa]
+      });
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
     }
   });

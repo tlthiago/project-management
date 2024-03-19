@@ -7,6 +7,10 @@ import {
   getMemberByChapa,
   GetMemberByChapaResponse
 } from '@/app/api/departments/get-member-by-chapa';
+import {
+  getTeamCoordinatorByTeamId,
+  GetTeamCoordinatorByTeamIdResponse
+} from '@/app/api/departments/get-team-coordinator-by-team-id';
 import { UpdateProjectStatus } from '@/app/api/projetos/update-project-status';
 import Status from '@/components/status';
 import { Button } from '@/components/ui/button';
@@ -29,6 +33,7 @@ export default function ProjectStatus({
   status
 }: ProjectStatusProps) {
   const { data: session } = useSession();
+  const department = session?.user.SETOR ?? '';
   const chapa = session?.user.CHAPA ?? '';
 
   const { data: member } = useQuery<GetMemberByChapaResponse>({
@@ -39,6 +44,15 @@ export default function ProjectStatus({
 
   const managerUser =
     member?.FUNCAO === 'Administrador' || member?.FUNCAO === 'Coordenador';
+
+  const teamId = member?.FUNCAO === 'Membro' ? member?.EQUIPE_ID : undefined;
+
+  const { data: coordinatorData } =
+    useQuery<GetTeamCoordinatorByTeamIdResponse>({
+      queryKey: ['Coordinator', teamId],
+      queryFn: () => getTeamCoordinatorByTeamId({ teamId }),
+      enabled: !!teamId
+    });
 
   const handleStatusChange = async (status: string) => {
     switch (status) {
@@ -99,7 +113,11 @@ export default function ProjectStatus({
     mutationFn: UpdateProjectStatus,
     onSuccess() {
       toast.success('Status atualizado.');
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['projects', department] });
+      queryClient.invalidateQueries({
+        queryKey: ['coordinator-projects', coordinatorData?.CHAPA]
+      });
+      queryClient.invalidateQueries({ queryKey: ['member-projects', chapa] });
     }
   });
 

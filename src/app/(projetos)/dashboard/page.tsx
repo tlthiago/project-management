@@ -3,8 +3,6 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   AlertCircle,
-  ArrowUpRight,
-  ArrowUpRightSquare,
   CheckCircle2,
   Circle,
   SquareStackIcon,
@@ -17,7 +15,7 @@ import { useState } from 'react';
 import {
   getLogsByDepartment,
   GetLogsByDepartmentResponse
-} from '@/app/api/projetos/get-logs-by-department';
+} from '@/app/api/projetos/dashboard/get-logs-by-department';
 import {
   getProjectsByDepartment,
   GetProjectsByDepartmentResponse
@@ -32,6 +30,8 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+import { ProjectsByStatusAndTeam } from './components/graphics/projects-by-status-by-team';
+import { ProjectsByTeam } from './components/graphics/projects-by-team';
 import { columns } from './components/notifications/data-table/columns';
 import { DataTable } from './components/notifications/data-table/data-table';
 import ProjectShortcut from './components/project-shortcut';
@@ -75,6 +75,7 @@ export default function Dashboard() {
   });
 
   const [tabsTrigger, setTabsTriggerValue] = useState(false);
+  const [graphicsTabsTrigger, setGraphicsTabsTriggerValue] = useState(false);
 
   return (
     <div className="space-y-5">
@@ -189,10 +190,43 @@ export default function Dashboard() {
           </div>
           <div className="grid grid-cols-7 gap-4">
             <Card className="col-span-3 2xl:col-span-4">
-              <CardHeader>
-                <CardTitle>Visão geral</CardTitle>
-              </CardHeader>
-              <CardContent className="pl-2">{/* <Overview /> */}</CardContent>
+              <Tabs defaultValue="1">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    {!graphicsTabsTrigger ? (
+                      <CardTitle className="text-lg">
+                        Quantidade de projetos por equipe
+                      </CardTitle>
+                    ) : (
+                      <CardTitle className="text-lg">
+                        Quantidade de projetos por status em cada equipe
+                      </CardTitle>
+                    )}
+                    <TabsList>
+                      <TabsTrigger
+                        value="1"
+                        onClick={() => setGraphicsTabsTriggerValue(false)}
+                      >
+                        Gráfico 1
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="2"
+                        onClick={() => setGraphicsTabsTriggerValue(true)}
+                      >
+                        Gráfico 2
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+                </CardHeader>
+                <CardContent className="pl-2">
+                  <TabsContent value="1">
+                    <ProjectsByTeam />
+                  </TabsContent>
+                  <TabsContent value="2">
+                    <ProjectsByStatusAndTeam />
+                  </TabsContent>
+                </CardContent>
+              </Tabs>
             </Card>
             <Card className="col-span-4 2xl:col-span-3">
               <CardHeader>

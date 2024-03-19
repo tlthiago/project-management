@@ -2,7 +2,7 @@
 
 import { Table } from '@tanstack/react-table';
 import { PlusCircle, X } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { priorities, statuses } from '@/app/api/data/data';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,10 @@ export function DataTableToolbar<TData>({
   const delayedTotalValue =
     table.getColumn('ATRASADO')?.getFacetedUniqueValues().get('S') ?? 0;
 
+  const [currentFilterValue, setCurrentFilterValue] = useState<
+    string[] | undefined
+  >(undefined);
+
   useEffect(() => {
     if (filterParams && filterParams !== null) {
       switch (filterParams) {
@@ -33,18 +37,19 @@ export function DataTableToolbar<TData>({
           break;
         case 'Pendente':
           table.getColumn('STATUS')?.setFilterValue('Pendente');
+          setCurrentFilterValue(['Pendente']);
           break;
         case 'Em andamento':
           table.getColumn('STATUS')?.setFilterValue('Em andamento');
+          setCurrentFilterValue(['Em andamento']);
           break;
         case 'Finalizado':
           table.getColumn('STATUS')?.setFilterValue('Finalizado');
+          setCurrentFilterValue(['Finalizado']);
           break;
       }
-      // table.getColumn('STATUS')?.setFilterValue(initialFilterStatus);
-      // setCurrentFilterStatus(initialFilterStatus);
     }
-  }, [table]);
+  }, [table, filterParams]);
 
   return (
     <div className="flex items-center justify-between">
@@ -62,6 +67,7 @@ export function DataTableToolbar<TData>({
             column={table.getColumn('STATUS')}
             title="Status"
             options={statuses}
+            filterValue={currentFilterValue}
           />
         )}
         {table.getColumn('PRIORIDADE') && (
@@ -86,7 +92,10 @@ export function DataTableToolbar<TData>({
         {isFiltered && (
           <Button
             variant="ghost"
-            onClick={() => table.resetColumnFilters()}
+            onClick={() => {
+              table.resetColumnFilters();
+              setCurrentFilterValue([]);
+            }}
             className="h-8 px-2 lg:px-3"
           >
             Limpar

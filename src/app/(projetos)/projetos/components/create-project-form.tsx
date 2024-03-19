@@ -180,7 +180,10 @@ export function CreateProjectForm() {
       form.reset();
       setTeam([]);
       setMember([]);
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['projects', department] });
+      queryClient.invalidateQueries({
+        queryKey: ['coordinator-projects', chapa]
+      });
     }
   });
 

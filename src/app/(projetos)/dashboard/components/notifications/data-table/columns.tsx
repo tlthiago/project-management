@@ -4,7 +4,7 @@ import { ColumnDef } from '@tanstack/react-table';
 // import { DataTableRowActions } from './data-table-row-actions';
 import { format } from 'date-fns';
 
-import { GetLogsByDepartmentResponse } from '@/app/api/projetos/get-logs-by-department';
+import { GetLogsByDepartmentResponse } from '@/app/api/projetos/dashboard/get-logs-by-department';
 
 import Actions from '../actions';
 import Entities from '../entities';
