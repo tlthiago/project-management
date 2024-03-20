@@ -16,6 +16,7 @@ export interface UpdateProjectBody {
   added?: TeamMemberData;
   usuInclusao?: string;
   usuAtualizacao: string;
+  atrasado?: string;
 }
 
 export async function updateProject({
@@ -28,7 +29,8 @@ export async function updateProject({
   removed,
   added,
   usuInclusao,
-  usuAtualizacao
+  usuAtualizacao,
+  atrasado
 }: UpdateProjectBody) {
   const projectData = {
     nome,
@@ -39,7 +41,8 @@ export async function updateProject({
     removed,
     added,
     usuInclusao,
-    usuAtualizacao
+    usuAtualizacao,
+    atrasado
   };
 
   await api.put(`/update-project/${projectId}`, projectData);

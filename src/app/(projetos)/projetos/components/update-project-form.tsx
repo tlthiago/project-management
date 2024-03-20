@@ -296,6 +296,15 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
             ? undefined
             : null;
 
+    const todayDate = format(new Date(), 'yyyy-MM-dd');
+
+    const updateDelayedStatus: string | undefined =
+      project?.ATRASADO === 'S' && dataFim && dataFim >= todayDate
+        ? 'N'
+        : project?.ATRASADO === 'N' && dataFim && dataFim < todayDate
+          ? 'S'
+          : undefined;
+
     try {
       await updateProjectFn({
         projectId: projectId,
@@ -324,7 +333,8 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
             : undefined,
         usuAtualizacao: session?.user.CODUSUARIO
           ? session?.user.CODUSUARIO
-          : 'MM_WEB'
+          : 'MM_WEB',
+        atrasado: updateDelayedStatus ?? updateDelayedStatus
       });
 
       toast.success('Projeto atualizado com sucesso!');
