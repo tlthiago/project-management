@@ -69,7 +69,8 @@ export function ProjectProperties({ projectId }: UpdateProjectFormProps) {
   async function handleSubmit(projectId: string) {
     try {
       await archiveProjectFn({
-        projectId: projectId
+        projectId: projectId,
+        usuAtualizacao: session?.user.CODUSUARIO ?? 'MM_WEB'
       });
 
       toast.success('O projeto foi arquivado!');
