@@ -75,6 +75,7 @@ export function DataTableToolbar<TData>({
             column={table.getColumn('PRIORIDADE')}
             title="Prioridade"
             options={priorities}
+            filterValue={currentFilterValue}
           />
         )}
         <Button

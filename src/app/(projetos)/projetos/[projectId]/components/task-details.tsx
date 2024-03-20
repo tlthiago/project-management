@@ -94,7 +94,9 @@ export function TaskDetails({ taskId, open }: TaskDetailsProps) {
         <div className="bg-muted">
           <TabsList>
             <TabsTrigger value="description">Descrição</TabsTrigger>
-            <TabsTrigger value="comments">Comentários</TabsTrigger>
+            <TabsTrigger disabled value="comments">
+              Comentários
+            </TabsTrigger>
           </TabsList>
         </div>
         <TabsContent
