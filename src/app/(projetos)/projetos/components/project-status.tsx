@@ -7,6 +7,10 @@ import {
   getMemberByChapa,
   GetMemberByChapaResponse
 } from '@/app/api/departments/get-member-by-chapa';
+import {
+  getTeamCoordinatorByTeamId,
+  GetTeamCoordinatorByTeamIdResponse
+} from '@/app/api/departments/get-team-coordinator-by-team-id';
 import { UpdateProjectStatus } from '@/app/api/projetos/update-project-status';
 import Status from '@/components/status';
 import { Button } from '@/components/ui/button';
@@ -29,6 +33,7 @@ export default function ProjectStatus({
   status
 }: ProjectStatusProps) {
   const { data: session } = useSession();
+  const department = session?.user.SETOR ?? '';
   const chapa = session?.user.CHAPA ?? '';
 
   const { data: member } = useQuery<GetMemberByChapaResponse>({
@@ -37,24 +42,45 @@ export default function ProjectStatus({
     enabled: !!chapa
   });
 
+  const managerUser =
+    member?.FUNCAO === 'Administrador' || member?.FUNCAO === 'Coordenador';
+
+  const teamId = member?.FUNCAO === 'Membro' ? member?.EQUIPE_ID : undefined;
+
+  const { data: coordinatorData } =
+    useQuery<GetTeamCoordinatorByTeamIdResponse>({
+      queryKey: ['Coordinator', teamId],
+      queryFn: () => getTeamCoordinatorByTeamId({ teamId }),
+      enabled: !!teamId
+    });
+
   const handleStatusChange = async (status: string) => {
     switch (status) {
       case 'Pendente':
         await UpdateProjectStatusFn({
           projectId: projectId,
-          status: status
+          status: status,
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
       case 'Em andamento':
         await UpdateProjectStatusFn({
           projectId: projectId,
-          status: status
+          status: status,
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
       case 'Finalizado':
         await UpdateProjectStatusFn({
           projectId: projectId,
-          status: status
+          status: status,
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
     }
@@ -65,13 +91,19 @@ export default function ProjectStatus({
       case 'Pendente':
         await UpdateProjectStatusFn({
           projectId: projectId,
-          status: 'Em andamento'
+          status: 'Em andamento',
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
       case 'Em andamento':
         await UpdateProjectStatusFn({
           projectId: projectId,
-          status: 'Finalizado'
+          status: 'Finalizado',
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
     }
@@ -81,13 +113,17 @@ export default function ProjectStatus({
     mutationFn: UpdateProjectStatus,
     onSuccess() {
       toast.success('Status atualizado.');
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['projects', department] });
+      queryClient.invalidateQueries({
+        queryKey: ['coordinator-projects', coordinatorData?.CHAPA]
+      });
+      queryClient.invalidateQueries({ queryKey: ['member-projects', chapa] });
     }
   });
 
   return (
     <>
-      {member?.FUNCAO === 'Administrador' ? (
+      {managerUser ? (
         <Select onValueChange={handleStatusChange} defaultValue={status}>
           <SelectTrigger disabled={isPending}>
             <SelectValue placeholder={<Status status={status} />} />

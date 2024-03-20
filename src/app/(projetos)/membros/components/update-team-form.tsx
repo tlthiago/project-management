@@ -127,7 +127,8 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
         teamName: teamData.nome !== team?.NOME ? teamData.nome : undefined,
         removed: removed && removed.length > 0 ? removed : undefined,
         added: added && added.length > 0 ? added : undefined,
-        usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB'
+        usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB',
+        usuAtualizacao: session?.user.CODUSUARIO ?? 'A_MMWEB'
       });
 
       toast.success('Equipe atualizada com sucesso!');

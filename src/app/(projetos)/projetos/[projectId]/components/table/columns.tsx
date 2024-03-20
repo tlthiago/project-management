@@ -13,8 +13,19 @@ import TaskStatus from '../task-status';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 
+interface DetailsOpenState {
+  [taskId: string]: boolean;
+}
+
 export const DataTableColumns = () => {
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState<DetailsOpenState>({});
+
+  const toggleDetails = (id: string) => {
+    setDetailsOpen((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id]
+    }));
+  };
 
   const columns: ColumnDef<GetTasksByProjectResponse>[] = [
     {
@@ -36,9 +47,14 @@ export const DataTableColumns = () => {
       ),
       cell: ({ row }) => {
         const atrasado = row.getValue('ATRASADO');
+        const id = row.getValue('ID') as string;
 
         return (
-          <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+          <Dialog
+            key={id}
+            open={detailsOpen[id] || false}
+            onOpenChange={() => toggleDetails(id)}
+          >
             <DialogTrigger asChild>
               <span
                 className={`cursor-pointer font-semibold ${atrasado === 'S' ? 'text-rose-500' : ''}`}
@@ -46,7 +62,7 @@ export const DataTableColumns = () => {
                 {row.getValue('NOME')}
               </span>
             </DialogTrigger>
-            <TaskDetails open={isDetailsOpen} taskId={row.getValue('ID')} />
+            <TaskDetails open={detailsOpen[id] || false} taskId={id} />
           </Dialog>
         );
       }

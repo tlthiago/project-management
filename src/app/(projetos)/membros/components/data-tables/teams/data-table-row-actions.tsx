@@ -55,7 +55,8 @@ export function DataTableRowActions<TData>({
   async function handleSubmit(teamId: string) {
     try {
       await deleteTeamFn({
-        teamId: teamId
+        teamId: teamId,
+        usuAtualizacao: session?.user.CODUSUARIO ?? 'MM_WEB'
       });
 
       toast.success('A equipe foi excluída!');

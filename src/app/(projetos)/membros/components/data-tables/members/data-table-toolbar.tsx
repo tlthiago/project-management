@@ -5,6 +5,7 @@ import { Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 
+import { functionMember } from '@/app/api/data/data';
 import {
   getMembersByDepartment,
   GetMembersByDepartmentResponse
@@ -66,16 +67,6 @@ export function DataTableToolbar<TData>({
     value: 'Não alocado'
   });
 
-  const funcaoList: { label: string; value: string }[] = [];
-  members.forEach((member) => {
-    if (!funcaoList.some((funcao) => funcao.value === member.FUNCAO)) {
-      funcaoList.push({
-        label: member.FUNCAO,
-        value: member.FUNCAO
-      });
-    }
-  });
-
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
@@ -105,7 +96,7 @@ export function DataTableToolbar<TData>({
           <DataTableFacetedFilter
             column={table.getColumn('FUNCAO')}
             title="Função"
-            options={funcaoList}
+            options={functionMember}
           />
         )}
         {isFiltered && (

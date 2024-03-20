@@ -14,6 +14,7 @@ export interface UpdateTaskBody {
   usuInclusao?: string;
   added?: MemberData;
   removed?: MemberData;
+  usuAtualizacao: string;
 }
 
 export async function updateTask({
@@ -25,7 +26,8 @@ export async function updateTask({
   prioridade,
   added,
   removed,
-  usuInclusao
+  usuInclusao,
+  usuAtualizacao
 }: UpdateTaskBody) {
   const taskData = {
     nome,
@@ -35,7 +37,8 @@ export async function updateTask({
     prioridade,
     added,
     removed,
-    usuInclusao
+    usuInclusao,
+    usuAtualizacao
   };
 
   console.log(taskData);

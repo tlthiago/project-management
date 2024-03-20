@@ -72,7 +72,8 @@ export function CreateTeamForm() {
   const form = useForm<z.infer<typeof teamSchema>>({
     resolver: zodResolver(teamSchema),
     defaultValues: {
-      teamName: ''
+      teamName: '',
+      members: []
     }
   });
 
@@ -118,7 +119,9 @@ export function CreateTeamForm() {
             name="teamName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome</FormLabel>
+                <FormLabel>
+                  Nome <span className="text-rose-600">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="Digite o nome da equipe" {...field} />
                 </FormControl>
@@ -132,7 +135,9 @@ export function CreateTeamForm() {
             name="members"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Membros</FormLabel>
+                <FormLabel>
+                  Membros <span className="text-rose-600">*</span>
+                </FormLabel>
                 <FormControl>
                   <MultiSelect
                     options={membersList.map((memberName, index) => ({

@@ -41,24 +41,36 @@ export default function TaskStatus({
     enabled: !!chapa
   });
 
+  const managerUser =
+    member?.FUNCAO === 'Administrador' || member?.FUNCAO === 'Coordenador';
+
   const handleStatusChange = async (status: string) => {
     switch (status) {
       case 'Pendente':
         await UpdateTaskStatusFn({
           taskId: taskId,
-          status: status
+          status: status,
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session?.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
       case 'Em andamento':
         await UpdateTaskStatusFn({
           taskId: taskId,
-          status: status
+          status: status,
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session?.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
       case 'Finalizado':
         await UpdateTaskStatusFn({
           taskId: taskId,
-          status: status
+          status: status,
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session?.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
     }
@@ -69,13 +81,19 @@ export default function TaskStatus({
       case 'Pendente':
         await UpdateTaskStatusFn({
           taskId: taskId,
-          status: 'Em andamento'
+          status: 'Em andamento',
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session?.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
       case 'Em andamento':
         await UpdateTaskStatusFn({
           taskId: taskId,
-          status: 'Finalizado'
+          status: 'Finalizado',
+          usuAtualizacao: session?.user.CODUSUARIO
+            ? session?.user.CODUSUARIO
+            : 'MM_WEB'
         });
         break;
     }
@@ -91,7 +109,7 @@ export default function TaskStatus({
 
   return (
     <>
-      {member?.FUNCAO === 'Administrador' ? (
+      {managerUser ? (
         <Select onValueChange={handleStatusChange} defaultValue={status}>
           <SelectTrigger disabled={isPending}>
             <SelectValue placeholder={<Status status={status} />} />

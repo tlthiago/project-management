@@ -60,12 +60,18 @@ export function DataTableRowActions<TData>({
     }
   });
 
+  const managerUser =
+    member?.FUNCAO === 'Administrador' || member?.FUNCAO === 'Coordenador';
+
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   async function handleSubmit(projectId: string) {
     try {
       await archiveProjectFn({
-        projectId: projectId
+        projectId: projectId,
+        usuAtualizacao: session?.user.CODUSUARIO
+          ? session.user.CODUSUARIO
+          : 'MM_WEB'
       });
 
       toast.success('O projeto foi arquivado!');
@@ -89,7 +95,7 @@ export function DataTableRowActions<TData>({
         <Link href={`projetos/${row.getValue('ID')}`}>
           <DropdownMenuItem>Abrir</DropdownMenuItem>
         </Link>
-        {member?.FUNCAO === 'Administrador' && (
+        {managerUser && (
           <>
             <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
               <DialogTrigger asChild>

@@ -10,7 +10,12 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 
+import {
+  getLogsByDepartment,
+  GetLogsByDepartmentResponse
+} from '@/app/api/projetos/dashboard/get-logs-by-department';
 import {
   getProjectsByDepartment,
   GetProjectsByDepartmentResponse
@@ -25,6 +30,10 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+import { ProjectsByStatusAndTeam } from './components/graphics/projects-by-status-by-team';
+import { ProjectsByTeam } from './components/graphics/projects-by-team';
+import { columns } from './components/notifications/data-table/columns';
+import { DataTable } from './components/notifications/data-table/data-table';
 import ProjectShortcut from './components/project-shortcut';
 
 export default function Dashboard() {
@@ -59,19 +68,45 @@ export default function Dashboard() {
     (project) => project.STATUS === 'Finalizado'
   );
 
+  const { data: logs = [] } = useQuery<GetLogsByDepartmentResponse[]>({
+    queryKey: ['logs', department],
+    queryFn: () => getLogsByDepartment({ department }),
+    enabled: !!department
+  });
+
+  const [tabsTrigger, setTabsTriggerValue] = useState(false);
+  const [graphicsTabsTrigger, setGraphicsTabsTriggerValue] = useState(false);
+
   return (
     <div className="space-y-5">
       <Tabs defaultValue="overview" className="space-y-4">
         <div className="flex justify-between">
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+          {!tabsTrigger ? (
+            <h1 className="text-3xl font-bold tracking-tight">Visão geral</h1>
+          ) : (
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Notificações
+              </h1>
+              <p className="text-sm">Listando registros dos últimos 5 dias.</p>
+            </div>
+          )}
           <div className="flex items-center space-x-2">
             {/* <CalendarDateRangePicker /> */}
           </div>
           <div className="space-x-2">
-            <Button>Download</Button>
+            <Button disabled>Download</Button>
             <TabsList className="bg-neutral-200">
-              <TabsTrigger value="overview">Visão geral</TabsTrigger>
-              <TabsTrigger value="notifications" disabled>
+              <TabsTrigger
+                value="overview"
+                onClick={() => setTabsTriggerValue(false)}
+              >
+                Visão geral
+              </TabsTrigger>
+              <TabsTrigger
+                value="notifications"
+                onClick={() => setTabsTriggerValue(true)}
+              >
                 Notificações
               </TabsTrigger>
             </TabsList>
@@ -79,19 +114,21 @@ export default function Dashboard() {
         </div>
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Projetos criados
-                </CardTitle>
-                <SquareStackIcon className="size-5" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{projects?.length}</div>
-              </CardContent>
-            </Card>
             <Link href="/projetos">
-              <Card className="text-rose-500">
+              <Card className="hover:border hover:border-neutral-400">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Projetos criados
+                  </CardTitle>
+                  <SquareStackIcon className="size-5" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{projects?.length}</div>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/projetos?filterParams=ATRASADO">
+              <Card className="text-rose-500 hover:border hover:border-neutral-400">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Atrasados
@@ -105,50 +142,91 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </Link>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pendente</CardTitle>
-                <Circle className="size-5" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {pendingProjects.length}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Em andamento
-                </CardTitle>
-                <Timer className="size-5" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {inProgressProjects.length}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Finalizados
-                </CardTitle>
-                <CheckCircle2 className="size-5" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {finishedProjects.length}
-                </div>
-              </CardContent>
-            </Card>
+            <Link href="/projetos?filterParams=Pendente">
+              <Card className="hover:border hover:border-neutral-400">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Pendente
+                  </CardTitle>
+                  <Circle className="size-5" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {pendingProjects.length}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/projetos?filterParams=Em andamento">
+              <Card className="hover:border hover:border-neutral-400">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Em andamento
+                  </CardTitle>
+                  <Timer className="size-5" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {inProgressProjects.length}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/projetos?filterParams=Finalizado">
+              <Card className="hover:border hover:border-neutral-400">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Finalizados
+                  </CardTitle>
+                  <CheckCircle2 className="size-5" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {finishedProjects.length}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
           <div className="grid grid-cols-7 gap-4">
             <Card className="col-span-3 2xl:col-span-4">
-              <CardHeader>
-                <CardTitle>Visão geral</CardTitle>
-              </CardHeader>
-              <CardContent className="pl-2">{/* <Overview /> */}</CardContent>
+              <Tabs defaultValue="1">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    {!graphicsTabsTrigger ? (
+                      <CardTitle className="text-lg">
+                        Quantidade de projetos por equipe
+                      </CardTitle>
+                    ) : (
+                      <CardTitle className="text-lg">
+                        Quantidade de projetos por status em cada equipe
+                      </CardTitle>
+                    )}
+                    <TabsList>
+                      <TabsTrigger
+                        value="1"
+                        onClick={() => setGraphicsTabsTriggerValue(false)}
+                      >
+                        Gráfico 1
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="2"
+                        onClick={() => setGraphicsTabsTriggerValue(true)}
+                      >
+                        Gráfico 2
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+                </CardHeader>
+                <CardContent className="pl-2">
+                  <TabsContent value="1">
+                    <ProjectsByTeam />
+                  </TabsContent>
+                  <TabsContent value="2">
+                    <ProjectsByStatusAndTeam />
+                  </TabsContent>
+                </CardContent>
+              </Tabs>
             </Card>
             <Card className="col-span-4 2xl:col-span-3">
               <CardHeader>
@@ -173,6 +251,13 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+        <TabsContent value="notifications" className="space-y-4">
+          <Card>
+            <CardContent className="pt-6">
+              <DataTable columns={columns} data={logs} />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

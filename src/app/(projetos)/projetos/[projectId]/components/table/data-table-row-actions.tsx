@@ -10,6 +10,7 @@ import {
   getMemberByChapa,
   GetMemberByChapaResponse
 } from '@/app/api/departments/get-member-by-chapa';
+import { AlertDialog, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import {
@@ -39,6 +40,9 @@ export function DataTableRowActions<TData>({
     enabled: !!chapa
   });
 
+  const managerUser =
+    member?.FUNCAO === 'Administrador' || member?.FUNCAO === 'Coordenador';
+
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isUpdateTaskOpen, setIsUpdateTaskOpen] = useState(false);
 
@@ -62,7 +66,7 @@ export function DataTableRowActions<TData>({
           </DialogTrigger>
           <TaskDetails open={isDetailsOpen} taskId={row.getValue('ID')} />
         </Dialog>
-        {member?.FUNCAO === 'Administrador' && (
+        {managerUser && (
           <>
             <Dialog open={isUpdateTaskOpen} onOpenChange={setIsUpdateTaskOpen}>
               <DialogTrigger asChild>
@@ -76,14 +80,14 @@ export function DataTableRowActions<TData>({
                 taskId={row.getValue('ID')}
               />
             </Dialog>
-            <Dialog>
-              <DialogTrigger asChild>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                   Excluir
                 </DropdownMenuItem>
-              </DialogTrigger>
+              </AlertDialogTrigger>
               <DeleteTaskDialog taskId={row.getValue('ID')} />
-            </Dialog>
+            </AlertDialog>
           </>
         )}
       </DropdownMenuContent>

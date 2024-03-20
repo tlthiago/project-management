@@ -2,6 +2,7 @@
 
 import { Table } from '@tanstack/react-table';
 import { PlusCircle, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { priorities, statuses } from '@/app/api/data/data';
 import { Button } from '@/components/ui/button';
@@ -12,15 +13,43 @@ import { DataTableViewOptions } from './data-table-view-options';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  filterParams?: string | null;
 }
 
 export function DataTableToolbar<TData>({
-  table
+  table,
+  filterParams
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
   const delayedTotalValue =
     table.getColumn('ATRASADO')?.getFacetedUniqueValues().get('S') ?? 0;
+
+  const [currentFilterValue, setCurrentFilterValue] = useState<
+    string[] | undefined
+  >(undefined);
+
+  useEffect(() => {
+    if (filterParams && filterParams !== null) {
+      switch (filterParams) {
+        case 'ATRASADO':
+          table.getColumn(`${filterParams}`)?.setFilterValue('S');
+          break;
+        case 'Pendente':
+          table.getColumn('STATUS')?.setFilterValue('Pendente');
+          setCurrentFilterValue(['Pendente']);
+          break;
+        case 'Em andamento':
+          table.getColumn('STATUS')?.setFilterValue('Em andamento');
+          setCurrentFilterValue(['Em andamento']);
+          break;
+        case 'Finalizado':
+          table.getColumn('STATUS')?.setFilterValue('Finalizado');
+          setCurrentFilterValue(['Finalizado']);
+          break;
+      }
+    }
+  }, [table, filterParams]);
 
   return (
     <div className="flex items-center justify-between">
@@ -38,6 +67,7 @@ export function DataTableToolbar<TData>({
             column={table.getColumn('STATUS')}
             title="Status"
             options={statuses}
+            filterValue={currentFilterValue}
           />
         )}
         {table.getColumn('PRIORIDADE') && (
@@ -45,6 +75,7 @@ export function DataTableToolbar<TData>({
             column={table.getColumn('PRIORIDADE')}
             title="Prioridade"
             options={priorities}
+            filterValue={currentFilterValue}
           />
         )}
         <Button
@@ -62,7 +93,10 @@ export function DataTableToolbar<TData>({
         {isFiltered && (
           <Button
             variant="ghost"
-            onClick={() => table.resetColumnFilters()}
+            onClick={() => {
+              table.resetColumnFilters();
+              setCurrentFilterValue([]);
+            }}
             className="h-8 px-2 lg:px-3"
           >
             Limpar
