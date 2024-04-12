@@ -200,23 +200,32 @@ export function UpdateTaskForm({
             : null;
 
     const dataFim: string | null | undefined =
-      taskData.datas?.to !== undefined && project?.DATA_FIM === null
+      taskData.datas?.to !== undefined && task?.DATA_FIM === null
         ? format(taskData.datas.to, 'yyyy-MM-dd', {
             locale: ptBR
           })
         : taskData.datas?.to !== undefined &&
-            project?.DATA_FIM &&
+            task?.DATA_FIM &&
             format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) !==
-              project?.DATA_FIM.split('T', 1)[0]
+              task?.DATA_FIM.split('T', 1)[0]
           ? format(taskData.datas.to, 'yyyy-MM-dd', {
               locale: ptBR
             })
           : taskData.datas?.to !== undefined &&
-              project?.DATA_FIM &&
+              task?.DATA_FIM &&
               format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) ===
-                project?.DATA_FIM.split('T', 1)[0]
+                task?.DATA_FIM.split('T', 1)[0]
             ? undefined
             : null;
+
+    const todayDate = format(new Date(), 'yyyy-MM-dd');
+
+    const updateDelayedStatus: string | undefined =
+      task?.ATRASADO === 'S' && dataFim && dataFim >= todayDate
+        ? 'N'
+        : task?.ATRASADO === 'N' && dataFim && dataFim < todayDate
+          ? 'S'
+          : undefined;
 
     try {
       await updateTaskFn({
@@ -238,7 +247,8 @@ export function UpdateTaskForm({
           added.chapas.length > 0 ? session?.user.CODUSUARIO : undefined,
         usuAtualizacao: session?.user.CODUSUARIO
           ? session?.user.CODUSUARIO
-          : 'MM_WEB'
+          : 'MM_WEB',
+        atrasado: updateDelayedStatus ?? updateDelayedStatus
       });
 
       toast.success('Tarefa atualizada com sucesso!');

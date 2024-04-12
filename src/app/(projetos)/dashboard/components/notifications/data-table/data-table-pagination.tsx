@@ -24,9 +24,16 @@ export function DataTablePagination<TData>({
 }: DataTablePaginationProps<TData>) {
   return (
     <div className="flex items-center justify-end px-2">
-      {/* <div className="flex-1 text-sm text-muted-foreground">
-        
-      </div> */}
+      <div className="flex-1 text-sm text-muted-foreground">
+        Exibindo{' '}
+        {Math.min(
+          table.getState().pagination.pageSize,
+          table.getPrePaginationRowModel().rows.length -
+            table.getState().pagination.pageIndex *
+              table.getState().pagination.pageSize
+        )}{' '}
+        de {table.getPrePaginationRowModel().rows.length} resultados
+      </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Linhas por página</p>

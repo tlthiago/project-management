@@ -160,6 +160,11 @@ export function CreateProjectForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: '',
+      datas: {
+        from: undefined,
+        to: undefined
+      },
+      descricao: '',
       equipes: [],
       responsaveis: [],
       prioridade: ''

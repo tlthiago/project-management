@@ -119,6 +119,11 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
     resolver: zodResolver(taskSchema),
     defaultValues: {
       nome: '',
+      datas: {
+        from: undefined,
+        to: undefined
+      },
+      descricao: '',
       responsaveis: [],
       prioridade: ''
     }
@@ -132,6 +137,10 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
       form.reset();
       setMember([]);
       queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
+
+      console.log(
+        queryClient.invalidateQueries({ queryKey: ['tasks', projectId] })
+      );
     }
   });
 

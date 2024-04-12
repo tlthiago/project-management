@@ -1,6 +1,15 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import {
+  CalendarDays,
+  CircleDashed,
+  PlayCircle,
+  Share2,
+  UserRound,
+  UserRoundCog,
+  UsersRound
+} from 'lucide-react';
 import { useState } from 'react';
 
 // import { TaskContainer } from '@/app/(projetos)/projetos/[projectId]/components/kanban/task-container';
@@ -72,35 +81,50 @@ export default function Project({ params }: { params: { projectId: string } }) {
         </CardHeader>
         <div className="col-span-1 flex justify-end gap-2 p-4">
           <div className="space-y-2 text-sm">
-            <div>
-              Datas:{' '}
-              {dataInicioString === null
-                ? dataInicioString
-                : `${dataInicio.toLocaleDateString('pt-BR')} a `}
-              {dataFimString === null
-                ? dataFimString
-                : dataFim.toLocaleDateString('pt-BR')}
+            <div className="flex items-center">
+              <CalendarDays className="size-5" />
+              <div>
+                Datas:{' '}
+                {dataInicioString === null
+                  ? dataInicioString
+                  : `${dataInicio.toLocaleDateString('pt-BR')} a `}
+                {dataFimString === null
+                  ? dataFimString
+                  : dataFim.toLocaleDateString('pt-BR')}
+              </div>
             </div>
             <div className="flex gap-1">
+              <CircleDashed className="size-5" />
               <span>Status:</span>
               <Status status={project?.STATUS} />
             </div>
-            <div>
+            <div className="flex">
+              <PlayCircle className="size-5 rotate-90" />
               <span>Prioridade: </span>
               <Priority priority={project?.PRIORIDADE} />
             </div>
-            <div>
+            <div className="flex">
+              <UserRoundCog className="size-5" />
               <span>Criado por: </span>
               <span>{project?.USU_INCLUSAO}</span>
             </div>
-            <div className="line-clamp-1">Equipes: {project?.EQUIPES}</div>
+            <div className="flex">
+              <UsersRound className="size-5" />
+              <div className="line-clamp-1">Equipes: {project?.EQUIPES}</div>
+            </div>
             <div className="flex items-center gap-1">
+              <UserRound className="size-5" />
               <span>Membros:</span>
               <UsersAvatar members={project?.MEMBROS} />
             </div>
           </div>
-          <div className="hover:text-zinc-500">
-            <ProjectProperties projectId={projectId} />
+          <div className="flex gap-2">
+            <Button variant="ghost" size="icon">
+              <Share2 className="size-5" />
+            </Button>
+            <div>
+              <ProjectProperties projectId={projectId} />
+            </div>
           </div>
         </div>
       </Card>
@@ -110,7 +134,12 @@ export default function Project({ params }: { params: { projectId: string } }) {
             <div className="mx-5 flex items-start justify-between">
               <Dialog open={createTaskForm} onOpenChange={setCreateTaskForm}>
                 <DialogTrigger asChild>
-                  <Button variant="default">Criar tarefa</Button>
+                  <Button
+                    variant="default"
+                    disabled={project?.STATUS === 'Finalizado'}
+                  >
+                    Criar tarefa
+                  </Button>
                 </DialogTrigger>
                 <CreateTaskForm projectId={projectId} open={createTaskForm} />
               </Dialog>

@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -69,7 +70,8 @@ export function ProjectProperties({ projectId }: UpdateProjectFormProps) {
   async function handleSubmit(projectId: string) {
     try {
       await archiveProjectFn({
-        projectId: projectId
+        projectId: projectId,
+        usuAtualizacao: session?.user.CODUSUARIO ?? 'MM_WEB'
       });
 
       toast.success('O projeto foi arquivado!');
@@ -80,8 +82,10 @@ export function ProjectProperties({ projectId }: UpdateProjectFormProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="ml-auto">
-        <MoreVertical className="h-5 w-5" />
+      <DropdownMenuTrigger>
+        <Button variant="ghost" size="icon">
+          <MoreVertical className="h-5 w-5" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>

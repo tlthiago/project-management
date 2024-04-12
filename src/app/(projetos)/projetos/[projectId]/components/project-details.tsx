@@ -27,11 +27,16 @@ export function ProjectDetails({ projectId, open }: ProjectDetailsProps) {
     enabled: open
   });
 
-  const dataInicioString: string = project?.DATA_INICIO || '';
-  const dataFimString: string = project?.DATA_FIM || '';
+  const dataInicioString: string | null = project?.DATA_INICIO || null;
+  const dataFimString: string | null = project?.DATA_FIM || null;
 
-  const dataInicio = new Date(dataInicioString);
-  const dataFim = new Date(dataFimString);
+  let dataInicio: Date = new Date();
+  let dataFim: Date = new Date();
+
+  if (dataInicioString !== null && dataFimString !== null) {
+    dataInicio = new Date(dataInicioString);
+    dataFim = new Date(dataFimString);
+  }
 
   return (
     <DialogContent>
@@ -58,8 +63,12 @@ export function ProjectDetails({ projectId, open }: ProjectDetailsProps) {
             <TableCell className="text-muted-foreground">Datas</TableCell>
             <TableCell className="text-right">
               <span>
-                {dataInicio.toLocaleDateString('pt-BR')} a{' '}
-                {dataFim.toLocaleDateString('pt-BR')}
+                {dataInicioString === null
+                  ? dataInicioString
+                  : `${dataInicio.toLocaleDateString('pt-BR')} a `}
+                {dataFimString === null
+                  ? dataFimString
+                  : dataFim.toLocaleDateString('pt-BR')}
               </span>
             </TableCell>
           </TableRow>
