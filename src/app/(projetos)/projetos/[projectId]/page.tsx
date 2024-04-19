@@ -81,45 +81,35 @@ export default function Project({ params }: { params: { projectId: string } }) {
         </CardHeader>
         <div className="col-span-1 flex justify-end gap-2 p-4">
           <div className="space-y-2 text-sm">
-            <div className="flex items-center">
-              <CalendarDays className="size-5" />
-              <div>
-                Datas:{' '}
-                {dataInicioString === null
-                  ? dataInicioString
-                  : `${dataInicio.toLocaleDateString('pt-BR')} a `}
-                {dataFimString === null
-                  ? dataFimString
-                  : dataFim.toLocaleDateString('pt-BR')}
-              </div>
-            </div>
-            <div className="flex gap-1">
-              <CircleDashed className="size-5" />
-              <span>Status:</span>
-              <Status status={project?.STATUS} />
-            </div>
-            <div className="flex">
-              <PlayCircle className="size-5 rotate-90" />
-              <span>Prioridade: </span>
-              <Priority priority={project?.PRIORIDADE} />
-            </div>
-            <div className="flex">
-              <UserRoundCog className="size-5" />
-              <span>Criado por: </span>
-              <span>{project?.USU_INCLUSAO}</span>
-            </div>
-            <div className="flex">
-              <UsersRound className="size-5" />
-              <div className="line-clamp-1">Equipes: {project?.EQUIPES}</div>
+            <div>
+              Datas:{' '}
+              {dataInicioString === null
+                ? dataInicioString
+                : `${dataInicio.toLocaleDateString('pt-BR')} a `}
+              {dataFimString === null
+                ? dataFimString
+                : dataFim.toLocaleDateString('pt-BR')}
             </div>
             <div className="flex items-center gap-1">
-              <UserRound className="size-5" />
+              <span>Status:</span>
+              <span>
+                <Status status={project?.STATUS} />
+              </span>
+            </div>
+            <div>
+              Prioridade: <Priority priority={project?.PRIORIDADE} />
+            </div>
+            <div>Criado por: {project?.USU_INCLUSAO}</div>
+            <div className="line-clamp-1">Equipes: {project?.EQUIPES}</div>
+            <div className="flex items-center gap-1">
               <span>Membros:</span>
-              <UsersAvatar members={project?.MEMBROS} />
+              <span>
+                <UsersAvatar members={project?.MEMBROS} />
+              </span>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" disabled>
               <Share2 className="size-5" />
             </Button>
             <div>

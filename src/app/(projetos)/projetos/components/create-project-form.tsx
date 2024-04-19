@@ -114,6 +114,7 @@ export function CreateProjectForm() {
     if (loggedMemberData?.FUNCAO === 'Coordenador') {
       setTeam([loggedMemberData.EQUIPE]);
       handleTeamsChange([loggedMemberData.EQUIPE]);
+      form.setValue('equipes', [loggedMemberData.EQUIPE]);
     }
   }, [loggedMemberData]);
 
@@ -144,6 +145,8 @@ export function CreateProjectForm() {
 
     setMembersList(filteredMembers);
     setTeamsId(selectedTeamsId);
+
+    // form.setValue('equipes', teamValue);
   };
 
   const membersChapas: string[] = [];
@@ -193,6 +196,13 @@ export function CreateProjectForm() {
   });
 
   async function onSubmit(projectData: z.infer<typeof formSchema>) {
+    projectData.equipes =
+      loggedMemberData?.FUNCAO === 'Coordenador'
+        ? [loggedMemberData.EQUIPE]
+        : team;
+
+    console.log(projectData);
+
     try {
       await createProjectFn({
         nome: projectData.nome,

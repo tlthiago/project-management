@@ -82,7 +82,7 @@ export function ProjectProperties({ projectId }: UpdateProjectFormProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
           <MoreVertical className="h-5 w-5" />
         </Button>
