@@ -1,11 +1,18 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
+import { isEqual, startOfDay } from 'date-fns';
 import { useState } from 'react';
 
 import { GetTasksByProjectResponse } from '@/app/api/projetos/tarefas/get-tasks-by-project';
 import Priority from '@/components/priority';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 import { UsersAvatar } from '@/components/users-avatar';
 
 import { TaskDetails } from '../task-details';
@@ -46,24 +53,62 @@ export const DataTableColumns = () => {
         <DataTableColumnHeader column={column} title="Nome" />
       ),
       cell: ({ row }) => {
+        const dataFimString: string = row.getValue('DATA_FIM');
+        const dataFim = new Date(dataFimString);
+
+        const today = new Date();
+
+        const limite: boolean = dataFim
+          ? isEqual(startOfDay(dataFim), startOfDay(today))
+          : false;
+
         const atrasado = row.getValue('ATRASADO');
         const id = row.getValue('ID') as string;
 
         return (
-          <Dialog
-            key={id}
-            open={detailsOpen[id] || false}
-            onOpenChange={() => toggleDetails(id)}
-          >
-            <DialogTrigger asChild>
-              <span
-                className={`cursor-pointer font-semibold ${atrasado === 'S' ? 'text-rose-500' : ''}`}
-              >
-                {row.getValue('NOME')}
-              </span>
-            </DialogTrigger>
-            <TaskDetails open={detailsOpen[id] || false} taskId={id} />
-          </Dialog>
+          <div className="flex items-center gap-2">
+            {atrasado === 'S' ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <span className="relative flex h-3 w-3">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500"></span>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>Atrasado</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              limite && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <span className="relative flex h-3 w-3">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
+                        <span className="relative inline-flex h-3 w-3 rounded-full bg-amber-500"></span>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Data limite</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )
+            )}
+            <Dialog
+              key={id}
+              open={detailsOpen[id] || false}
+              onOpenChange={() => toggleDetails(id)}
+            >
+              <DialogTrigger asChild>
+                <span
+                  className={`cursor-pointer font-semibold ${atrasado === 'S' ? 'text-rose-500' : limite && 'text-amber-500'}`}
+                >
+                  {row.getValue('NOME')}
+                </span>
+              </DialogTrigger>
+              <TaskDetails open={detailsOpen[id] || false} taskId={id} />
+            </Dialog>
+          </div>
         );
       }
     },
@@ -71,14 +116,10 @@ export const DataTableColumns = () => {
       accessorKey: 'DESCRICAO',
       header: () => <div>Descrição</div>,
       cell: ({ row }) => {
-        const atrasado = row.getValue('ATRASADO');
-
         return (
-          <div
-            className={`line-clamp-1 max-w-96 ${atrasado === 'S' ? 'font-semibold text-rose-500' : ''}`}
-          >
+          <span className="line-clamp-1 max-w-96">
             {row.getValue('DESCRICAO')}
-          </div>
+          </span>
         );
       }
     },
@@ -90,16 +131,11 @@ export const DataTableColumns = () => {
       cell: ({ row }) => {
         const dataInicioString: string = row.getValue('DATA_INICIO');
         const dataInicio = new Date(dataInicioString);
-        const atrasado = row.getValue('ATRASADO');
 
         return (
-          <div
-            className={atrasado === 'S' ? 'font-semibold text-rose-500' : ''}
-          >
-            {dataInicioString === null
-              ? dataInicioString
-              : dataInicio.toLocaleDateString('pt-BR')}
-          </div>
+          <span>
+            {dataInicioString && dataInicio.toLocaleDateString('pt-BR')}
+          </span>
         );
       }
     },
@@ -113,14 +149,24 @@ export const DataTableColumns = () => {
         const dataFim = new Date(dataFimString);
         const atrasado = row.getValue('ATRASADO');
 
+        const today = new Date();
+
+        const limite: boolean = dataFim
+          ? isEqual(startOfDay(dataFim), startOfDay(today))
+          : false;
+
         return (
-          <div
-            className={atrasado === 'S' ? 'font-semibold text-rose-500' : ''}
+          <span
+            className={
+              atrasado === 'S'
+                ? 'font-semibold text-rose-500'
+                : limite
+                  ? 'font-semibold text-amber-500'
+                  : ''
+            }
           >
-            {dataFimString === null
-              ? dataFimString
-              : dataFim.toLocaleDateString('pt-BR')}
-          </div>
+            {dataFimString && dataFim.toLocaleDateString('pt-BR')}
+          </span>
         );
       }
     },

@@ -1,10 +1,17 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
+import { isEqual, startOfDay } from 'date-fns';
 import Link from 'next/link';
 
 import { GetProjectsByDepartmentResponse } from '@/app/api/projetos/get-projects-by-department';
 import Priority from '@/components/priority';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 import { UsersAvatar } from '@/components/users-avatar';
 
 import ProjectStatus from '../project-status';
@@ -25,16 +32,54 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Nome" />
     ),
     cell: ({ row }) => {
+      const dataFimString: string = row.getValue('DATA_FIM');
+      const dataFim = new Date(dataFimString);
+
+      const today = new Date();
+
+      const limite: boolean = dataFim
+        ? isEqual(startOfDay(dataFim), startOfDay(today))
+        : false;
+
       const atrasado = row.getValue('ATRASADO');
 
       return (
-        <Link href={`projetos/${row.getValue('ID')}`}>
-          <span
-            className={`font-semibold ${atrasado === 'S' ? 'text-rose-500' : ''}`}
-          >
-            {row.getValue('NOME')}
-          </span>
-        </Link>
+        <div className="flex items-center gap-2">
+          {atrasado === 'S' ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <span className="relative flex h-3 w-3">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500"></span>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>Atrasado</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            limite && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <span className="relative flex h-3 w-3">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex h-3 w-3 rounded-full bg-amber-500"></span>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>Data limite</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )
+          )}
+          <Link href={`projetos/${row.getValue('ID')}`}>
+            <span
+              className={`line-clamp-1 max-w-80 font-semibold ${atrasado === 'S' ? 'text-rose-500' : limite && 'text-amber-500'}`}
+            >
+              {row.getValue('NOME')}
+            </span>
+          </Link>
+        </div>
       );
     }
   },
@@ -44,16 +89,13 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Data Início" />
     ),
     cell: ({ row }) => {
-      const dataInicioString: string = row.getValue('DATA_INICIO');
+      const dataInicioString: Date = row.getValue('DATA_INICIO');
       const dataInicio = new Date(dataInicioString);
-      const atrasado = row.getValue('ATRASADO');
 
       return (
-        <div className={atrasado === 'S' ? 'font-semibold text-rose-500' : ''}>
-          {dataInicioString === null
-            ? dataInicioString
-            : dataInicio.toLocaleDateString('pt-BR')}
-        </div>
+        <span>
+          {dataInicioString && dataInicio.toLocaleDateString('pt-BR')}
+        </span>
       );
     }
   },
@@ -67,12 +109,24 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
       const dataFim = new Date(dataFimString);
       const atrasado = row.getValue('ATRASADO');
 
+      const today = new Date();
+
+      const limite: boolean = dataFim
+        ? isEqual(startOfDay(dataFim), startOfDay(today))
+        : false;
+
       return (
-        <div className={atrasado === 'S' ? 'font-semibold text-rose-500' : ''}>
-          {dataFimString === null
-            ? dataFimString
-            : dataFim.toLocaleDateString('pt-BR')}
-        </div>
+        <span
+          className={
+            atrasado === 'S'
+              ? 'font-semibold text-rose-500'
+              : limite
+                ? 'font-semibold text-amber-500'
+                : ''
+          }
+        >
+          {dataFimString && dataFim.toLocaleDateString('pt-BR')}
+        </span>
       );
     }
   },
@@ -82,14 +136,8 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Equipes" />
     ),
     cell: ({ row }) => {
-      const atrasado = row.getValue('ATRASADO');
-
       return (
-        <div
-          className={`line-clamp-1 max-w-96 ${atrasado === 'S' ? 'font-semibold text-rose-500' : ''}`}
-        >
-          {row.getValue('EQUIPES')}
-        </div>
+        <span className="line-clamp-1 max-w-96">{row.getValue('EQUIPES')}</span>
       );
     },
     filterFn: (row, id, value) => {

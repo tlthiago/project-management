@@ -130,20 +130,20 @@ export default function ProjectStatus({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="Pendente">
-              <div className="flex items-center">
-                <Circle className="mr-2 h-4 w-4 " />
+              <div className="flex items-center gap-2">
+                <Circle className="h-4 w-4 " />
                 <span>Pendente</span>
               </div>
             </SelectItem>
             <SelectItem value="Em andamento">
-              <div className="flex items-center">
-                <Timer className="mr-2 h-4 w-4 " />
+              <div className="flex items-center gap-2">
+                <Timer className="h-4 w-4 " />
                 <span>Em andamento</span>
               </div>
             </SelectItem>
             <SelectItem value="Finalizado">
-              <div className="flex items-center">
-                <CheckCircle2 className="mr-2 h-4 w-4 " />
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 " />
                 <span>Finalizado</span>
               </div>
             </SelectItem>

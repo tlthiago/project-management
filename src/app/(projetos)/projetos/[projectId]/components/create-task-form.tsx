@@ -64,7 +64,10 @@ export const taskSchema = z
   .object({
     nome: z
       .string()
-      .min(1, { message: 'O nome da tarefa deve ser informado.' }),
+      .min(1, { message: 'O nome da tarefa deve ser informado.' })
+      .max(100, {
+        message: 'O nome da tarefa deve ter no máximo 100 caracteres'
+      }),
     datas: z
       .object({
         from: z.coerce.date().optional(),
