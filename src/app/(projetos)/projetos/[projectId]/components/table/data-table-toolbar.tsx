@@ -65,22 +65,22 @@ export function DataTableToolbar<TData>({
         </Dialog>
         <Input
           placeholder="Buscar tarefas..."
-          value={(table.getColumn('NOME')?.getFilterValue() as string) ?? ''}
+          value={(table.getColumn('Nome')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
-            table.getColumn('NOME')?.setFilterValue(event.target.value)
+            table.getColumn('Nome')?.setFilterValue(event.target.value)
           }
           className="h-8 w-64"
         />
-        {table.getColumn('STATUS') && (
+        {table.getColumn('Status') && (
           <DataTableFacetedFilter
-            column={table.getColumn('STATUS')}
+            column={table.getColumn('Status')}
             title="Status"
             options={statuses}
           />
         )}
-        {table.getColumn('PRIORIDADE') && (
+        {table.getColumn('Prioridade') && (
           <DataTableFacetedFilter
-            column={table.getColumn('PRIORIDADE')}
+            column={table.getColumn('Prioridade')}
             title="Prioridade"
             options={priorities}
           />

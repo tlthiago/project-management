@@ -49,11 +49,12 @@ export const DataTableColumns = () => {
     },
     {
       accessorKey: 'NOME',
+      id: 'Nome',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Nome" />
       ),
       cell: ({ row }) => {
-        const dataFimString: string = row.getValue('DATA_FIM');
+        const dataFimString: string = row.getValue('Data Fim');
         const dataFim = new Date(dataFimString);
 
         const today = new Date();
@@ -71,9 +72,9 @@ export const DataTableColumns = () => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <span className="relative flex h-3 w-3">
+                    <span className="relative flex h-2 w-2">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-                      <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500"></span>
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>Atrasado</TooltipContent>
@@ -84,9 +85,9 @@ export const DataTableColumns = () => {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <span className="relative flex h-3 w-3">
+                      <span className="relative flex h-2 w-2">
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
-                        <span className="relative inline-flex h-3 w-3 rounded-full bg-amber-500"></span>
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>Data limite</TooltipContent>
@@ -103,7 +104,7 @@ export const DataTableColumns = () => {
                 <span
                   className={`cursor-pointer font-semibold ${atrasado === 'S' ? 'text-rose-500' : limite && 'text-amber-500'}`}
                 >
-                  {row.getValue('NOME')}
+                  {row.getValue('Nome')}
                 </span>
               </DialogTrigger>
               <TaskDetails open={detailsOpen[id] || false} taskId={id} />
@@ -114,22 +115,24 @@ export const DataTableColumns = () => {
     },
     {
       accessorKey: 'DESCRICAO',
+      id: 'Descrição',
       header: () => <div>Descrição</div>,
       cell: ({ row }) => {
         return (
           <span className="line-clamp-1 max-w-96">
-            {row.getValue('DESCRICAO')}
+            {row.getValue('Descrição')}
           </span>
         );
       }
     },
     {
       accessorKey: 'DATA_INICIO',
+      id: 'Data Início',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Data Início" />
       ),
       cell: ({ row }) => {
-        const dataInicioString: string = row.getValue('DATA_INICIO');
+        const dataInicioString: string = row.getValue('Data Início');
         const dataInicio = new Date(dataInicioString);
 
         return (
@@ -141,11 +144,12 @@ export const DataTableColumns = () => {
     },
     {
       accessorKey: 'DATA_FIM',
+      id: 'Data Fim',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Data Fim" />
       ),
       cell: ({ row }) => {
-        const dataFimString: string = row.getValue('DATA_FIM');
+        const dataFimString: string = row.getValue('Data Fim');
         const dataFim = new Date(dataFimString);
         const atrasado = row.getValue('ATRASADO');
 
@@ -172,9 +176,10 @@ export const DataTableColumns = () => {
     },
     {
       accessorKey: 'MEMBROS',
+      id: 'Membros',
       header: () => <div>Membros</div>,
       cell: ({ row }) => {
-        return <UsersAvatar members={row.getValue('MEMBROS')} />;
+        return <UsersAvatar members={row.getValue('Membros')} />;
       }
     },
     {
@@ -189,13 +194,14 @@ export const DataTableColumns = () => {
     },
     {
       accessorKey: 'STATUS',
+      id: 'Status',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Status" />
       ),
       cell: ({ row }) => {
         const projectId: number = row.getValue('PROJETO_ID');
         const taskId: number = row.getValue('ID');
-        const status: string = row.getValue('STATUS');
+        const status: string = row.getValue('Status');
 
         return (
           <TaskStatus projectId={projectId} taskId={taskId} status={status} />
@@ -207,11 +213,12 @@ export const DataTableColumns = () => {
     },
     {
       accessorKey: 'PRIORIDADE',
+      id: 'Prioridade',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Prioridade" />
       ),
       cell: ({ row }) => {
-        return <Priority priority={row.getValue('PRIORIDADE')} />;
+        return <Priority priority={row.getValue('Prioridade')} />;
       },
       filterFn: (row, id, value) => {
         return value.includes(row.getValue(id));
@@ -219,11 +226,12 @@ export const DataTableColumns = () => {
     },
     {
       accessorKey: 'USU_INCLUSAO',
+      id: 'Criada por',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Criada por" />
       ),
       cell: ({ row }) => {
-        return <span>{row.getValue('USU_INCLUSAO')}</span>;
+        return <span>{row.getValue('Criada por')}</span>;
       }
     },
     {

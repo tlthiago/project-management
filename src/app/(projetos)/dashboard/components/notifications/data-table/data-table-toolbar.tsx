@@ -25,23 +25,23 @@ export function DataTableToolbar<TData>({
         <Input
           placeholder="Buscar registros..."
           value={
-            (table.getColumn('DESCRICAO')?.getFilterValue() as string) ?? ''
+            (table.getColumn('Descrição')?.getFilterValue() as string) ?? ''
           }
           onChange={(event) =>
-            table.getColumn('DESCRICAO')?.setFilterValue(event.target.value)
+            table.getColumn('Descrição')?.setFilterValue(event.target.value)
           }
           className="h-8 w-64"
         />
-        {table.getColumn('ACAO') && (
+        {table.getColumn('Ação') && (
           <DataTableFacetedFilter
-            column={table.getColumn('ACAO')}
+            column={table.getColumn('Ação')}
             title="Ação"
             options={actions}
           />
         )}
-        {table.getColumn('ENTIDADE') && (
+        {table.getColumn('Entidade') && (
           <DataTableFacetedFilter
-            column={table.getColumn('ENTIDADE')}
+            column={table.getColumn('Entidade')}
             title="Entidade"
             options={entities}
           />

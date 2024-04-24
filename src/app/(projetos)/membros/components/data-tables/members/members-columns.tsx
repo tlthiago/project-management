@@ -18,17 +18,18 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'NOME',
+    id: 'Nome',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Nome" />
     ),
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-2">
-          <UserAvatar member={row.getValue('NOME')} />
+          <UserAvatar member={row.getValue('Nome')} />
           <div className="flex flex-col">
-            <span className="font-semibold">{row.getValue('NOME')}</span>
+            <span className="font-semibold">{row.getValue('Nome')}</span>
             <span className="text-xs text-muted-foreground">
-              {row.getValue('CARGO')}
+              {row.getValue('Cargo')}
             </span>
           </div>
         </div>
@@ -37,11 +38,12 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'CARGO',
+    id: 'Cargo',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Cargos" />
     ),
     cell: ({ row }) => {
-      return <span>{row.getValue('CARGO')}</span>;
+      return <span>{row.getValue('Cargo')}</span>;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -65,11 +67,12 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'EQUIPE',
+    id: 'Equipes',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Equipes" />
     ),
     cell: ({ row }) => {
-      return <span>{row.getValue('EQUIPE')}</span>;
+      return <span>{row.getValue('Equipes')}</span>;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -77,6 +80,7 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'FUNCAO',
+    id: 'Função',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Função" />
     ),
@@ -84,8 +88,8 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
       return (
         <UpdateMemberRole
           chapa={row.getValue('CHAPA')}
-          team={row.getValue('EQUIPE')}
-          role={row.getValue('FUNCAO')}
+          team={row.getValue('Equipes')}
+          role={row.getValue('Função')}
         />
       );
     },

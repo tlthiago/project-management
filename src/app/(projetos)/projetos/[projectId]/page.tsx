@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { isEqual, startOfDay } from 'date-fns';
 import {
+  Activity,
   CalendarDays,
   CircleDashed,
   PlayCircle,
@@ -27,6 +28,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 // import { TabsContent } from '@/components/ui/tabs';
 // import { Tabs } from '@/components/ui/tabs';
 import { UsersAvatar } from '@/components/users-avatar';
@@ -91,18 +93,18 @@ export default function Project({ params }: { params: { projectId: string } }) {
         <CardContent className="flex items-center gap-8 text-sm">
           {limite && (
             <div className="flex items-center gap-2">
-              <span className="relative flex h-3 w-3">
+              <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex h-3 w-3 rounded-full bg-amber-500"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
               </span>
               <span className="font-semibold text-amber-500">Data limite</span>
             </div>
           )}
           {project?.ATRASADO === 'S' && (
             <div className="flex items-center gap-2">
-              <span className="relative flex h-3 w-3">
+              <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
               </span>
               <span className="font-semibold text-red-500">Atrasado</span>
             </div>
@@ -146,6 +148,12 @@ export default function Project({ params }: { params: { projectId: string } }) {
             <span>
               <UsersAvatar members={project?.MEMBROS} />
             </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Activity className="size-4" />
+            <span>Progresso:</span>
+            <Progress value={33} className="h-1 w-32" />
+            <span>33%</span>
           </div>
         </CardContent>
       </Card>

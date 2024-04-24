@@ -28,11 +28,12 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'NOME',
+    id: 'Nome',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Nome" />
     ),
     cell: ({ row }) => {
-      const dataFimString: string = row.getValue('DATA_FIM');
+      const dataFimString: string = row.getValue('Data Fim');
       const dataFim = new Date(dataFimString);
 
       const today = new Date();
@@ -49,9 +50,9 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <span className="relative flex h-3 w-3">
+                  <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>Atrasado</TooltipContent>
@@ -62,9 +63,9 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <span className="relative flex h-3 w-3">
+                    <span className="relative flex h-2 w-2">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
-                      <span className="relative inline-flex h-3 w-3 rounded-full bg-amber-500"></span>
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>Data limite</TooltipContent>
@@ -76,7 +77,7 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
             <span
               className={`line-clamp-1 max-w-80 font-semibold ${atrasado === 'S' ? 'text-rose-500' : limite && 'text-amber-500'}`}
             >
-              {row.getValue('NOME')}
+              {row.getValue('Nome')}
             </span>
           </Link>
         </div>
@@ -85,11 +86,12 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'DATA_INICIO',
+    id: 'Data Início',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Data Início" />
     ),
     cell: ({ row }) => {
-      const dataInicioString: Date = row.getValue('DATA_INICIO');
+      const dataInicioString: Date = row.getValue('Data Início');
       const dataInicio = new Date(dataInicioString);
 
       return (
@@ -101,11 +103,12 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'DATA_FIM',
+    id: 'Data Fim',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Data Fim" />
     ),
     cell: ({ row }) => {
-      const dataFimString: string = row.getValue('DATA_FIM');
+      const dataFimString: string = row.getValue('Data Fim');
       const dataFim = new Date(dataFimString);
       const atrasado = row.getValue('ATRASADO');
 
@@ -132,12 +135,13 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'EQUIPES',
+    id: 'Equipes',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Equipes" />
     ),
     cell: ({ row }) => {
       return (
-        <span className="line-clamp-1 max-w-96">{row.getValue('EQUIPES')}</span>
+        <span className="line-clamp-1 max-w-96">{row.getValue('Equipes')}</span>
       );
     },
     filterFn: (row, id, value) => {
@@ -146,9 +150,10 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'MEMBROS',
+    id: 'Membros',
     header: () => <div>Membros</div>,
     cell: ({ row }) => {
-      return <UsersAvatar members={row.getValue('MEMBROS')} />;
+      return <UsersAvatar members={row.getValue('Membros')} />;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -156,12 +161,13 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'STATUS',
+    id: 'Status',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
       const projectId: number = row.getValue('ID');
-      const status: string = row.getValue('STATUS');
+      const status: string = row.getValue('Status');
 
       return <ProjectStatus projectId={projectId} status={status} />;
     },
@@ -171,11 +177,12 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'PRIORIDADE',
+    id: 'Prioridade',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Prioridade" />
     ),
     cell: ({ row }) => {
-      return <Priority priority={row.getValue('PRIORIDADE')} />;
+      return <Priority priority={row.getValue('Prioridade')} />;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -183,11 +190,12 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'USU_INCLUSAO',
+    id: 'Criado por',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Criado por" />
     ),
     cell: ({ row }) => {
-      return <span>{row.getValue('USU_INCLUSAO')}</span>;
+      return <span>{row.getValue('Criado por')}</span>;
     }
   },
   {

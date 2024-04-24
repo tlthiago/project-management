@@ -72,29 +72,29 @@ export function DataTableToolbar<TData>({
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Buscar membros..."
-          value={(table.getColumn('NOME')?.getFilterValue() as string) ?? ''}
+          value={(table.getColumn('Nome')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
-            table.getColumn('NOME')?.setFilterValue(event.target.value)
+            table.getColumn('Nome')?.setFilterValue(event.target.value)
           }
           className="h-8 w-64"
         />
-        {table.getColumn('CARGO') && (
+        {table.getColumn('Cargo') && (
           <DataTableFacetedFilter
-            column={table.getColumn('CARGO')}
+            column={table.getColumn('Cargo')}
             title="Cargos"
             options={cargos}
           />
         )}
-        {table.getColumn('EQUIPE') && (
+        {table.getColumn('Equipes') && (
           <DataTableFacetedFilter
-            column={table.getColumn('EQUIPE')}
+            column={table.getColumn('Equipes')}
             title="Equipes"
             options={teamsList}
           />
         )}
-        {table.getColumn('FUNCAO') && (
+        {table.getColumn('Função') && (
           <DataTableFacetedFilter
-            column={table.getColumn('FUNCAO')}
+            column={table.getColumn('Função')}
             title="Função"
             options={functionMember}
           />

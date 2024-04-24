@@ -20,69 +20,86 @@ export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
   },
   {
     accessorKey: 'NOME',
+    id: 'Nome',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Nome" />
     ),
     cell: ({ row }) => {
-      return <span className="font-semibold">{row.getValue('NOME')}</span>;
+      return <span className="font-semibold">{row.getValue('Nome')}</span>;
     }
   },
   {
     accessorKey: 'DATA_INICIO',
+    id: 'Data Início',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Data Início" />
     ),
     cell: ({ row }) => {
-      const dataInicioString: string = row.getValue('DATA_INICIO');
-      const dataInicio = new Date(dataInicioString);
-      return <div>{dataInicio.toLocaleDateString('pt-BR')}</div>;
+      const dataInicio: Date = new Date(row.getValue('Data Início'));
+
+      return (
+        <span>
+          {row.getValue('Data Início') !== null &&
+            dataInicio.toLocaleDateString('pt-BR')}
+        </span>
+      );
     }
   },
   {
     accessorKey: 'DATA_FIM',
+    id: 'Data Fim',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Data Fim" />
     ),
     cell: ({ row }) => {
-      const dataFimString: string = row.getValue('DATA_FIM');
-      const dataFim = new Date(dataFimString);
-      return <div>{dataFim.toLocaleDateString('pt-BR')}</div>;
+      const dataFim: Date = new Date(row.getValue('Data Fim'));
+
+      return (
+        <span>
+          {row.getValue('Data Fim') !== null &&
+            dataFim.toLocaleDateString('pt-BR')}
+        </span>
+      );
     }
   },
   {
     accessorKey: 'EQUIPES',
+    id: 'Equipes',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Equipes" />
     ),
     cell: ({ row }) => {
       return (
-        <div className="line-clamp-1 max-w-96">{row.getValue('EQUIPES')}</div>
+        <div className="line-clamp-1 max-w-96">{row.getValue('Equipes')}</div>
       );
     }
   },
   {
     accessorKey: 'MEMBROS',
+    id: 'Membros',
     header: () => <div>Membros</div>,
     cell: ({ row }) => {
-      return <UsersAvatar members={row.getValue('MEMBROS')} />;
+      return <UsersAvatar members={row.getValue('Membros')} />;
     }
   },
   {
     accessorKey: 'STATUS',
+    id: 'Status',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
-      return <Status status={row.getValue('STATUS')} />;
+      return <Status status={row.getValue('Status')} />;
     }
   },
   {
     accessorKey: 'PRIORIDADE',
+    id: 'Prioridade',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Prioridade" />
     ),
     cell: ({ row }) => {
-      return <Priority priority={row.getValue('PRIORIDADE')} />;
+      return <Priority priority={row.getValue('Prioridade')} />;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));

@@ -36,15 +36,15 @@ export function DataTableToolbar<TData>({
           table.getColumn(`${filterParams}`)?.setFilterValue('S');
           break;
         case 'Pendente':
-          table.getColumn('STATUS')?.setFilterValue('Pendente');
+          table.getColumn('Status')?.setFilterValue('Pendente');
           setCurrentFilterValue(['Pendente']);
           break;
         case 'Em andamento':
-          table.getColumn('STATUS')?.setFilterValue('Em andamento');
+          table.getColumn('Status')?.setFilterValue('Em andamento');
           setCurrentFilterValue(['Em andamento']);
           break;
         case 'Finalizado':
-          table.getColumn('STATUS')?.setFilterValue('Finalizado');
+          table.getColumn('Status')?.setFilterValue('Finalizado');
           setCurrentFilterValue(['Finalizado']);
           break;
       }
@@ -56,23 +56,23 @@ export function DataTableToolbar<TData>({
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Buscar projetos..."
-          value={(table.getColumn('NOME')?.getFilterValue() as string) ?? ''}
+          value={(table.getColumn('Nome')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
-            table.getColumn('NOME')?.setFilterValue(event.target.value)
+            table.getColumn('Nome')?.setFilterValue(event.target.value)
           }
           className="h-8 w-64"
         />
-        {table.getColumn('STATUS') && (
+        {table.getColumn('Status') && (
           <DataTableFacetedFilter
-            column={table.getColumn('STATUS')}
+            column={table.getColumn('Status')}
             title="Status"
             options={statuses}
             filterValue={currentFilterValue}
           />
         )}
-        {table.getColumn('PRIORIDADE') && (
+        {table.getColumn('Prioridade') && (
           <DataTableFacetedFilter
-            column={table.getColumn('PRIORIDADE')}
+            column={table.getColumn('Prioridade')}
             title="Prioridade"
             options={priorities}
             filterValue={currentFilterValue}
