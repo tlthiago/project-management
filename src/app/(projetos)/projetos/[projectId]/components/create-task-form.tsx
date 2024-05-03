@@ -105,7 +105,7 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
     enabled: !!open
   });
 
-  const membersList: string[] = project?.MEMBROS.split(',') || [];
+  const membersList: string[] = project?.MEMBROS.split(', ') || [];
   const [member, setMember] = useState<string[]>([]);
 
   const membersChapas: string[] = [];
@@ -132,6 +132,21 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
     }
   });
 
+  // useEffect(() => {
+  //   const selectedMembers = form.watch('responsaveis');
+
+  //   const membersChapas: string[] = [];
+
+  //   members.forEach((member) => {
+  //     if (selectedMembers.includes(member.NOME)) {
+  //       membersChapas.push(member.CHAPA);
+  //     }
+  //   });
+
+  //   console.log(selectedMembers);
+  //   console.log(membersChapas);
+  // }, [form.watch('responsaveis')]);
+
   const queryClient = useQueryClient();
 
   const { mutateAsync: createTaskFn } = useMutation({
@@ -140,10 +155,6 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
       form.reset();
       setMember([]);
       queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
-
-      console.log(
-        queryClient.invalidateQueries({ queryKey: ['tasks', projectId] })
-      );
     }
   });
 
