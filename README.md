@@ -1,36 +1,39 @@
 ## Notas de atualização
 
+### alfa v1.3
+
+#
 ### alfa v1.2
 
-#### Correção de bugs
-##### Página: Projetos
+### Correção de bugs
+#### Página: Projetos
 - A listagem de projetos por membro agora está funcionando corretamente
 - O status de projeto atrasado agora está reagindo corretamente as alterações de data fim do projeto
 
-##### Página: Projetos (Tarefas)
+#### Página: Projetos (Tarefas)
 - Os detalhes das tarefas agora estão sendo exibidos corretamente, antes todos os dialogs estavam sendo abertos ao mesmo tempo
 - O dialog de exclusão da tarefa foi atualizado para o componente do tipo Alert Dialog
 
-#### Novos recursos
+### Novos recursos
 - A identidade do Mart Minas & DOM foi adicionada ao projeto
 - A navbar foi atualizada para uma versão mais compatível a ideia do projeto
 
-##### Página: Membros
+#### Página: Membros
 - A função de coordenador foi adicionada as funções dos membros do projeto
 
-##### Página: Dashboard
+#### Página: Dashboard
 - Agora ao clicar nos cards o usuário é redirecionado para a página de projetos já com o status selecionado definido
 - 2 gráficos foram adicionados a tela de visão geral com informações sobre os projetos e equipes
 - A aba de notificações foi implementada, agora quaisquer alterações estão sendo registradas e podem ser acompanhadas nessa aba
 
-##### Página: Projetos
+#### Página: Projetos
 - Adicionado um menu dropdown ao clicar no ícone de propriedades do projeto para que seja possível abrir uma visão detalhada, editar e arquivar o projeto por esse atalho
 
-#### Pequenos ajustes
+### Pequenos ajustes
 - O nome de exibição da coluna dos nomes das equipes foi alterado de Equipes para Nomes
 - O título da página de Membros agora está sendo atualizado conforme a aba selecionada
 
-
+#
 ### alfa v1.1
 
 Correções e funcionalidades foram adicionadas as páginas:

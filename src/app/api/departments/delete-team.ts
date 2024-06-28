@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
 
 export interface DeleteTeamParams {
-  teamId: string;
+  teamId: number;
   usuAtualizacao: string;
 }
 

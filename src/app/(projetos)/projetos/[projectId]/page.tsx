@@ -1,7 +1,18 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { isEqual, startOfDay } from 'date-fns';
+import {
+  // Activity,
+  CalendarCheck,
+  CalendarDays,
+  CircleDashed,
+  PlayCircle,
+  Share2,
+  UserRound,
+  // UserRoundCog,
+  UsersRound
+} from 'lucide-react';
 
 // import { TaskContainer } from '@/app/(projetos)/projetos/[projectId]/components/kanban/task-container';
 import {
@@ -13,28 +24,26 @@ import Status from '@/components/status';
 import { Button } from '@/components/ui/button';
 import {
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { TabsContent } from '@/components/ui/tabs';
-import { Tabs } from '@/components/ui/tabs';
+// import { Progress } from '@/components/ui/progress';
+// import { TabsContent } from '@/components/ui/tabs';
+// import { Tabs } from '@/components/ui/tabs';
 import { UsersAvatar } from '@/components/users-avatar';
 
 import {
   getTasksByProject,
   GetTasksByProjectResponse
 } from '../../../api/projetos/tarefas/get-tasks-by-project';
-import { CreateTaskForm } from './components/create-task-form';
 import { ProjectProperties } from './components/project-properties';
 import { DataTableColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 
 export default function Project({ params }: { params: { projectId: string } }) {
   const projectId: string = params.projectId;
-
-  const [createTaskForm, setCreateTaskForm] = useState(false);
 
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
@@ -48,73 +57,129 @@ export default function Project({ params }: { params: { projectId: string } }) {
     enabled: !!projectId
   });
 
-  const dataInicioString: string | null = project?.DATA_INICIO || null;
-  const dataFimString: string | null = project?.DATA_FIM || null;
+  const dataInicio: Date | null =
+    project && project.DATA_INICIO ? new Date(project.DATA_INICIO) : null;
+  const dataFim: Date | null =
+    project && project.DATA_FIM ? new Date(project?.DATA_FIM) : null;
 
-  let dataInicio: Date = new Date();
-  let dataFim: Date = new Date();
+  const today = new Date();
 
-  if (dataInicioString !== null && dataFimString !== null) {
-    dataInicio = new Date(dataInicioString);
-    dataFim = new Date(dataFimString);
-  }
+  const limite: boolean = dataFim
+    ? isEqual(startOfDay(dataFim), startOfDay(today))
+    : false;
+
+  // const totalTasks = tasks.length;
+  // let completedTasks = 0;
+  // let progress = 0;
+
+  // for (const task of tasks) {
+  //   if (task.STATUS === 'Finalizado') {
+  //     completedTasks++;
+  //   }
+  // }
+
+  // progress = (completedTasks / totalTasks) * 100;
 
   return (
     <div className="space-y-3">
-      <Card className="grid grid-cols-4">
-        <CardHeader className="col-span-3">
-          <CardTitle className="flex items-center justify-between">
-            <span className="line-clamp-1 max-w-7xl">{project?.NOME}</span>
-          </CardTitle>
-          <CardDescription className="line-clamp-1 max-w-6xl">
-            {project?.DESCRICAO}
-          </CardDescription>
-        </CardHeader>
-        <div className="col-span-1 flex justify-end gap-2 p-4">
-          <div className="space-y-2 text-sm">
-            <div>
-              Datas:{' '}
-              {dataInicioString === null
-                ? dataInicioString
-                : `${dataInicio.toLocaleDateString('pt-BR')} a `}
-              {dataFimString === null
-                ? dataFimString
-                : dataFim.toLocaleDateString('pt-BR')}
-            </div>
-            <div className="flex gap-1">
-              <span>Status:</span>
-              <Status status={project?.STATUS} />
-            </div>
-            <div>
-              <span>Prioridade: </span>
-              <Priority priority={project?.PRIORIDADE} />
-            </div>
-            <div>
-              <span>Criado por: </span>
-              <span>{project?.USU_INCLUSAO}</span>
-            </div>
-            <div className="line-clamp-1">Equipes: {project?.EQUIPES}</div>
-            <div className="flex items-center gap-1">
-              <span>Membros:</span>
-              <UsersAvatar members={project?.MEMBROS} />
-            </div>
-          </div>
-          <div className="hover:text-zinc-500">
-            <ProjectProperties projectId={projectId} />
-          </div>
-        </div>
-      </Card>
       <Card>
         <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center justify-between gap-2">
+              <span className="line-clamp-1">{project?.NOME}</span>
+            </CardTitle>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="icon" disabled>
+                <Share2 className="size-5" />
+              </Button>
+              <div>
+                <ProjectProperties projectId={projectId} />
+              </div>
+            </div>
+          </div>
+          {project?.DESCRICAO && (
+            <CardDescription className="line-clamp-1 max-w-6xl">
+              {project.DESCRICAO}
+            </CardDescription>
+          )}
+        </CardHeader>
+        <CardContent className="flex items-center gap-8 text-sm">
+          {limite && (
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
+              </span>
+              <span className="font-semibold text-amber-500">Data limite</span>
+            </div>
+          )}
+          {project?.ATRASADO === 'S' && (
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+              </span>
+              <span className="font-semibold text-red-500">Atrasado</span>
+            </div>
+          )}
+          {dataInicio && dataFim && (
+            <div className="flex items-center gap-1">
+              <CalendarDays className="size-4" />
+              <span>
+                Datas:{' '}
+                {dataInicio !== null &&
+                  `${dataInicio.toLocaleDateString('pt-BR')} a `}
+                {dataFim !== null && dataFim.toLocaleDateString('pt-BR')}
+              </span>
+            </div>
+          )}
+          <div className="flex items-center gap-1">
+            <CircleDashed className="size-4" />
+            <span>Status:</span>
+            <span>
+              <Status status={project?.STATUS} />
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <PlayCircle className="size-4 rotate-90" />
+            <span>Prioridade:</span>
+            <Priority priority={project?.PRIORIDADE} />
+          </div>
+          {/* <div className="flex items-center gap-1">
+            <UserRoundCog className="size-4" />
+            <span>Criado por:</span>
+            {project?.USU_INCLUSAO}
+          </div> */}
+          <div className="flex items-center gap-1">
+            <UsersRound className="size-4" />
+            <span>Equipes:</span>
+            <span className="line-clamp-1 w-32">{project?.EQUIPES}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <UserRound className="size-4" />
+            <span>Membros:</span>
+            <span>
+              <UsersAvatar members={project?.MEMBROS} />
+            </span>
+          </div>
+          {/* <div className="flex items-center gap-1">
+            <Activity className="size-4" />
+            <span>Progresso:</span>
+            <Progress value={progress} className="h-1 w-32" />
+            <span>{progress.toFixed(0)}%</span>
+          </div> */}
+          <div className="flex items-center gap-1">
+            <CalendarCheck className="size-4" />
+            <span>Finalizado em:</span>
+            <span>07/05/2024</span>
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        {/* <CardHeader>
           <Tabs defaultValue="table">
-            <div className="mx-5 flex items-start justify-between">
-              <Dialog open={createTaskForm} onOpenChange={setCreateTaskForm}>
-                <DialogTrigger asChild>
-                  <Button variant="default">Criar tarefa</Button>
-                </DialogTrigger>
-                <CreateTaskForm projectId={projectId} open={createTaskForm} />
-              </Dialog>
-              {/* <TabsList className="bg-muted">
+            <div className="flex items-start justify-between">
+              <TabsList className="bg-muted">
                 <TabsTrigger value="kanban">
                   <Kanban />
                   <span className="ml-1">Kanban</span>
@@ -123,19 +188,21 @@ export default function Project({ params }: { params: { projectId: string } }) {
                   <Table />
                   <span className="ml-1">Tabela</span>
                 </TabsTrigger>
-              </TabsList> */}
+              </TabsList>
             </div>
-            <TabsContent value="kanban" className="flex">
-              {/* <TaskContainer title="ATRASADO" />
+          </Tabs>
+        </CardHeader> */}
+        <CardContent className="pt-6">
+          {/* <TabsContent value="kanban" className="flex">
+              <TaskContainer title="ATRASADO" />
               <TaskContainer title="PENDENTE" />
               <TaskContainer title="EM PROGRESSO" />
-              <TaskContainer title="FINALIZADO" /> */}
+              <TaskContainer title="FINALIZADO" />
             </TabsContent>
             <TabsContent value="table" className="px-5">
-              <DataTable columns={DataTableColumns().columns} data={tasks} />
-            </TabsContent>
-          </Tabs>
-        </CardHeader>
+            </TabsContent> */}
+          <DataTable columns={DataTableColumns().columns} data={tasks} />
+        </CardContent>
       </Card>
     </div>
   );

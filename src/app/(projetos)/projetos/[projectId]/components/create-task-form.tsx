@@ -64,7 +64,10 @@ export const taskSchema = z
   .object({
     nome: z
       .string()
-      .min(1, { message: 'O nome da tarefa deve ser informado.' }),
+      .min(1, { message: 'O nome da tarefa deve ser informado.' })
+      .max(100, {
+        message: 'O nome da tarefa deve ter no máximo 100 caracteres'
+      }),
     datas: z
       .object({
         from: z.coerce.date().optional(),
@@ -102,7 +105,7 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
     enabled: !!open
   });
 
-  const membersList: string[] = project?.MEMBROS.split(',') || [];
+  const membersList: string[] = project?.MEMBROS.split(', ') || [];
   const [member, setMember] = useState<string[]>([]);
 
   const membersChapas: string[] = [];
@@ -119,10 +122,30 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
     resolver: zodResolver(taskSchema),
     defaultValues: {
       nome: '',
+      datas: {
+        from: undefined,
+        to: undefined
+      },
+      descricao: '',
       responsaveis: [],
       prioridade: ''
     }
   });
+
+  // useEffect(() => {
+  //   const selectedMembers = form.watch('responsaveis');
+
+  //   const membersChapas: string[] = [];
+
+  //   members.forEach((member) => {
+  //     if (selectedMembers.includes(member.NOME)) {
+  //       membersChapas.push(member.CHAPA);
+  //     }
+  //   });
+
+  //   console.log(selectedMembers);
+  //   console.log(membersChapas);
+  // }, [form.watch('responsaveis')]);
 
   const queryClient = useQueryClient();
 

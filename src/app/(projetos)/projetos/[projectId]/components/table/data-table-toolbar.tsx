@@ -1,12 +1,21 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { Table } from '@tanstack/react-table';
 import { PlusCircle, X } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 import { priorities, statuses } from '@/app/api/data/data';
+import {
+  getProjectById,
+  GetProjectByIdResponse
+} from '@/app/api/projetos/get-project-by-id';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
+import { CreateTaskForm } from '../create-task-form';
 import { DataTableFacetedFilter } from './data-table-faceted-filter';
 import { DataTableViewOptions } from './data-table-view-options';
 
@@ -22,27 +31,56 @@ export function DataTableToolbar<TData>({
   const delayedTotalValue =
     table.getColumn('ATRASADO')?.getFacetedUniqueValues().get('S') ?? 0;
 
+  const [createTaskForm, setCreateTaskForm] = useState(false);
+
+  const [projectId, setProjectId] = useState('');
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const segments = pathname.split('/');
+    const projectId = segments[segments.length - 1];
+    setProjectId(projectId);
+  }, []);
+
+  const { data: project } = useQuery<GetProjectByIdResponse>({
+    queryKey: ['project', projectId],
+    queryFn: () => getProjectById({ projectId }),
+    enabled: !!projectId
+  });
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
+        <Dialog open={createTaskForm} onOpenChange={setCreateTaskForm}>
+          <DialogTrigger asChild>
+            <Button
+              size="sm"
+              className="h-8"
+              disabled={project?.STATUS === 'Finalizado'}
+            >
+              Nova tarefa
+            </Button>
+          </DialogTrigger>
+          <CreateTaskForm projectId={projectId} open={createTaskForm} />
+        </Dialog>
         <Input
           placeholder="Buscar tarefas..."
-          value={(table.getColumn('NOME')?.getFilterValue() as string) ?? ''}
+          value={(table.getColumn('Nome')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
-            table.getColumn('NOME')?.setFilterValue(event.target.value)
+            table.getColumn('Nome')?.setFilterValue(event.target.value)
           }
           className="h-8 w-64"
         />
-        {table.getColumn('STATUS') && (
+        {table.getColumn('Status') && (
           <DataTableFacetedFilter
-            column={table.getColumn('STATUS')}
+            column={table.getColumn('Status')}
             title="Status"
             options={statuses}
           />
         )}
-        {table.getColumn('PRIORIDADE') && (
+        {table.getColumn('Prioridade') && (
           <DataTableFacetedFilter
-            column={table.getColumn('PRIORIDADE')}
+            column={table.getColumn('Prioridade')}
             title="Prioridade"
             options={priorities}
           />

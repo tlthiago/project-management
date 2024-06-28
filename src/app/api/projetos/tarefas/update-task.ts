@@ -15,6 +15,7 @@ export interface UpdateTaskBody {
   added?: MemberData;
   removed?: MemberData;
   usuAtualizacao: string;
+  atrasado?: string;
 }
 
 export async function updateTask({
@@ -27,7 +28,8 @@ export async function updateTask({
   added,
   removed,
   usuInclusao,
-  usuAtualizacao
+  usuAtualizacao,
+  atrasado
 }: UpdateTaskBody) {
   const taskData = {
     nome,
@@ -38,10 +40,9 @@ export async function updateTask({
     added,
     removed,
     usuInclusao,
-    usuAtualizacao
+    usuAtualizacao,
+    atrasado
   };
-
-  console.log(taskData);
 
   await api.put(`/projects/tasks/${taskId}`, taskData);
 }

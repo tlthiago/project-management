@@ -18,20 +18,22 @@ export const teamsColumns: ColumnDef<GetTeamsByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'NOME',
+    id: 'Nomes',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Nomes" />
     ),
     cell: ({ row }) => {
-      return <span className="font-semibold">{row.getValue('NOME')}</span>;
+      return <span className="font-semibold">{row.getValue('Nomes')}</span>;
     }
   },
   {
     accessorKey: 'MEMBROS',
+    id: 'Membros',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Membros" />
     ),
     cell: ({ row }) => {
-      return <UsersAvatar members={row.getValue('MEMBROS')} />;
+      return <UsersAvatar members={row.getValue('Membros')} />;
     }
   },
   {
