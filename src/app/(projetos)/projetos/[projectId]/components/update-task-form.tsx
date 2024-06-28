@@ -119,11 +119,11 @@ export function UpdateTaskForm({
     enabled: open
   });
 
-  const membersList: string[] = project?.MEMBROS.split(',') || [];
+  const membersList: string[] = project?.MEMBROS.split(', ') || [];
   const [member, setMember] = useState<string[]>([]);
 
   useEffect(() => {
-    setMember(task?.MEMBROS.split(',') || []);
+    setMember(task?.MEMBROS.split(', ') || []);
   }, [task]);
 
   const membersChapas: string[] = [];
@@ -138,7 +138,7 @@ export function UpdateTaskForm({
 
   const removed: { chapas: string[] } = { chapas: [] };
 
-  const currentChapas = task?.CHAPAS.split(',') || [];
+  const currentChapas = task?.CHAPAS.split(', ') || [];
   currentChapas.forEach((chapa) => {
     if (!membersChapas.includes(chapa)) {
       removed.chapas?.push(chapa);
@@ -165,7 +165,7 @@ export function UpdateTaskForm({
             }
           : undefined,
       descricao: task?.DESCRICAO ?? undefined,
-      responsaveis: task?.MEMBROS.split(',') || [],
+      responsaveis: task?.MEMBROS.split(', ') || [],
       prioridade: task?.PRIORIDADE || ''
     }
   });

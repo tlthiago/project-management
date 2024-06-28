@@ -120,7 +120,7 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
     return member.CHAPA === chapa;
   });
 
-  const currentTeamsIdString = project?.EQUIPES_ID.split(',') || [];
+  const currentTeamsIdString = project?.EQUIPES_ID.split(', ') || [];
   const teamsIdNumber: number[] = currentTeamsIdString.map((teamId) =>
     parseInt(teamId, 10)
   );
@@ -131,10 +131,10 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
   const [member, setMember] = useState<string[]>([]);
 
   useEffect(() => {
-    setTeam(project?.EQUIPES.split(',') || []);
+    setTeam(project?.EQUIPES.split(', ') || []);
     setTeamsId(teamsIdNumber);
-    setMember(project?.MEMBROS.split(',') || []);
-    handleTeamsChange(project?.EQUIPES.split(',') || []);
+    setMember(project?.MEMBROS.split(', ') || []);
+    handleTeamsChange(project?.EQUIPES.split(', ') || []);
   }, [project]);
 
   const teamsList: string[] = teams.map((team) => team.NOME);
@@ -192,7 +192,7 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
     }
   });
 
-  const currentChapas = project?.CHAPAS.split(',') || [];
+  const currentChapas = project?.CHAPAS.split(', ') || [];
 
   currentChapas.forEach((chapa) => {
     if (!membersChapas.includes(chapa)) {
@@ -232,8 +232,8 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
             }
           : undefined,
       descricao: project?.DESCRICAO ?? undefined,
-      equipes: project?.EQUIPES.split(',') || [],
-      responsaveis: project?.MEMBROS.split(',') || [],
+      equipes: project?.EQUIPES.split(', ') || [],
+      responsaveis: project?.MEMBROS.split(', ') || [],
       prioridade: project?.PRIORIDADE || ''
     }
   });

@@ -3,13 +3,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { isEqual, startOfDay } from 'date-fns';
 import {
-  Activity,
+  // Activity,
+  CalendarCheck,
   CalendarDays,
   CircleDashed,
   PlayCircle,
   Share2,
   UserRound,
-  UserRoundCog,
+  // UserRoundCog,
   UsersRound
 } from 'lucide-react';
 
@@ -28,7 +29,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+// import { Progress } from '@/components/ui/progress';
 // import { TabsContent } from '@/components/ui/tabs';
 // import { Tabs } from '@/components/ui/tabs';
 import { UsersAvatar } from '@/components/users-avatar';
@@ -66,6 +67,18 @@ export default function Project({ params }: { params: { projectId: string } }) {
   const limite: boolean = dataFim
     ? isEqual(startOfDay(dataFim), startOfDay(today))
     : false;
+
+  // const totalTasks = tasks.length;
+  // let completedTasks = 0;
+  // let progress = 0;
+
+  // for (const task of tasks) {
+  //   if (task.STATUS === 'Finalizado') {
+  //     completedTasks++;
+  //   }
+  // }
+
+  // progress = (completedTasks / totalTasks) * 100;
 
   return (
     <div className="space-y-3">
@@ -132,11 +145,11 @@ export default function Project({ params }: { params: { projectId: string } }) {
             <span>Prioridade:</span>
             <Priority priority={project?.PRIORIDADE} />
           </div>
-          <div className="flex items-center gap-1">
+          {/* <div className="flex items-center gap-1">
             <UserRoundCog className="size-4" />
             <span>Criado por:</span>
             {project?.USU_INCLUSAO}
-          </div>
+          </div> */}
           <div className="flex items-center gap-1">
             <UsersRound className="size-4" />
             <span>Equipes:</span>
@@ -149,11 +162,16 @@ export default function Project({ params }: { params: { projectId: string } }) {
               <UsersAvatar members={project?.MEMBROS} />
             </span>
           </div>
-          <div className="flex items-center gap-1">
+          {/* <div className="flex items-center gap-1">
             <Activity className="size-4" />
             <span>Progresso:</span>
-            <Progress value={33} className="h-1 w-32" />
-            <span>33%</span>
+            <Progress value={progress} className="h-1 w-32" />
+            <span>{progress.toFixed(0)}%</span>
+          </div> */}
+          <div className="flex items-center gap-1">
+            <CalendarCheck className="size-4" />
+            <span>Finalizado em:</span>
+            <span>07/05/2024</span>
           </div>
         </CardContent>
       </Card>
