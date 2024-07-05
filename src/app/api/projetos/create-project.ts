@@ -5,11 +5,11 @@ export interface CreateProjectBody {
   dataInicio?: string;
   dataFim?: string;
   descricao?: string;
-  departamento: string;
-  prioridade: string;
-  usuInclusao: string;
   equipesId: number[];
   chapas: string[];
+  prioridade: string;
+  codDepartamento: string;
+  usuInclusao: string;
 }
 
 export async function createProject({
@@ -17,22 +17,22 @@ export async function createProject({
   dataInicio,
   dataFim,
   descricao,
-  departamento,
-  prioridade,
-  usuInclusao,
   equipesId,
-  chapas
+  chapas,
+  prioridade,
+  codDepartamento,
+  usuInclusao
 }: CreateProjectBody) {
   const projectData = {
     nome,
     dataInicio,
     dataFim,
     descricao,
-    departamento,
-    prioridade,
-    usuInclusao,
     equipesId,
-    chapas
+    chapas,
+    prioridade,
+    codDepartamento,
+    usuInclusao
   };
 
   await api.post('/create-project', projectData);

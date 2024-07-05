@@ -43,12 +43,12 @@ const teamSchema = z.object({
 export function CreateTeamForm() {
   const { data: session } = useSession();
 
-  const department = session?.user.SETOR ?? '';
+  const codDepartment = session?.user.CODSETOR ?? '';
 
   const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
-    queryKey: ['members', department],
-    queryFn: () => getMembersByDepartment({ department }),
-    enabled: !!department
+    queryKey: ['members', codDepartment],
+    queryFn: () => getMembersByDepartment({ codDepartment }),
+    enabled: !!codDepartment
   });
 
   const queryClient = useQueryClient();
@@ -82,8 +82,8 @@ export function CreateTeamForm() {
     onSuccess() {
       setSelectedMembers([]);
       form.reset();
-      queryClient.invalidateQueries({ queryKey: ['teams', department] });
-      queryClient.invalidateQueries({ queryKey: ['members', department] });
+      queryClient.invalidateQueries({ queryKey: ['teams', codDepartment] });
+      queryClient.invalidateQueries({ queryKey: ['members', codDepartment] });
     }
   });
 
@@ -91,7 +91,7 @@ export function CreateTeamForm() {
     try {
       await createTeamFn({
         teamName: teamData.teamName,
-        department: department,
+        department: codDepartment,
         chapas: chapas,
         usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB'
       });

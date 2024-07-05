@@ -50,12 +50,12 @@ interface UpdateTeamFormProps {
 export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
   const { data: session } = useSession();
 
-  const department: string = session?.user.SETOR ?? '';
+  const codDepartment: string = session?.user.CODSETOR ?? '';
 
   const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
-    queryKey: ['members', department],
-    queryFn: () => getMembersByDepartment({ department }),
-    enabled: open
+    queryKey: ['members', codDepartment],
+    queryFn: () => getMembersByDepartment({ codDepartment }),
+    enabled: open && !!codDepartment
   });
 
   const { data: team } = useQuery<GetTeamByIdResponse>({
@@ -115,8 +115,8 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
   const { mutateAsync: updateTeamFn } = useMutation({
     mutationFn: updateTeam,
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['members', department] });
-      queryClient.invalidateQueries({ queryKey: ['teams', department] });
+      queryClient.invalidateQueries({ queryKey: ['members', codDepartment] });
+      queryClient.invalidateQueries({ queryKey: ['teams', codDepartment] });
     }
   });
 

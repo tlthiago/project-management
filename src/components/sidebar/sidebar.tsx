@@ -23,7 +23,7 @@ import {
 import {
   getProjectsByChapa,
   GetProjectsByChapaResponse
-} from '@/app/api/projetos/get-projects-by-member';
+} from '@/app/api/projetos/get-projects-by-chapa';
 import {
   Sheet,
   SheetContent,

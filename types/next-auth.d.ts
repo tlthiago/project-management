@@ -4,13 +4,15 @@ declare module 'next-auth' {
   export interface Session {
     user: {
       CODUSUARIO: string;
-      USUARIO: number;
+      SEQUSUARIO: number;
       NOME: string;
       NIVEL: number;
       NROEMPRESA: number;
-      LOGINID: string;
+      CPF: string;
       CHAPA: string;
+      CODSETOR: string;
       SETOR: string;
+      FUNCAO: string;
     };
   }
 }

@@ -8,7 +8,6 @@ import {
   CalendarDays,
   CircleDashed,
   PlayCircle,
-  Share2,
   UserRound,
   // UserRoundCog,
   UsersRound
@@ -21,7 +20,6 @@ import {
 } from '@/app/api/projetos/get-project-by-id';
 import Priority from '@/components/priority';
 import Status from '@/components/status';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -39,6 +37,7 @@ import {
   GetTasksByProjectResponse
 } from '../../../api/projetos/tarefas/get-tasks-by-project';
 import { ProjectProperties } from './components/project-properties';
+import { ShareProject } from './components/share-project';
 import { DataTableColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 
@@ -89,9 +88,7 @@ export default function Project({ params }: { params: { projectId: string } }) {
               <span className="line-clamp-1">{project?.NOME}</span>
             </CardTitle>
             <div className="flex gap-2">
-              <Button variant="ghost" size="icon" disabled>
-                <Share2 className="size-5" />
-              </Button>
+              <ShareProject />
               <div>
                 <ProjectProperties projectId={projectId} />
               </div>

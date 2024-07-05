@@ -8,6 +8,11 @@ import { UsersAvatar } from '@/components/users-avatar';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 
+interface Member {
+  CHAPA: string;
+  NOME: string;
+}
+
 export const teamsColumns: ColumnDef<GetTeamsByDepartmentResponse>[] = [
   {
     accessorKey: 'ID',
@@ -33,19 +38,10 @@ export const teamsColumns: ColumnDef<GetTeamsByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Membros" />
     ),
     cell: ({ row }) => {
-      return <UsersAvatar members={row.getValue('Membros')} />;
+      const members: Member[] = row.getValue('Membros');
+
+      return <UsersAvatar members={members} />;
     }
-  },
-  {
-    accessorKey: 'CHAPAS',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Chapas" />
-    ),
-    cell: ({ row }) => {
-      return <span className="font-semibold">{row.getValue('CHAPAS')}</span>;
-    },
-    enableSorting: false,
-    enableHiding: false
   },
   {
     id: 'actions',

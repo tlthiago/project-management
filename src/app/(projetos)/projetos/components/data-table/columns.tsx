@@ -18,6 +18,17 @@ import ProjectStatus from '../project-status';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 
+interface Member {
+  CHAPA: string;
+  NOME: string;
+}
+
+interface Team {
+  ID: number;
+  NOME: string;
+  MEMBROS: Member[];
+}
+
 export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
   {
     accessorKey: 'ID',
@@ -140,12 +151,21 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
       <DataTableColumnHeader column={column} title="Equipes" />
     ),
     cell: ({ row }) => {
+      const teams: Team[] = row.getValue('Equipes');
+
       return (
-        <span className="line-clamp-1 max-w-96">{row.getValue('Equipes')}</span>
+        <div>
+          {teams.map((team: Team) => (
+            <span className="line-clamp-1 max-w-96" key={team.ID}>
+              {team.NOME}
+            </span>
+          ))}
+        </div>
       );
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+      const teams: Team[] = row.getValue(id);
+      return teams.some((team) => value.includes(team.NOME));
     }
   },
   {
@@ -153,10 +173,16 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
     id: 'Membros',
     header: () => <div>Membros</div>,
     cell: ({ row }) => {
-      return <UsersAvatar members={row.getValue('Membros')} />;
+      const teams: Team[] = row.getValue('Equipes');
+
+      const members: Member[] = teams.flatMap((team) => team.MEMBROS);
+
+      return <UsersAvatar members={members} />;
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+      const teams: Team[] = row.getValue('EQUIPES');
+      const members = teams.flatMap((team) => team.MEMBROS);
+      return members.some((member) => value.includes(member.NOME));
     }
   },
   {

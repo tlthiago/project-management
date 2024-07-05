@@ -1,14 +1,15 @@
 import { api } from '@/lib/axios';
 
 export interface GetMembersByDepartmentBody {
-  department: string;
+  codDepartment: string;
 }
 
 export interface GetMembersByDepartmentResponse {
   CHAPA: string;
   NOME: string;
   LOJA: number;
-  SETOR: string;
+  CODDEPARTAMENTO: string;
+  DEPARTAMENTO: string;
   CARGO: string;
   FUNCAO: string;
   EQUIPE_ID: number;
@@ -16,11 +17,11 @@ export interface GetMembersByDepartmentResponse {
 }
 
 export async function getMembersByDepartment({
-  department
+  codDepartment
 }: GetMembersByDepartmentBody) {
   const response = await api.post<GetMembersByDepartmentResponse[]>(
     '/members',
-    { department }
+    { codDepartment }
   );
 
   return response.data;

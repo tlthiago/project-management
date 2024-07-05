@@ -25,18 +25,18 @@ import { teamsColumns } from './components/data-tables/teams/teams-columns';
 
 export default function Membros() {
   const { data: session } = useSession();
-  const department = session?.user.SETOR ?? '';
-
-  const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
-    queryKey: ['teams', department],
-    queryFn: () => getTeamsByDepartment({ department }),
-    enabled: !!department
-  });
+  const codDepartment = session?.user.CODSETOR ?? '';
 
   const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
-    queryKey: ['members', department],
-    queryFn: () => getMembersByDepartment({ department }),
-    enabled: !!department
+    queryKey: ['members', codDepartment],
+    queryFn: () => getMembersByDepartment({ codDepartment }),
+    enabled: !!codDepartment
+  });
+
+  const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
+    queryKey: ['teams', codDepartment],
+    queryFn: () => getTeamsByDepartment({ codDepartment }),
+    enabled: !!codDepartment
   });
 
   const [tabsTrigger, setTabsTriggerValue] = useState(false);

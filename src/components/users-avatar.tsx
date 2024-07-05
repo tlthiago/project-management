@@ -8,8 +8,12 @@ import {
 
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
+interface Member {
+  CHAPA: string;
+  NOME: string;
+}
 interface UsersAvatarProps {
-  members?: string;
+  members?: Member[];
 }
 
 function getInitials(memberName: string): string {
@@ -22,11 +26,11 @@ function getInitials(memberName: string): string {
   return initials;
 }
 
-const UserAvatar: React.FC<{ member: string }> = ({ member }) => {
-  const initials = getInitials(member);
+const UserAvatar: React.FC<{ member: Member }> = ({ member }) => {
+  const initials = getInitials(member.NOME);
 
   return (
-    <TooltipProvider key={member}>
+    <TooltipProvider key={member.CHAPA}>
       <Tooltip>
         <TooltipTrigger asChild>
           <Avatar className="h-7 w-7">
@@ -35,13 +39,13 @@ const UserAvatar: React.FC<{ member: string }> = ({ member }) => {
             </AvatarFallback>
           </Avatar>
         </TooltipTrigger>
-        <TooltipContent>{member}</TooltipContent>
+        <TooltipContent>{member.NOME}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
 };
 
-const UsersGroup: React.FC<{ members: string[] }> = ({ members }) => {
+const UsersGroup: React.FC<{ members: Member[] }> = ({ members }) => {
   return (
     <Popover>
       <PopoverTrigger>
@@ -54,7 +58,7 @@ const UsersGroup: React.FC<{ members: string[] }> = ({ members }) => {
       <PopoverContent>
         {members.map((member, index) => (
           <div className="text-sm" key={index}>
-            {member}
+            {member.NOME}
           </div>
         ))}
       </PopoverContent>
@@ -63,20 +67,18 @@ const UsersGroup: React.FC<{ members: string[] }> = ({ members }) => {
 };
 
 export function UsersAvatar({ members }: UsersAvatarProps) {
-  const membersArray: string[] =
-    members?.split(',').map((name) => name.trim()) || [];
-
   return (
     <div className="flex gap-1">
-      {membersArray.length > 2 ? (
+      {members && members.length > 2 ? (
         <>
-          {membersArray.slice(0, 2).map((member, index) => (
+          {members.slice(0, 2).map((member, index) => (
             <UserAvatar key={index} member={member} />
           ))}
-          <UsersGroup members={membersArray.slice(2)} />
+          <UsersGroup members={members.slice(2)} />
         </>
       ) : (
-        membersArray.map((member, index) => (
+        members &&
+        members.map((member, index) => (
           <UserAvatar key={index} member={member} />
         ))
       )}

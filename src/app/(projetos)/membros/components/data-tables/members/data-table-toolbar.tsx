@@ -29,17 +29,19 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const { data: session } = useSession();
 
-  const department = session?.user.SETOR ?? '';
+  const codDepartment = session?.user.CODSETOR ?? '';
   const isFiltered = table.getState().columnFilters.length > 0;
 
   const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
-    queryKey: ['members', department],
-    queryFn: () => getMembersByDepartment({ department })
+    queryKey: ['members', codDepartment],
+    queryFn: () => getMembersByDepartment({ codDepartment }),
+    enabled: !!codDepartment
   });
 
   const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
-    queryKey: ['teams', department],
-    queryFn: () => getTeamsByDepartment({ department })
+    queryKey: ['teams', codDepartment],
+    queryFn: () => getTeamsByDepartment({ codDepartment }),
+    enabled: !!codDepartment
   });
 
   const cargos: { label: string; value: string }[] = [];
