@@ -4,7 +4,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import { isEqual, startOfDay } from 'date-fns';
 import Link from 'next/link';
 
-import { GetProjectsByDepartmentResponse } from '@/app/api/projetos/get-projects-by-department';
 import Priority from '@/components/priority';
 import {
   Tooltip,
@@ -29,7 +28,22 @@ interface Team {
   MEMBROS: Member[];
 }
 
-export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
+interface Project {
+  ID: number;
+  NOME: string;
+  DATA_INICIO: string;
+  DATA_FIM: string;
+  DESCRICAO: string;
+  DEPARTAMENTO: string;
+  STATUS: string;
+  PRIORIDADE: string;
+  USU_INCLUSAO: string;
+  DATA_INCLUSAO: string;
+  ATRASADO: string;
+  EQUIPES: Team[];
+}
+
+export const columns: ColumnDef<Project>[] = [
   {
     accessorKey: 'ID',
     header: () => <div>ID</div>,
@@ -86,7 +100,7 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
           )}
           <Link href={`projetos/${row.getValue('ID')}`}>
             <span
-              className={`line-clamp-1 max-w-80 font-semibold ${atrasado === 'S' ? 'text-rose-500' : limite && 'text-amber-500'}`}
+              className={`line-clamp-1 max-w-52 font-semibold ${atrasado === 'S' ? 'text-rose-500' : limite && 'text-amber-500'}`}
             >
               {row.getValue('Nome')}
             </span>
@@ -94,6 +108,18 @@ export const columns: ColumnDef<GetProjectsByDepartmentResponse>[] = [
         </div>
       );
     }
+  },
+  {
+    accessorKey: 'DESCRICAO',
+    id: 'Descrição',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Descrição" />
+    ),
+    cell: ({ row }) => {
+      return <span>{row.getValue('Descrição')}</span>;
+    },
+    enableSorting: false,
+    enableHiding: false
   },
   {
     accessorKey: 'DATA_INICIO',

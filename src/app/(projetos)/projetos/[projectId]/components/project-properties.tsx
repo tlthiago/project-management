@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MoreVertical } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -8,10 +8,6 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { archiveProject } from '@/app/api/arquivados/archive-project';
-import {
-  getMemberByChapa,
-  GetMemberByChapaResponse
-} from '@/app/api/departments/get-member-by-chapa';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,23 +31,22 @@ import {
 import { UpdateProjectForm } from '../../components/update-project-form';
 import { ProjectDetails } from './project-details';
 
-export interface UpdateProjectFormProps {
-  projectId: string;
+interface ProjectPropertiesProps {
+  projectId: number;
+  projectOwner: string;
 }
 
-export function ProjectProperties({ projectId }: UpdateProjectFormProps) {
+export function ProjectProperties({
+  projectId,
+  projectOwner
+}: ProjectPropertiesProps) {
   const queryClient = useQueryClient();
 
   const { data: session } = useSession();
-  const chapa = session?.user.CHAPA ?? '';
+  const user = session?.user.CODUSUARIO ?? '';
+  const role = session?.user.FUNCAO ?? '';
 
   const router = useRouter();
-
-  const { data: member } = useQuery<GetMemberByChapaResponse>({
-    queryKey: ['member', chapa],
-    queryFn: () => getMemberByChapa({ chapa }),
-    enabled: !!chapa
-  });
 
   const { mutateAsync: archiveProjectFn } = useMutation({
     mutationFn: archiveProject,
@@ -61,13 +56,13 @@ export function ProjectProperties({ projectId }: UpdateProjectFormProps) {
     }
   });
 
-  const managerUser =
-    member?.FUNCAO === 'Administrador' || member?.FUNCAO === 'Coordenador';
-
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isUpdateProjectFormOpen, setIsUpdateProjectFormOpen] = useState(false);
 
-  async function handleSubmit(projectId: string) {
+  const updateConditions =
+    role === 'Administrador' || role === 'Gerente' || user === projectOwner;
+
+  async function handleSubmit(projectId: number) {
     try {
       await archiveProjectFn({
         projectId: projectId,
@@ -91,12 +86,12 @@ export function ProjectProperties({ projectId }: UpdateProjectFormProps) {
         <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
           <DialogTrigger asChild>
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              Abrir
+              Detalhes
             </DropdownMenuItem>
           </DialogTrigger>
-          <ProjectDetails open={isDetailsOpen} projectId={projectId} />
+          <ProjectDetails projectId={projectId} open={isDetailsOpen} />
         </Dialog>
-        {managerUser && (
+        {updateConditions && (
           <>
             <Dialog
               open={isUpdateProjectFormOpen}

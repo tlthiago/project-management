@@ -2,6 +2,7 @@
 
 import { Table } from '@tanstack/react-table';
 import { PlusCircle, X } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 import { priorities, statuses } from '@/app/api/data/data';
@@ -10,6 +11,17 @@ import { Input } from '@/components/ui/input';
 
 import { DataTableFacetedFilter } from './data-table-faceted-filter';
 import { DataTableViewOptions } from './data-table-view-options';
+
+interface Member {
+  CHAPA: string;
+  NOME: string;
+}
+
+interface Team {
+  ID: string;
+  NOME: string;
+  MEMBROS: Member[];
+}
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -20,6 +32,9 @@ export function DataTableToolbar<TData>({
   table,
   filterParams
 }: DataTableToolbarProps<TData>) {
+  const { data: session } = useSession();
+  const role = session?.user.FUNCAO ?? '';
+
   const isFiltered = table.getState().columnFilters.length > 0;
 
   const delayedTotalValue =
@@ -51,6 +66,27 @@ export function DataTableToolbar<TData>({
     }
   }, [table, filterParams]);
 
+  const allRows = table.getCoreRowModel().rows;
+
+  const teams: { label: string; value: string }[] = [];
+  const teamNamesSet = new Set<string>();
+
+  allRows.forEach((row) => {
+    const rowData = row.original as {
+      EQUIPES: Team[];
+    };
+
+    rowData.EQUIPES.forEach((team) => {
+      if (!teamNamesSet.has(team.NOME)) {
+        teamNamesSet.add(team.NOME);
+        teams.push({
+          label: team.NOME,
+          value: team.NOME
+        });
+      }
+    });
+  });
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
@@ -62,6 +98,18 @@ export function DataTableToolbar<TData>({
           }
           className="h-8 w-64"
         />
+        {(role === 'Administrador' || role === 'Gerente') && (
+          <>
+            {table.getColumn('Equipes') && (
+              <DataTableFacetedFilter
+                column={table.getColumn('Equipes')}
+                title="Equipes"
+                options={teams}
+                filterValue={currentFilterValue}
+              />
+            )}
+          </>
+        )}
         {table.getColumn('Status') && (
           <DataTableFacetedFilter
             column={table.getColumn('Status')}

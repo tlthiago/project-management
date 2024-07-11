@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
 
 export interface CreateTaskBody {
-  projectId?: string;
+  projectId: number;
   nome: string;
   dataInicio?: string;
   dataFim?: string;

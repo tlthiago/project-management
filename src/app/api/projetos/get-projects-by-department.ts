@@ -15,7 +15,7 @@ interface Team {
   MEMBROS: Member[];
 }
 
-export interface GetProjectsByDepartmentResponse {
+interface GetProjectsByDepartmentResponse {
   ID: number;
   NOME: string;
   DATA_INICIO: string;
@@ -34,7 +34,7 @@ export async function getProjectsByDepartment({
   codDepartment
 }: GetProjectsByDepartmentBody) {
   const response = await api.post<GetProjectsByDepartmentResponse[]>(
-    'projects',
+    'projects-by-department',
     { codDepartment }
   );
 

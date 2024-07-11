@@ -35,8 +35,15 @@ export function DataTableRowActions<TData>({
   row
 }: DataTableRowActionsProps<TData>) {
   const { data: session } = useSession();
+  const user = session?.user.CODUSUARIO ?? '';
+  const role = session?.user.FUNCAO ?? '';
   const department = session?.user.SETOR ?? '';
   const chapa = session?.user.CHAPA ?? '';
+
+  const updateConditions =
+    role === 'Administrador' ||
+    role === 'Gerente' ||
+    user === row.getValue('Criado por');
 
   const queryClient = useQueryClient();
 
@@ -44,8 +51,12 @@ export function DataTableRowActions<TData>({
     mutationFn: unarchiveProject,
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['archived-projects'] });
-      queryClient.invalidateQueries({ queryKey: ['projects', department] });
-      queryClient.invalidateQueries({ queryKey: ['projects', chapa] });
+      queryClient.invalidateQueries({
+        queryKey: ['archived-projects-by-department', department]
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['archived-projects-by-team', chapa]
+      });
     }
   });
 
@@ -68,6 +79,12 @@ export function DataTableRowActions<TData>({
     mutationFn: deleteProject,
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['archived-projects'] });
+      queryClient.invalidateQueries({
+        queryKey: ['archived-projects-by-department', department]
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['archived-projects-by-team', chapa]
+      });
     }
   });
 
@@ -100,12 +117,16 @@ export function DataTableRowActions<TData>({
       <DropdownMenuContent align="end" className="w-[160px]">
         <DropdownMenuItem
           onClick={() => handleUnarchiveProject(row.getValue('ID'))}
+          className={`${!updateConditions ? 'pointer-events-none opacity-50' : ''}`}
         >
           Restaurar
         </DropdownMenuItem>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+            <DropdownMenuItem
+              className={`${!updateConditions ? 'pointer-events-none opacity-50' : ''}`}
+              onSelect={(e) => e.preventDefault()}
+            >
               Excluir
             </DropdownMenuItem>
           </AlertDialogTrigger>

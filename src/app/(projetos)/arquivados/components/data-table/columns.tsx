@@ -2,15 +2,46 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 
-import { GetArchivedProjectsResponse } from '@/app/api/arquivados/get-archived-projects';
 import Priority from '@/components/priority';
 import Status from '@/components/status';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 import { UsersAvatar } from '@/components/users-avatar';
 
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 
-export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
+interface Member {
+  CHAPA: string;
+  NOME: string;
+}
+
+interface Team {
+  ID: number;
+  NOME: string;
+  MEMBROS: Member[];
+}
+
+interface Project {
+  ID: number;
+  NOME: string;
+  DATA_INICIO: string;
+  DATA_FIM: string;
+  DESCRICAO: string;
+  DEPARTAMENTO: string;
+  STATUS: string;
+  PRIORIDADE: string;
+  USU_INCLUSAO: string;
+  DATA_INCLUSAO: string;
+  ATRASADO: string;
+  EQUIPES: Team[];
+}
+
+export const columns: ColumnDef<Project>[] = [
   {
     accessorKey: 'ID',
     header: () => <div>ID</div>,
@@ -25,7 +56,20 @@ export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
       <DataTableColumnHeader column={column} title="Nome" />
     ),
     cell: ({ row }) => {
-      return <span className="font-semibold">{row.getValue('Nome')}</span>;
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <span className="line-clamp-1 max-w-52 font-semibold">
+                {row.getValue('Nome')}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent align="start">
+              {row.getValue('Nome')}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
     }
   },
   {
@@ -69,9 +113,21 @@ export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
       <DataTableColumnHeader column={column} title="Equipes" />
     ),
     cell: ({ row }) => {
+      const teams: Team[] = row.getValue('Equipes');
+
       return (
-        <div className="line-clamp-1 max-w-96">{row.getValue('Equipes')}</div>
+        <div>
+          {teams.map((team: Team) => (
+            <span className="line-clamp-1 max-w-96" key={team.ID}>
+              {team.NOME}
+            </span>
+          ))}
+        </div>
       );
+    },
+    filterFn: (row, id, value) => {
+      const teams: Team[] = row.getValue(id);
+      return teams.some((team) => value.includes(team.NOME));
     }
   },
   {
@@ -79,7 +135,16 @@ export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
     id: 'Membros',
     header: () => <div>Membros</div>,
     cell: ({ row }) => {
-      return <UsersAvatar members={row.getValue('Membros')} />;
+      const teams: Team[] = row.getValue('Equipes');
+
+      const members: Member[] = teams.flatMap((team) => team.MEMBROS);
+
+      return <UsersAvatar members={members} />;
+    },
+    filterFn: (row, id, value) => {
+      const teams: Team[] = row.getValue('EQUIPES');
+      const members = teams.flatMap((team) => team.MEMBROS);
+      return members.some((member) => value.includes(member.NOME));
     }
   },
   {
@@ -103,6 +168,16 @@ export const columns: ColumnDef<GetArchivedProjectsResponse>[] = [
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
+    }
+  },
+  {
+    accessorKey: 'USU_INCLUSAO',
+    id: 'Criado por',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Criado por" />
+    ),
+    cell: ({ row }) => {
+      return <span>{row.getValue('Criado por')}</span>;
     }
   },
   {

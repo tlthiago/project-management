@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
 
 export interface GetNumberProjectsByTeamBody {
-  department: string;
+  codDepartment: string;
 }
 
 export interface GetNumberProjectsByTeamResponse {
@@ -11,11 +11,11 @@ export interface GetNumberProjectsByTeamResponse {
 }
 
 export async function getNumberProjectsByTeam({
-  department
+  codDepartment
 }: GetNumberProjectsByTeamBody) {
   const response = await api.post<GetNumberProjectsByTeamResponse[]>(
     'number-projects-by-team',
-    { department }
+    { codDepartment }
   );
 
   return response.data;

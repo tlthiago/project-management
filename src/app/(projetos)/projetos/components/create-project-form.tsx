@@ -12,6 +12,11 @@ import { toast } from 'sonner';
 import * as z from 'zod';
 
 import {
+  getTeamByLeader,
+  GetTeamByLeaderResponse
+} from '@/app/api/departments/get-team-by-leader';
+import { getTeams, GetTeamsResponse } from '@/app/api/departments/get-teams';
+import {
   getTeamsByDepartment,
   GetTeamsByDepartmentResponse
 } from '@/app/api/departments/get-teams-by-department';
@@ -51,29 +56,35 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
-interface Team {
-  ID: number;
-  NOME: string;
-  MEMBROS: [];
-}
-
 interface Member {
   CHAPA: string;
   NOME: string;
+}
+
+interface Team {
+  ID: number;
+  NOME: string;
+  MEMBROS: Member[];
 }
 
 const formSchema = z
   .object({
     nome: z
       .string()
-      .min(1, { message: 'O nome do projeto deve ser informado.' }),
+      .min(1, { message: 'O nome do projeto deve ser informado.' })
+      .max(100, {
+        message: 'O nome do projeto deve ter no máximo 100 caracteres.'
+      }),
     datas: z
       .object({
         from: z.coerce.date().optional(),
         to: z.coerce.date().optional()
       })
       .optional(),
-    descricao: z.string().optional(),
+    descricao: z
+      .string()
+      .max(4000, { message: 'A descrição deve ter no máximo 4000 caracteres.' })
+      .optional(),
     equipes: z
       .array(z.string())
       .min(1, { message: 'Selecione pelo menos uma equipe.' }),
@@ -91,17 +102,45 @@ const formSchema = z
     }
   });
 
-export function CreateProjectForm() {
+interface CreateProjectFormProps {
+  open: boolean;
+}
+
+export function CreateProjectForm({ open }: CreateProjectFormProps) {
   const { data: session } = useSession();
   const codDepartment = session?.user.CODSETOR ?? '';
   const chapa = session?.user.CHAPA ?? '';
   const role = session?.user.FUNCAO ?? '';
 
-  const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
-    queryKey: ['teams', codDepartment],
-    queryFn: () => getTeamsByDepartment({ codDepartment }),
-    enabled: !!codDepartment
+  const { data: allTeams = [] } = useQuery<GetTeamsResponse[]>({
+    queryKey: ['teams'],
+    queryFn: () => getTeams(),
+    enabled: open && !!role && role === 'Administrador'
   });
+
+  const { data: departmentTeams = [] } = useQuery<
+    GetTeamsByDepartmentResponse[]
+  >({
+    queryKey: ['teams-by-department', codDepartment],
+    queryFn: () => getTeamsByDepartment({ codDepartment }),
+    enabled: open && !!role && role === 'Gerente'
+  });
+
+  const { data: leaderTeam } = useQuery<GetTeamByLeaderResponse>({
+    queryKey: ['team-by-leader', chapa],
+    queryFn: () => getTeamByLeader({ chapa }),
+    enabled: open && !!role && role === 'Coordenador'
+  });
+
+  let teams: Team[] = [];
+
+  if (role === 'Administrador') {
+    teams = allTeams;
+  } else if (role === 'Gerente') {
+    teams = departmentTeams;
+  } else if (role === 'Coordenador' && leaderTeam) {
+    teams = [leaderTeam];
+  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -140,21 +179,35 @@ export function CreateProjectForm() {
     form.setValue('responsaveis', updatedResponsaveis);
   }, [form, teamsList, teamsValue, filteredMembers]);
 
+  useEffect(() => {
+    if (role === 'Coordenador' && leaderTeam) {
+      form.setValue('equipes', [leaderTeam.ID.toString()]);
+    }
+  }, [role, leaderTeam, form]);
+
   const queryClient = useQueryClient();
 
   const { mutateAsync: createProjectFn } = useMutation({
     mutationFn: createProject,
     onSuccess() {
       form.reset();
-      queryClient.invalidateQueries({ queryKey: ['projects', codDepartment] });
-      queryClient.invalidateQueries({
-        queryKey: ['coordinator-projects', chapa]
-      });
+      if (role === 'Coordenador' && teamsList) {
+        form.setValue('equipes', [teamsList[0].ID.toString()]);
+      }
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['projects'] });
+        queryClient.invalidateQueries({
+          queryKey: ['projects-by-department', codDepartment]
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['projects-by-team', chapa]
+        });
+      }, 1000);
     }
   });
 
   async function onSubmit(projectData: z.infer<typeof formSchema>) {
-    console.log(projectData);
+    // console.log(projectData);
 
     const equipes = projectData.equipes.map((equipe) => parseInt(equipe, 10));
 
@@ -301,6 +354,7 @@ export function CreateProjectForm() {
                     popoverSide="top"
                     placeholder="Selecione a(s) equipe(s)"
                     disabled={role === 'Coordenador'}
+                    modalPopover={true}
                     {...field}
                   />
                 </FormControl>
@@ -332,6 +386,7 @@ export function CreateProjectForm() {
                         : 'Selecione os responsáveis'
                     }
                     disabled={teamsValue.length === 0}
+                    modalPopover={true}
                     {...field}
                   />
                 </FormControl>

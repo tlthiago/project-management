@@ -1,6 +1,7 @@
 import { api } from '@/lib/axios';
 
-export interface GetProjectsByChapaParams {
+export interface GetArchivedProjectsByTeamBody {
+  codDepartment: string;
   chapa: string;
 }
 
@@ -15,7 +16,7 @@ interface Team {
   MEMBROS: Member[];
 }
 
-interface GetProjectsByChapaResponse {
+interface GetArchivedProjectsByTeamResponse {
   ID: number;
   NOME: string;
   DATA_INICIO: string;
@@ -30,9 +31,13 @@ interface GetProjectsByChapaResponse {
   EQUIPES: Team[];
 }
 
-export async function getProjectsByChapa({ chapa }: GetProjectsByChapaParams) {
-  const response = await api.get<GetProjectsByChapaResponse[]>(
-    `/projects-by-chapa/${chapa}`
+export async function getArchivedProjectsByTeam({
+  codDepartment,
+  chapa
+}: GetArchivedProjectsByTeamBody) {
+  const response = await api.post<GetArchivedProjectsByTeamResponse[]>(
+    '/archived-projects-by-team',
+    { codDepartment, chapa }
   );
 
   return response.data;

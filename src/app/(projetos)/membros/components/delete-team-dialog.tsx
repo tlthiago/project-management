@@ -25,6 +25,7 @@ interface DeleteTeamProps {
 export function DeleteTeam({ teamId, open }: DeleteTeamProps) {
   const { data: session } = useSession();
   const department = session?.user.SETOR ?? '';
+  const codDepartment = session?.user.CODSETOR ?? '';
 
   const { data: currentProjects = [] } = useQuery<
     GetCurrentProjectsByTeamResponse[]
@@ -39,8 +40,14 @@ export function DeleteTeam({ teamId, open }: DeleteTeamProps) {
   const { mutateAsync: deleteTeamFn } = useMutation({
     mutationFn: deleteTeam,
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['teams', department] });
-      queryClient.invalidateQueries({ queryKey: ['members', department] });
+      queryClient.invalidateQueries({ queryKey: ['teams'] });
+      queryClient.invalidateQueries({ queryKey: ['members'] });
+      queryClient.invalidateQueries({
+        queryKey: ['teams-by-department', codDepartment]
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['members-by-department', codDepartment]
+      });
     }
   });
 

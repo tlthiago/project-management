@@ -52,27 +52,26 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'EQUIPE_ID',
+    accessorKey: 'DEPARTAMENTO',
+    id: 'Departamento',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Equipes" />
+      <DataTableColumnHeader column={column} title="Departamento" />
     ),
     cell: ({ row }) => {
-      return <span>{row.getValue('EQUIPE_ID')}</span>;
+      return <span>{row.getValue('Departamento')}</span>;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
-    },
-    enableSorting: false,
-    enableHiding: false
+    }
   },
   {
     accessorKey: 'EQUIPE',
-    id: 'Equipes',
+    id: 'Equipe',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Equipes" />
+      <DataTableColumnHeader column={column} title="Equipe" />
     ),
     cell: ({ row }) => {
-      return <span>{row.getValue('Equipes')}</span>;
+      return <span>{row.getValue('Equipe')}</span>;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -88,7 +87,7 @@ export const membersColumns: ColumnDef<GetMembersByDepartmentResponse>[] = [
       return (
         <UpdateMemberRole
           chapa={row.getValue('CHAPA')}
-          team={row.getValue('Equipes')}
+          team={row.getValue('Equipe')}
           role={row.getValue('Função')}
         />
       );

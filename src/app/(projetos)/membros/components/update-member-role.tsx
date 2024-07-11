@@ -24,7 +24,8 @@ export default function UpdateMemberRole({
   role
 }: UpdateMemberRoleProps) {
   const { data: session } = useSession();
-  const department = session?.user.SETOR ?? '';
+  const department = session?.user.CODSETOR ?? '';
+  const userRole = session?.user.FUNCAO ?? '';
 
   const handleChangeRole = async (role: string) => {
     try {
@@ -43,6 +44,7 @@ export default function UpdateMemberRole({
   const { mutateAsync: updateMemberRoleFn, isPending } = useMutation({
     mutationFn: updateMemberRole,
     onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['members'] });
       queryClient.invalidateQueries({ queryKey: ['members', department] });
     }
   });
@@ -58,11 +60,16 @@ export default function UpdateMemberRole({
           <SelectValue placeholder={role} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="Membro">Membro</SelectItem>
+          {userRole === 'Administrador' && (
+            <>
+              <SelectItem value="Administrador">Administrador</SelectItem>
+              <SelectItem value="Gerente">Gerente</SelectItem>
+            </>
+          )}
           <SelectItem disabled={team === 'Não alocado'} value="Coordenador">
             Coordenador
           </SelectItem>
-          <SelectItem value="Administrador">Administrador</SelectItem>
+          <SelectItem value="Membro">Membro</SelectItem>
         </SelectContent>
       </Select>
     </div>

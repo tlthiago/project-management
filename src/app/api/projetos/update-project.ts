@@ -1,12 +1,12 @@
 import { api } from '@/lib/axios';
 
 interface TeamMemberData {
-  teamsId?: number[];
+  teamsId?: string[];
   chapas?: string[];
 }
 
 export interface UpdateProjectBody {
-  projectId: string;
+  projectId: number;
   nome?: string;
   dataInicio?: string | null;
   dataFim?: string | null;

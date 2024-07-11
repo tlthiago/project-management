@@ -1,19 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Row } from '@tanstack/react-table';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
 import {
+  getDepartments,
+  GetDepartmentsResponse
+} from '@/app/api/departments/get-departments';
+import {
   getMembersByDepartment,
   GetMembersByDepartmentResponse
 } from '@/app/api/departments/get-members-by-department';
-import {
-  getTeamById,
-  GetTeamByIdResponse
-} from '@/app/api/departments/get-team-by-id';
 import { updateTeam } from '@/app/api/departments/update-team';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,97 +35,118 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MultiSelect } from '@/components/ui/multi-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+
+interface UpdateTeamFormProps<TData> {
+  row: Row<TData>;
+  open: boolean;
+}
+
+interface Department {
+  CODDEPARTAMENTO: string;
+  DEPARTAMENTO: string;
+}
+
+interface Member {
+  CHAPA: string;
+  NOME: string;
+}
 
 const teamSchema = z.object({
   nome: z.string().min(1, { message: 'O nome da equipe deve ser informado.' }),
+  departamento: z.string().min(1, { message: 'Selecione um departamento.' }),
   membros: z
     .array(z.string())
     .min(1, { message: 'Selecione pelo menos um membro. ' })
 });
 
-interface UpdateTeamFormProps {
-  teamId: string;
-  open: boolean;
-}
-
-export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
+export function UpdateTeamForm<TData>({
+  row,
+  open
+}: UpdateTeamFormProps<TData>) {
   const { data: session } = useSession();
+  const role = session?.user.FUNCAO ?? '';
 
-  const codDepartment: string = session?.user.CODSETOR ?? '';
-
-  const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
-    queryKey: ['members', codDepartment],
-    queryFn: () => getMembersByDepartment({ codDepartment }),
-    enabled: open && !!codDepartment
+  const { data: departments = [] } = useQuery<GetDepartmentsResponse[]>({
+    queryKey: ['departments'],
+    queryFn: () => getDepartments(),
+    enabled: !!open && !!role && role === 'Administrador'
   });
 
-  const { data: team } = useQuery<GetTeamByIdResponse>({
-    queryKey: ['team', teamId],
-    queryFn: () => getTeamById({ teamId }),
-    enabled: open
-  });
-
-  const queryClient = useQueryClient();
-
-  // const membersList: string[] = members.map(member => member.NOME);
-
-  const membersList: string[] = members
-    .filter((member) => member.EQUIPE == 'Não alocado')
-    .map((member) => member.NOME);
-
-  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
-
-  const teamMembers: string[] = team?.MEMBROS.split(', ') || [];
-
-  useEffect(() => {
-    setSelectedMembers(teamMembers);
-  }, [team]);
-
-  const removed: string[] = [];
-
-  teamMembers.forEach((teamMember) => {
-    if (!selectedMembers.includes(teamMember)) {
-      members.map((member) => {
-        if (member.NOME === teamMember) {
-          removed.push(member.CHAPA);
-        }
-      });
-    }
-  });
-
-  const added: string[] = [];
-
-  selectedMembers.forEach((selectedMember) => {
-    if (!teamMembers.includes(selectedMember)) {
-      members.map((member) => {
-        if (member.NOME === selectedMember) {
-          added.push(member.CHAPA);
-        }
-      });
-    }
-  });
+  const rowMembers: Member[] = row.getValue('Membros');
+  const currentMembers = rowMembers.flatMap((member: Member) => member.CHAPA);
 
   const form = useForm<z.infer<typeof teamSchema>>({
     resolver: zodResolver(teamSchema),
     values: {
-      nome: team?.NOME ?? '',
-      membros: team?.MEMBROS.split(', ') || []
+      nome: row.getValue('Nome'),
+      departamento: row.getValue('codDepartamento'),
+      membros: currentMembers
     }
   });
+
+  const departmentValue = form.watch('departamento');
+
+  useEffect(() => {
+    if (departmentValue !== row.getValue('codDepartamento')) {
+      form.setValue('membros', []);
+    }
+  }, [departmentValue, form, row]);
+
+  const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
+    queryKey: ['members-by-department', departmentValue],
+    queryFn: () => getMembersByDepartment({ codDepartment: departmentValue }),
+    enabled: !!open && !!departmentValue
+  });
+
+  const membersList = members
+    .filter(
+      (member) =>
+        member.EQUIPE === 'Não alocado' || currentMembers.includes(member.CHAPA)
+    )
+    .map((member) => ({
+      CHAPA: member.CHAPA,
+      NOME: member.NOME
+    }));
+
+  const queryClient = useQueryClient();
 
   const { mutateAsync: updateTeamFn } = useMutation({
     mutationFn: updateTeam,
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['members', codDepartment] });
-      queryClient.invalidateQueries({ queryKey: ['teams', codDepartment] });
+      form.reset();
+      queryClient.invalidateQueries({ queryKey: ['teams'] });
+      queryClient.invalidateQueries({ queryKey: ['members'] });
+      queryClient.invalidateQueries({
+        queryKey: ['teams-by-department', departmentValue]
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['members-by-department', departmentValue]
+      });
     }
   });
 
   async function onSubmit(teamData: z.infer<typeof teamSchema>) {
+    // console.log(teamData);
+
+    const removed = currentMembers.filter(
+      (member) => !teamData.membros.includes(member)
+    );
+    const added = teamData.membros.filter(
+      (member) => !currentMembers.includes(member)
+    );
+
     try {
       await updateTeamFn({
-        teamId: teamId,
-        teamName: teamData.nome !== team?.NOME ? teamData.nome : undefined,
+        teamId: row.getValue('ID'),
+        teamName:
+          teamData.nome !== row.getValue('Nome') ? teamData.nome : undefined,
         removed: removed && removed.length > 0 ? removed : undefined,
         added: added && added.length > 0 ? added : undefined,
         usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB',
@@ -165,24 +187,68 @@ export function UpdateTeamForm({ teamId, open }: UpdateTeamFormProps) {
 
           <FormField
             control={form.control}
+            name="departamento"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Departamento <span className="text-rose-600">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    disabled={role !== 'Administrador'}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um departamento" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {role === 'Administrador' ? (
+                        <>
+                          {departments.map((department: Department) => (
+                            <SelectItem
+                              key={department.CODDEPARTAMENTO}
+                              value={department.CODDEPARTAMENTO}
+                            >
+                              {department.DEPARTAMENTO}
+                            </SelectItem>
+                          ))}
+                        </>
+                      ) : (
+                        <SelectItem value={row.getValue('codDepartamento')}>
+                          {row.getValue('Departamento')}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="membros"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Membros</FormLabel>
+                <FormLabel>
+                  Membros <span className="text-rose-600">*</span>
+                </FormLabel>
                 <FormControl>
                   <MultiSelect
-                    options={membersList.map((memberName, index) => ({
-                      value: memberName,
-                      label: memberName,
-                      key: index
+                    options={membersList.map((member) => ({
+                      value: member.CHAPA,
+                      label: member.NOME,
+                      key: member.CHAPA
                     }))}
-                    selected={selectedMembers}
-                    onChange={(members) => {
-                      field.onChange(members);
-                      setSelectedMembers(members);
-                    }}
-                    className="w-96"
-                    placeholder="Selecione os responsáveis"
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    placeholder="Selecione os membros"
+                    modalPopover={true}
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />

@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import {
   getTaskById,
-  GetTaskByIdResponse
+  GetTaskByIdResponse,
+  Member
 } from '@/app/api/projetos/tarefas/get-task-by-id';
 import Priority from '@/components/priority';
 import Status from '@/components/status';
@@ -20,7 +21,7 @@ import { UsersAvatar } from '@/components/users-avatar';
 import { TaskComment } from './task-comment';
 
 interface TaskDetailsProps {
-  taskId: string;
+  taskId: number;
   open: boolean;
 }
 
@@ -28,7 +29,7 @@ export function TaskDetails({ taskId, open }: TaskDetailsProps) {
   const { data: task } = useQuery<GetTaskByIdResponse>({
     queryKey: ['task', taskId],
     queryFn: () => getTaskById({ taskId }),
-    enabled: open
+    enabled: !!open
   });
 
   const dataInicioString: string | null = task?.DATA_INICIO || null;
@@ -41,6 +42,8 @@ export function TaskDetails({ taskId, open }: TaskDetailsProps) {
     dataInicio = new Date(dataInicioString);
     dataFim = new Date(dataFimString);
   }
+
+  const members: Member[] = task?.RESPONSAVEIS || [];
 
   return (
     <DialogContent>
@@ -84,7 +87,7 @@ export function TaskDetails({ taskId, open }: TaskDetailsProps) {
               Responsáveis
             </TableCell>
             <TableCell className="flex justify-end gap-1">
-              <UsersAvatar members={task?.MEMBROS} />
+              <UsersAvatar members={members} />
             </TableCell>
           </TableRow>
         </TableBody>

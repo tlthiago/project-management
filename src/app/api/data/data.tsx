@@ -102,18 +102,3 @@ export const entities = [
     icon: User
   }
 ];
-
-export const functionMember = [
-  {
-    label: 'Membro',
-    value: 'Membro'
-  },
-  {
-    label: 'Coordenador',
-    value: 'Coordenador'
-  },
-  {
-    label: 'Administrador',
-    value: 'Administrador'
-  }
-];

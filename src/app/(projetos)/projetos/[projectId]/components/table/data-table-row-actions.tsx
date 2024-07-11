@@ -2,6 +2,7 @@
 
 import { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
 import { AlertDialog, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -25,6 +26,13 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row
 }: DataTableRowActionsProps<TData>) {
+  const { data: session } = useSession();
+  const user = session?.user.CODUSUARIO ?? '';
+  const role = session?.user.FUNCAO ?? '';
+
+  const updateConditions =
+    role !== 'Membro' || user === row.getValue('Criada por');
+
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isUpdateTaskOpen, setIsUpdateTaskOpen] = useState(false);
 
@@ -48,26 +56,29 @@ export function DataTableRowActions<TData>({
           </DialogTrigger>
           <TaskDetails open={isDetailsOpen} taskId={row.getValue('ID')} />
         </Dialog>
-        <Dialog open={isUpdateTaskOpen} onOpenChange={setIsUpdateTaskOpen}>
-          <DialogTrigger asChild>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              Editar
-            </DropdownMenuItem>
-          </DialogTrigger>
-          <UpdateTaskForm
-            open={isUpdateTaskOpen}
-            projectId={row.getValue('PROJETO_ID')}
-            taskId={row.getValue('ID')}
-          />
-        </Dialog>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              Excluir
-            </DropdownMenuItem>
-          </AlertDialogTrigger>
-          <DeleteTaskDialog taskId={row.getValue('ID')} />
-        </AlertDialog>
+        {updateConditions && (
+          <>
+            <Dialog open={isUpdateTaskOpen} onOpenChange={setIsUpdateTaskOpen}>
+              <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Editar
+                </DropdownMenuItem>
+              </DialogTrigger>
+              <UpdateTaskForm
+                open={isUpdateTaskOpen}
+                taskId={row.getValue('ID')}
+              />
+            </Dialog>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Excluir
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+              <DeleteTaskDialog taskId={row.getValue('ID')} />
+            </AlertDialog>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

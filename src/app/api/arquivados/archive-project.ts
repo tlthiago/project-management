@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
 
 export interface ArchiveProjectParams {
-  projectId: string;
+  projectId: number;
   usuAtualizacao: string;
 }
 

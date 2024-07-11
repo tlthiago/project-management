@@ -20,7 +20,7 @@ export async function getMembersByDepartment({
   codDepartment
 }: GetMembersByDepartmentBody) {
   const response = await api.post<GetMembersByDepartmentResponse[]>(
-    '/members',
+    '/members-by-department',
     { codDepartment }
   );
 

@@ -45,7 +45,7 @@ export function DataTableRowActions<TData>({
               Editar
             </DropdownMenuItem>
           </DialogTrigger>
-          <UpdateTeamForm open={isUpdateTeamOpen} teamId={row.getValue('ID')} />
+          <UpdateTeamForm open={isUpdateTeamOpen} row={row} />
         </Dialog>
         <AlertDialog open={isDeleteTeamOpen} onOpenChange={setIsDeleteTeamOpen}>
           <AlertDialogTrigger asChild>

@@ -23,12 +23,37 @@ export const teamsColumns: ColumnDef<GetTeamsByDepartmentResponse>[] = [
   },
   {
     accessorKey: 'NOME',
-    id: 'Nomes',
+    id: 'Nome',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Nomes" />
+      <DataTableColumnHeader column={column} title="Nome" />
     ),
     cell: ({ row }) => {
-      return <span className="font-semibold">{row.getValue('Nomes')}</span>;
+      return <span className="font-semibold">{row.getValue('Nome')}</span>;
+    }
+  },
+  {
+    accessorKey: 'CODDEPARTAMENTO',
+    id: 'codDepartamento',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="codDepartamento" />
+    ),
+    cell: ({ row }) => {
+      return <span>{row.getValue('codDepartamento')}</span>;
+    },
+    enableSorting: false,
+    enableHiding: false
+  },
+  {
+    accessorKey: 'DEPARTAMENTO',
+    id: 'Departamento',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Departamento" />
+    ),
+    cell: ({ row }) => {
+      return <span>{row.getValue('Departamento')}</span>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     }
   },
   {

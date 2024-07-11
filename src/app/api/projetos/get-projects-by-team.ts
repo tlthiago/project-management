@@ -16,7 +16,7 @@ interface Team {
   MEMBROS: Member[];
 }
 
-export interface GetProjectsByTeamResponse {
+interface GetProjectsByTeamResponse {
   ID: number;
   NOME: string;
   DATA_INICIO: string;

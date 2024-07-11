@@ -19,14 +19,14 @@ import {
 
 export function ProjectsByTeam() {
   const { data: session } = useSession();
-  const department = session?.user.SETOR ?? '';
+  const codDepartment = session?.user.CODSETOR ?? '';
 
   const { data: projectsNumbers = [] } = useQuery<
     GetNumberProjectsByTeamResponse[]
   >({
-    queryKey: ['numberProjects', department],
-    queryFn: () => getNumberProjectsByTeam({ department }),
-    enabled: !!department
+    queryKey: ['numberProjects', codDepartment],
+    queryFn: () => getNumberProjectsByTeam({ codDepartment }),
+    enabled: !!codDepartment
   });
 
   return (

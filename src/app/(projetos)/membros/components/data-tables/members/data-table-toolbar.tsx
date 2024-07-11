@@ -1,19 +1,9 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 
-import { functionMember } from '@/app/api/data/data';
-import {
-  getMembersByDepartment,
-  GetMembersByDepartmentResponse
-} from '@/app/api/departments/get-members-by-department';
-import {
-  getTeamsByDepartment,
-  GetTeamsByDepartmentResponse
-} from '@/app/api/departments/get-teams-by-department';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -28,45 +18,78 @@ export function DataTableToolbar<TData>({
   table
 }: DataTableToolbarProps<TData>) {
   const { data: session } = useSession();
+  const role = session?.user.FUNCAO ?? '';
 
-  const codDepartment = session?.user.CODSETOR ?? '';
   const isFiltered = table.getState().columnFilters.length > 0;
 
-  const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
-    queryKey: ['members', codDepartment],
-    queryFn: () => getMembersByDepartment({ codDepartment }),
-    enabled: !!codDepartment
-  });
-
-  const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
-    queryKey: ['teams', codDepartment],
-    queryFn: () => getTeamsByDepartment({ codDepartment }),
-    enabled: !!codDepartment
-  });
+  const allRows = table.getCoreRowModel().rows;
 
   const cargos: { label: string; value: string }[] = [];
 
-  members.forEach((member) => {
-    if (!cargos.some((cargo) => cargo.value === member.CARGO)) {
+  allRows.forEach((row) => {
+    const rowData = row.original as {
+      CARGO: string;
+    };
+
+    const cargo = rowData.CARGO;
+
+    if (!cargos.some((c) => c.value === cargo)) {
       cargos.push({
-        label: member.CARGO,
-        value: member.CARGO
+        label: cargo,
+        value: cargo
       });
     }
   });
 
-  const teamsList: { label: string; value: string }[] = [];
+  const departments: { label: string; value: string }[] = [];
 
-  teams.forEach((team) => {
-    teamsList.push({
-      label: team.NOME,
-      value: team.NOME
-    });
+  allRows.forEach((row) => {
+    const rowData = row.original as {
+      DEPARTAMENTO: string;
+    };
+
+    const department = rowData.DEPARTAMENTO;
+
+    if (!departments.some((c) => c.value === department)) {
+      departments.push({
+        label: department,
+        value: department
+      });
+    }
   });
 
-  teamsList.push({
-    label: 'Não alocado',
-    value: 'Não alocado'
+  const equipes: { label: string; value: string }[] = [];
+
+  allRows.forEach((row) => {
+    const rowData = row.original as {
+      EQUIPE: string;
+    };
+
+    const equipe = rowData.EQUIPE;
+
+    if (!equipes.some((e) => e.value === equipe)) {
+      equipes.push({
+        label: equipe,
+        value: equipe
+      });
+    }
+  });
+
+  const funcoes: { label: string; value: string }[] = [];
+
+  allRows.forEach((row) => {
+    const rowData = row.original as {
+      FUNCAO: string;
+    };
+
+    const funcao = rowData.FUNCAO;
+
+    if (!funcoes.some((e) => e.value === funcao)) {
+      funcoes.push({
+        label: funcao,
+        value: funcao
+      });
+    }
   });
 
   return (
@@ -87,18 +110,29 @@ export function DataTableToolbar<TData>({
             options={cargos}
           />
         )}
-        {table.getColumn('Equipes') && (
+        {role === 'Administrador' && (
+          <>
+            {table.getColumn('Departamento') && (
+              <DataTableFacetedFilter
+                column={table.getColumn('Departamento')}
+                title="Departamentos"
+                options={departments}
+              />
+            )}
+          </>
+        )}
+        {table.getColumn('Equipe') && (
           <DataTableFacetedFilter
-            column={table.getColumn('Equipes')}
+            column={table.getColumn('Equipe')}
             title="Equipes"
-            options={teamsList}
+            options={equipes}
           />
         )}
         {table.getColumn('Função') && (
           <DataTableFacetedFilter
             column={table.getColumn('Função')}
-            title="Função"
-            options={functionMember}
+            title="Funções"
+            options={funcoes}
           />
         )}
         {isFiltered && (

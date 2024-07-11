@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
 
 export interface GetDepartmentsResponse {
-  ID: string;
+  CODDEPARTAMENTO: string;
   DEPARTAMENTO: string;
 }
 
