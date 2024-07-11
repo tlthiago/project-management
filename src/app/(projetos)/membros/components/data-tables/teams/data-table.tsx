@@ -41,7 +41,7 @@ export function DataTableTeams<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
       ID: false,
-      CHAPAS: false
+      codDepartamento: false
     });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

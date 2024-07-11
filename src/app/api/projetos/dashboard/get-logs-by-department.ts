@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
 
 export interface GetLogsByDepartmentBody {
-  department: string;
+  codDepartment: string;
 }
 
 export interface GetLogsByDepartmentResponse {
@@ -15,11 +15,11 @@ export interface GetLogsByDepartmentResponse {
 }
 
 export async function getLogsByDepartment({
-  department
+  codDepartment
 }: GetLogsByDepartmentBody) {
   const response = await api.post<GetLogsByDepartmentResponse[]>(
-    'projects-logs',
-    { department }
+    'logs-by-department',
+    { codDepartment }
   );
 
   return response.data;

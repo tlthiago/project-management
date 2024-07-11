@@ -1,22 +1,26 @@
 import { api } from '@/lib/axios';
 
 export interface GetTaskByIdParams {
-  taskId?: string;
+  taskId: number;
+}
+
+export interface Member {
+  CHAPA: string;
+  NOME: string;
 }
 
 export interface GetTaskByIdResponse {
   ID: number;
-  PROJETO_ID: number;
   NOME: string;
   DATA_INICIO: string | null;
   DATA_FIM: string | null;
   DESCRICAO: string | null;
   STATUS: string;
   PRIORIDADE: string;
+  USU_INCLUSAO: string;
   DATA_INCLUSAO: string;
   ATRASADO: string;
-  CHAPAS: string;
-  MEMBROS: string;
+  RESPONSAVEIS: Member[];
 }
 
 export async function getTaskById({ taskId }: GetTaskByIdParams) {

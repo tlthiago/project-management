@@ -11,10 +11,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
-import {
-  getMembersByDepartment,
-  GetMembersByDepartmentResponse
-} from '@/app/api/departments/get-members-by-department';
+import { getTeams, GetTeamsResponse } from '@/app/api/departments/get-teams';
 import {
   getTeamsByDepartment,
   GetTeamsByDepartmentResponse
@@ -88,235 +85,237 @@ const formSchema = z
     }
   });
 
+interface Member {
+  CHAPA: string;
+  NOME: string;
+}
+
+interface Team {
+  ID: number;
+  NOME: string;
+  MEMBROS: Member[];
+}
+
 export interface UpdateProjectFormProps {
-  projectId: string;
+  projectId: number;
   open: boolean;
 }
 
 export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
   const { data: session } = useSession();
-  const department = session?.user.SETOR ?? '';
+  const codDepartment = session?.user.CODSETOR ?? '';
   const chapa = session?.user.CHAPA ?? '';
+  const role = session?.user.FUNCAO ?? '';
 
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
     queryFn: () => getProjectById({ projectId }),
-    enabled: open
+    enabled: !!projectId
   });
 
-  const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
-    queryKey: ['teams', department],
-    queryFn: () => getTeamsByDepartment({ department }),
-    enabled: open
+  const { data: allTeams = [] } = useQuery<GetTeamsResponse[]>({
+    queryKey: ['teams'],
+    queryFn: () => getTeams(),
+    enabled: open && !!role && role === 'Administrador'
   });
 
-  const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
-    queryKey: ['members', department],
-    queryFn: () => getMembersByDepartment({ department }),
-    enabled: open
+  const { data: departmentTeams = [] } = useQuery<
+    GetTeamsByDepartmentResponse[]
+  >({
+    queryKey: ['teams', codDepartment],
+    queryFn: () => getTeamsByDepartment({ codDepartment }),
+    enabled: open && !!role && role !== 'Administrador'
   });
 
-  const loggedMemberData = members.find((member) => {
-    return member.CHAPA === chapa;
-  });
+  const teams = role === 'Administrador' ? allTeams : departmentTeams;
 
-  const currentTeamsIdString = project?.EQUIPES_ID.split(', ') || [];
-  const teamsIdNumber: number[] = currentTeamsIdString.map((teamId) =>
-    parseInt(teamId, 10)
+  const teamsList: Team[] = teams.map((team) => ({
+    ID: team.ID,
+    NOME: team.NOME,
+    MEMBROS: team.MEMBROS
+  }));
+
+  const {
+    NOME: currentName = '',
+    DATA_INICIO: currentInitialDate = '',
+    DATA_FIM: currentFinalDate = '',
+    DESCRICAO: currentDescription = '',
+    PRIORIDADE: currentPriority = '',
+    ATRASADO: currentDelayedStatus = '',
+    EQUIPES: rowTeams = []
+  } = project || {};
+
+  const currentTeams = rowTeams.flatMap((team: Team) => team.ID.toString());
+
+  const rowMembers: Member[] = rowTeams.flatMap((team) =>
+    team.MEMBROS.map((member: Member) => ({
+      CHAPA: member.CHAPA,
+      NOME: member.NOME
+    }))
   );
-
-  const [team, setTeam] = useState<string[]>([]);
-  const [teamsId, setTeamsId] = useState<number[]>([]);
-  const [membersList, setMembersList] = useState<string[]>([]);
-  const [member, setMember] = useState<string[]>([]);
-
-  useEffect(() => {
-    setTeam(project?.EQUIPES.split(', ') || []);
-    setTeamsId(teamsIdNumber);
-    setMember(project?.MEMBROS.split(', ') || []);
-    handleTeamsChange(project?.EQUIPES.split(', ') || []);
-  }, [project]);
-
-  const teamsList: string[] = teams.map((team) => team.NOME);
-
-  const handleTeamsChange = (teamValue: string[]) => {
-    const filteredMembers: string[] = [];
-    const selectedTeamsId: number[] = [];
-
-    teams.map((team) => {
-      teamValue.map((selectedTeam) => {
-        if (selectedTeam === team.NOME) {
-          selectedTeamsId.push(team.ID);
-          const teamMembers: string[] = team.MEMBROS.split(', ');
-          filteredMembers.push(...teamMembers);
-        }
-      });
-    });
-
-    const removedTeam = team.filter((teamName) => {
-      return !teamValue.includes(teamName);
-    });
-
-    if (removedTeam.length > 0) {
-      const updatedMembers = member.filter((member) =>
-        filteredMembers.includes(member)
-      );
-      setMember(updatedMembers);
-    }
-
-    setMembersList(filteredMembers);
-    setTeamsId(selectedTeamsId);
-  };
-
-  const membersChapas: string[] = [];
-
-  member.map((selectedMember) => {
-    members.map((member) => {
-      if (selectedMember === member.NOME) {
-        membersChapas.push(member.CHAPA);
-      }
-    });
-  });
-
-  const removed: {
-    teamsId: number[];
-    chapas: string[];
-  } = {
-    teamsId: [],
-    chapas: []
-  };
-
-  teamsIdNumber.forEach((teamId) => {
-    if (!teamsId.includes(teamId)) {
-      removed.teamsId?.push(teamId);
-    }
-  });
-
-  const currentChapas = project?.CHAPAS.split(', ') || [];
-
-  currentChapas.forEach((chapa) => {
-    if (!membersChapas.includes(chapa)) {
-      removed.chapas?.push(chapa);
-    }
-  });
-
-  const added: {
-    teamsId: number[];
-    chapas: string[];
-  } = {
-    teamsId: [],
-    chapas: []
-  };
-
-  teamsId.forEach((teamId) => {
-    if (!teamsIdNumber.includes(teamId)) {
-      added.teamsId?.push(teamId);
-    }
-  });
-
-  membersChapas.forEach((chapa) => {
-    if (!currentChapas.includes(chapa)) {
-      added.chapas.push(chapa);
-    }
-  });
+  const currentMembers = rowMembers.flatMap((member: Member) => member.CHAPA);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     values: {
-      nome: project?.NOME ?? '',
+      nome: currentName,
       datas:
-        project?.DATA_INICIO && project?.DATA_FIM
+        currentInitialDate && currentFinalDate
           ? {
-              from: new Date(project?.DATA_INICIO),
-              to: new Date(project?.DATA_FIM)
+              from: new Date(currentInitialDate),
+              to: new Date(currentFinalDate)
             }
           : undefined,
-      descricao: project?.DESCRICAO ?? undefined,
-      equipes: project?.EQUIPES.split(', ') || [],
-      responsaveis: project?.MEMBROS.split(', ') || [],
-      prioridade: project?.PRIORIDADE || ''
+      descricao: currentDescription ?? undefined,
+      equipes: currentTeams,
+      responsaveis: currentMembers,
+      prioridade: currentPriority
     }
   });
 
+  const [initialResponsaveisSet, setInitialResponsaveisSet] = useState(false);
+  const teamsValue = form.watch('equipes');
+
+  const filteredMembers = teamsList
+    .filter((team) => teamsValue.includes(team.ID.toString()))
+    .flatMap((team) => team.MEMBROS);
+
   useEffect(() => {
-    const teamValue = form.watch('equipes');
-    setTeam(teamValue);
-    handleTeamsChange(teamValue);
-  }, [form.watch('equipes')]);
+    if (!initialResponsaveisSet && project) {
+      form.setValue('responsaveis', currentMembers);
+      setInitialResponsaveisSet(true);
+    }
+  }, [project, currentMembers, initialResponsaveisSet, form]);
+
+  useEffect(() => {
+    if (initialResponsaveisSet) {
+      const currentResponsaveis = form.getValues('responsaveis');
+      const updatedResponsaveis = currentResponsaveis.filter((responsavel) =>
+        filteredMembers.some((member: Member) => member.CHAPA === responsavel)
+      );
+      form.setValue('responsaveis', updatedResponsaveis);
+    }
+  }, [teamsValue, filteredMembers, form, initialResponsaveisSet]);
+
+  const removed: {
+    teamsId: string[];
+    chapas: string[];
+  } = {
+    teamsId: [],
+    chapas: []
+  };
+
+  const added: {
+    teamsId: string[];
+    chapas: string[];
+  } = {
+    teamsId: [],
+    chapas: []
+  };
 
   const queryClient = useQueryClient();
 
   const { mutateAsync: updateProjectFn } = useMutation({
     mutationFn: updateProject,
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['projects', department] });
-      queryClient.invalidateQueries({
-        queryKey: ['coordinator-projects', chapa]
-      });
-      queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['projects'] });
+        queryClient.invalidateQueries({
+          queryKey: ['projects-by-department', codDepartment]
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['projects-by-team', chapa]
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['project', projectId]
+        });
+      }, 1000);
     }
   });
 
   async function onSubmit(projectData: z.infer<typeof formSchema>) {
+    // console.log(projectData);
+
+    currentTeams.forEach((team) => {
+      if (!form.getValues('equipes').includes(team)) {
+        removed.teamsId.push(team);
+      }
+    });
+
+    currentMembers.forEach((member) => {
+      if (!form.getValues('responsaveis').includes(member)) {
+        removed.chapas.push(member);
+      }
+    });
+
+    form.getValues('equipes').forEach((team) => {
+      if (!currentTeams.includes(team)) {
+        added.teamsId.push(team);
+      }
+    });
+
+    form.getValues('responsaveis').forEach((member) => {
+      if (!currentMembers.includes(member)) {
+        added.chapas.push(member);
+      }
+    });
+
     const dataInicio: string | null | undefined =
-      projectData.datas?.from !== undefined && project?.DATA_INICIO === null
+      projectData.datas?.from !== undefined && currentInitialDate === null
         ? format(projectData.datas.from, 'yyyy-MM-dd', {
             locale: ptBR
           })
         : projectData.datas?.from !== undefined &&
-            project?.DATA_INICIO &&
+            currentInitialDate &&
             format(projectData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) !==
-              project?.DATA_INICIO.split('T', 1)[0]
+              currentInitialDate.split('T', 1)[0]
           ? format(projectData.datas.from, 'yyyy-MM-dd', {
               locale: ptBR
             })
           : projectData.datas?.from !== undefined &&
-              project?.DATA_INICIO &&
+              currentInitialDate &&
               format(projectData.datas.from, 'yyyy-MM-dd', { locale: ptBR }) ===
-                project?.DATA_INICIO.split('T', 1)[0]
+                currentInitialDate.split('T', 1)[0]
             ? undefined
             : null;
-
     const dataFim: string | null | undefined =
-      projectData.datas?.to !== undefined && project?.DATA_FIM === null
+      projectData.datas?.to !== undefined && currentFinalDate === null
         ? format(projectData.datas.to, 'yyyy-MM-dd', {
             locale: ptBR
           })
         : projectData.datas?.to !== undefined &&
-            project?.DATA_FIM &&
+            currentFinalDate &&
             format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) !==
-              project?.DATA_FIM.split('T', 1)[0]
+              currentFinalDate.split('T', 1)[0]
           ? format(projectData.datas.to, 'yyyy-MM-dd', {
               locale: ptBR
             })
           : projectData.datas?.to !== undefined &&
-              project?.DATA_FIM &&
+              currentFinalDate &&
               format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR }) ===
-                project?.DATA_FIM.split('T', 1)[0]
+                currentFinalDate.split('T', 1)[0]
             ? undefined
             : null;
-
     const todayDate = format(new Date(), 'yyyy-MM-dd');
-
     const updateDelayedStatus: string | undefined =
-      project?.ATRASADO === 'S' && dataFim && dataFim >= todayDate
+      currentDelayedStatus === 'S' && dataFim && dataFim >= todayDate
         ? 'N'
-        : project?.ATRASADO === 'N' && dataFim && dataFim < todayDate
+        : currentDelayedStatus === 'N' && dataFim && dataFim < todayDate
           ? 'S'
           : undefined;
 
     try {
       await updateProjectFn({
         projectId: projectId,
-        nome: projectData.nome !== project?.NOME ? projectData.nome : undefined,
+        nome: projectData.nome !== currentName ? projectData.nome : undefined,
         dataInicio: dataInicio,
         dataFim: dataFim,
         descricao:
-          projectData.descricao !== project?.DESCRICAO
+          projectData.descricao !== currentDescription
             ? projectData.descricao
             : undefined,
         prioridade:
-          projectData.prioridade !== project?.PRIORIDADE
+          projectData.prioridade !== currentPriority
             ? projectData.prioridade
             : undefined,
         removed:
@@ -336,7 +335,6 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
           : 'MM_WEB',
         atrasado: updateDelayedStatus ?? updateDelayedStatus
       });
-
       toast.success('Projeto atualizado com sucesso!');
       dialogCloseFn();
     } catch {
@@ -451,18 +449,18 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
                 </FormLabel>
                 <FormControl>
                   <MultiSelect
-                    options={teamsList.map((subTeamName, index) => ({
-                      value: subTeamName,
-                      label: subTeamName,
-                      key: index
+                    options={teamsList.map((team: Team) => ({
+                      value: team.ID.toString(),
+                      label: team.NOME,
+                      key: team.ID
                     }))}
-                    selected={team}
-                    onChange={(selectedTeams) => {
-                      field.onChange(selectedTeams);
-                    }}
-                    className="max-w-[462px]"
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    popoverSide="top"
                     placeholder="Selecione a(s) equipe(s)"
-                    disabled={loggedMemberData?.FUNCAO === 'Coordenador'}
+                    disabled={role === 'Coordenador'}
+                    modalPopover={true}
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
@@ -480,23 +478,21 @@ export function UpdateProjectForm({ projectId, open }: UpdateProjectFormProps) {
                 </FormLabel>
                 <FormControl>
                   <MultiSelect
-                    options={membersList.map((memberName, index) => ({
-                      value: memberName,
-                      label: memberName,
-                      key: index
+                    options={filteredMembers.map((member: Member) => ({
+                      value: member.CHAPA,
+                      label: member.NOME,
+                      key: member.CHAPA
                     }))}
-                    selected={member}
-                    onChange={(members) => {
-                      field.onChange(members);
-                      setMember(members);
-                    }}
-                    className="w-96"
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
                     placeholder={
-                      teams.length === 0
+                      teamsValue.length === 0
                         ? 'Selecione a(s) equipe(s)'
                         : 'Selecione os responsáveis'
                     }
-                    disabled={team.length === 0}
+                    disabled={teamsValue.length === 0}
+                    modalPopover={true}
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />

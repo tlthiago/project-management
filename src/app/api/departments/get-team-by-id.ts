@@ -4,14 +4,17 @@ export interface GetTeamByIdParams {
   teamId: string;
 }
 
-export interface GetTeamByIdResponse {
-  ID: string;
+export interface Member {
+  CHAPA: string;
   NOME: string;
-  SETOR: string;
-  MEMBROS: string;
-  CHAPAS: string;
-  USU_INCLUSAO: string;
-  DATA_INCLUSAO: string;
+}
+
+export interface GetTeamByIdResponse {
+  ID: number;
+  NOME: string;
+  CODDEPARTAMENTO: string;
+  DEPARTAMENTO: string;
+  MEMBROS: Member[];
 }
 
 export async function getTeamById({ teamId }: GetTeamByIdParams) {

@@ -1,19 +1,10 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { CheckCircle2, ChevronRight, Circle, Timer } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { CheckCircle2, Circle, Timer } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
-import {
-  getMemberByChapa,
-  GetMemberByChapaResponse
-} from '@/app/api/departments/get-member-by-chapa';
-import {
-  getTeamCoordinatorByTeamId,
-  GetTeamCoordinatorByTeamIdResponse
-} from '@/app/api/departments/get-team-coordinator-by-team-id';
 import { UpdateProjectStatus } from '@/app/api/projetos/update-project-status';
 import Status from '@/components/status';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -33,26 +24,9 @@ export default function ProjectStatus({
   status
 }: ProjectStatusProps) {
   const { data: session } = useSession();
-  const department = session?.user.SETOR ?? '';
+  const codDepartment = session?.user.CODSETOR ?? '';
   const chapa = session?.user.CHAPA ?? '';
-
-  const { data: member } = useQuery<GetMemberByChapaResponse>({
-    queryKey: ['member', chapa],
-    queryFn: () => getMemberByChapa({ chapa }),
-    enabled: !!chapa
-  });
-
-  const managerUser =
-    member?.FUNCAO === 'Administrador' || member?.FUNCAO === 'Coordenador';
-
-  const teamId = member?.FUNCAO === 'Membro' ? member?.EQUIPE_ID : undefined;
-
-  const { data: coordinatorData } =
-    useQuery<GetTeamCoordinatorByTeamIdResponse>({
-      queryKey: ['Coordinator', teamId],
-      queryFn: () => getTeamCoordinatorByTeamId({ teamId }),
-      enabled: !!teamId
-    });
+  const role = session?.user.FUNCAO ?? '';
 
   const handleStatusChange = async (status: string) => {
     switch (status) {
@@ -60,50 +34,21 @@ export default function ProjectStatus({
         await UpdateProjectStatusFn({
           projectId: projectId,
           status: status,
-          usuAtualizacao: session?.user.CODUSUARIO
-            ? session.user.CODUSUARIO
-            : 'MM_WEB'
+          usuAtualizacao: session?.user.CODUSUARIO ?? 'MM_WEB'
         });
         break;
       case 'Em andamento':
         await UpdateProjectStatusFn({
           projectId: projectId,
           status: status,
-          usuAtualizacao: session?.user.CODUSUARIO
-            ? session.user.CODUSUARIO
-            : 'MM_WEB'
+          usuAtualizacao: session?.user.CODUSUARIO ?? 'MM_WEB'
         });
         break;
       case 'Finalizado':
         await UpdateProjectStatusFn({
           projectId: projectId,
           status: status,
-          usuAtualizacao: session?.user.CODUSUARIO
-            ? session.user.CODUSUARIO
-            : 'MM_WEB'
-        });
-        break;
-    }
-  };
-
-  const updateProjectStatus = async (status: string) => {
-    switch (status) {
-      case 'Pendente':
-        await UpdateProjectStatusFn({
-          projectId: projectId,
-          status: 'Em andamento',
-          usuAtualizacao: session?.user.CODUSUARIO
-            ? session.user.CODUSUARIO
-            : 'MM_WEB'
-        });
-        break;
-      case 'Em andamento':
-        await UpdateProjectStatusFn({
-          projectId: projectId,
-          status: 'Finalizado',
-          usuAtualizacao: session?.user.CODUSUARIO
-            ? session.user.CODUSUARIO
-            : 'MM_WEB'
+          usuAtualizacao: session?.user.CODUSUARIO ?? 'MM_WEB'
         });
         break;
     }
@@ -113,53 +58,49 @@ export default function ProjectStatus({
     mutationFn: UpdateProjectStatus,
     onSuccess() {
       toast.success('Status atualizado.');
-      queryClient.invalidateQueries({ queryKey: ['projects', department] });
-      queryClient.invalidateQueries({
-        queryKey: ['coordinator-projects', coordinatorData?.CHAPA]
-      });
-      queryClient.invalidateQueries({ queryKey: ['member-projects', chapa] });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['projects'] });
+        queryClient.invalidateQueries({
+          queryKey: ['projects-by-department', codDepartment]
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['projects-by-team', chapa]
+        });
+        queryClient.invalidateQueries({ queryKey: ['member-projects', chapa] });
+      }, 1000);
     }
   });
 
+  const disableValidation =
+    isPending || (role === 'Membro' && status === 'Finalizado');
+
   return (
     <>
-      {managerUser ? (
-        <Select onValueChange={handleStatusChange} defaultValue={status}>
-          <SelectTrigger disabled={isPending}>
-            <SelectValue placeholder={<Status status={status} />} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Pendente">
-              <div className="flex items-center gap-2">
-                <Circle className="h-4 w-4 " />
-                <span>Pendente</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="Em andamento">
-              <div className="flex items-center gap-2">
-                <Timer className="h-4 w-4 " />
-                <span>Em andamento</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="Finalizado">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 " />
-                <span>Finalizado</span>
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      ) : (
-        <Button
-          disabled={isPending || status === 'Finalizado'}
-          variant="outline"
-          className="flex items-center gap-1"
-          onClick={() => updateProjectStatus(status)}
-        >
-          <Status status={status} />
-          {status !== 'Finalizado' && <ChevronRight className="size-4" />}
-        </Button>
-      )}
+      <Select onValueChange={handleStatusChange} defaultValue={status}>
+        <SelectTrigger disabled={disableValidation}>
+          <SelectValue placeholder={<Status status={status} />} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="Pendente">
+            <div className="flex items-center gap-2">
+              <Circle className="h-4 w-4 " />
+              <span>Pendente</span>
+            </div>
+          </SelectItem>
+          <SelectItem value="Em andamento">
+            <div className="flex items-center gap-2">
+              <Timer className="h-4 w-4 " />
+              <span>Em andamento</span>
+            </div>
+          </SelectItem>
+          <SelectItem value="Finalizado">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 " />
+              <span>Finalizado</span>
+            </div>
+          </SelectItem>
+        </SelectContent>
+      </Select>
     </>
   );
 }

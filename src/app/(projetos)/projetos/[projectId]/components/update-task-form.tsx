@@ -5,16 +5,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ArrowDown, ArrowRight, ArrowUp, CalendarDays } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
-import {
-  getMembersByDepartment,
-  GetMembersByDepartmentResponse
-} from '@/app/api/departments/get-members-by-department';
 import {
   getProjectById,
   GetProjectByIdResponse
@@ -59,6 +55,16 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
+interface Member {
+  CHAPA: string;
+  NOME: string;
+}
+
+interface updateTaskFormProps {
+  taskId: number;
+  open: boolean;
+}
+
 export const taskSchema = z
   .object({
     nome: z
@@ -85,21 +91,12 @@ export const taskSchema = z
     }
   });
 
-interface updateTaskFormProps {
-  projectId: string;
-  taskId: string;
-  open: boolean;
-}
-
-export function UpdateTaskForm({
-  projectId,
-  taskId,
-  open
-}: updateTaskFormProps) {
+export function UpdateTaskForm({ taskId, open }: updateTaskFormProps) {
   const { data: session } = useSession();
-  const department = session?.user.SETOR ?? '';
 
-  const projectIdString = projectId.toString();
+  const pathname = usePathname();
+  const segments = pathname.split('/');
+  const projectId = parseInt(segments[segments.length - 1]);
 
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
@@ -113,45 +110,20 @@ export function UpdateTaskForm({
     enabled: open
   });
 
-  const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
-    queryKey: ['members', department],
-    queryFn: () => getMembersByDepartment({ department }),
-    enabled: open
-  });
+  const members =
+    project?.EQUIPES.flatMap((team) =>
+      team.MEMBROS.flatMap((member: Member) => ({
+        CHAPA: member.CHAPA,
+        NOME: member.NOME
+      }))
+    ) || [];
 
-  const membersList: string[] = project?.MEMBROS.split(', ') || [];
-  const [member, setMember] = useState<string[]>([]);
-
-  useEffect(() => {
-    setMember(task?.MEMBROS.split(', ') || []);
-  }, [task]);
-
-  const membersChapas: string[] = [];
-
-  member.map((selectedMember) => {
-    members.map((member) => {
-      if (selectedMember === member.NOME) {
-        membersChapas.push(member.CHAPA);
-      }
-    });
-  });
+  const currentMembers =
+    task?.RESPONSAVEIS.flatMap((member) => member.CHAPA) || [];
 
   const removed: { chapas: string[] } = { chapas: [] };
 
-  const currentChapas = task?.CHAPAS.split(', ') || [];
-  currentChapas.forEach((chapa) => {
-    if (!membersChapas.includes(chapa)) {
-      removed.chapas?.push(chapa);
-    }
-  });
-
   const added: { chapas: string[] } = { chapas: [] };
-
-  membersChapas.forEach((chapa) => {
-    if (!currentChapas.includes(chapa)) {
-      added.chapas?.push(chapa);
-    }
-  });
 
   const form = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
@@ -165,7 +137,7 @@ export function UpdateTaskForm({
             }
           : undefined,
       descricao: task?.DESCRICAO ?? undefined,
-      responsaveis: task?.MEMBROS.split(', ') || [],
+      responsaveis: currentMembers,
       prioridade: task?.PRIORIDADE || ''
     }
   });
@@ -175,11 +147,27 @@ export function UpdateTaskForm({
   const { mutateAsync: updateTaskFn } = useMutation({
     mutationFn: updateTask,
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['tasks', projectIdString] });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+      }, 1000);
     }
   });
 
   async function onSubmit(taskData: z.infer<typeof taskSchema>) {
+    // console.log(taskData);
+
+    currentMembers.forEach((member) => {
+      if (!form.getValues('responsaveis').includes(member)) {
+        removed.chapas.push(member);
+      }
+    });
+
+    form.getValues('responsaveis').forEach((member) => {
+      if (!currentMembers.includes(member)) {
+        added.chapas.push(member);
+      }
+    });
+
     const dataInicio: string | null | undefined =
       taskData.datas?.from !== undefined && task?.DATA_INICIO === null
         ? format(taskData.datas.from, 'yyyy-MM-dd', {
@@ -358,21 +346,24 @@ export function UpdateTaskForm({
             name="responsaveis"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Responsáveis</FormLabel>
+                <FormLabel>
+                  Responsáveis <span className="text-rose-600">*</span>
+                </FormLabel>
                 <FormControl>
                   <MultiSelect
-                    options={membersList.map((memberName, index) => ({
-                      value: memberName,
-                      label: memberName,
-                      key: index
+                    options={members.map((member) => ({
+                      value: member.CHAPA,
+                      label: member.NOME,
+                      key: member.CHAPA
                     }))}
-                    selected={member}
-                    onChange={(members) => {
-                      field.onChange(members);
-                      setMember(members);
-                    }}
-                    className="w-96"
-                    placeholder="Selecione os responsáveis"
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    placeholder={
+                      field.value.length === 0
+                        ? 'Selecione os responsáveis'
+                        : ''
+                    }
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />

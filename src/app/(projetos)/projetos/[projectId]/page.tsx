@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { isEqual, startOfDay } from 'date-fns';
 import {
   // Activity,
-  CalendarCheck,
+  // CalendarCheck,
   CalendarDays,
   CircleDashed,
   PlayCircle,
@@ -13,11 +13,14 @@ import {
   // UserRoundCog,
   UsersRound
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 
 // import { TaskContainer } from '@/app/(projetos)/projetos/[projectId]/components/kanban/task-container';
 import {
   getProjectById,
-  GetProjectByIdResponse
+  GetProjectByIdResponse,
+  Tasks
 } from '@/app/api/projetos/get-project-by-id';
 import Priority from '@/components/priority';
 import Status from '@/components/status';
@@ -29,40 +32,69 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
+import { Popover, PopoverTrigger } from '@/components/ui/popover';
 // import { Progress } from '@/components/ui/progress';
 // import { TabsContent } from '@/components/ui/tabs';
 // import { Tabs } from '@/components/ui/tabs';
 import { UsersAvatar } from '@/components/users-avatar';
 
-import {
-  getTasksByProject,
-  GetTasksByProjectResponse
-} from '../../../api/projetos/tarefas/get-tasks-by-project';
 import { ProjectProperties } from './components/project-properties';
-import { DataTableColumns } from './components/table/columns';
+import { ShareProject } from './components/share-project';
+import { columns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 
-export default function Project({ params }: { params: { projectId: string } }) {
-  const projectId: string = params.projectId;
+interface Member {
+  CHAPA: string;
+  NOME: string;
+}
 
-  const { data: project } = useQuery<GetProjectByIdResponse>({
+export default function Project({ params }: { params: { projectId: string } }) {
+  const projectId: number = parseInt(params.projectId);
+  const { data: session } = useSession();
+  const role = session?.user.FUNCAO ?? '';
+
+  const [formShareOpen, setFormShareOpen] = useState(false);
+
+  const {
+    data: project,
+    isLoading,
+    isError
+  } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
     queryFn: () => getProjectById({ projectId }),
     enabled: !!projectId
   });
 
-  const { data: tasks = [] } = useQuery<GetTasksByProjectResponse[]>({
-    queryKey: ['tasks', projectId],
-    queryFn: () => getTasksByProject({ projectId }),
-    enabled: !!projectId
-  });
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
 
-  const dataInicio: Date | null =
-    project && project.DATA_INICIO ? new Date(project.DATA_INICIO) : null;
-  const dataFim: Date | null =
-    project && project.DATA_FIM ? new Date(project?.DATA_FIM) : null;
+  if (isError || !project) {
+    return (
+      <div>Ocorreu um erro ao carregar o projeto. Contate o administrador.</div>
+    );
+  }
+
+  const dataInicio: Date | null = project.DATA_INICIO
+    ? new Date(project.DATA_INICIO)
+    : null;
+  const dataFim: Date | null = project.DATA_FIM
+    ? new Date(project?.DATA_FIM)
+    : null;
 
   const today = new Date();
+
+  const teamsNames = project.EQUIPES.map((teams) => teams.NOME);
+
+  const members: Member[] =
+    project.EQUIPES.flatMap((team) =>
+      team.MEMBROS.map((member) => ({
+        CHAPA: member.CHAPA,
+        NOME: member.NOME
+      }))
+    ) || [];
+
+  const tasks: Tasks[] = project.TAREFAS.map((tarefa) => tarefa);
 
   const limite: boolean = dataFim
     ? isEqual(startOfDay(dataFim), startOfDay(today))
@@ -86,18 +118,33 @@ export default function Project({ params }: { params: { projectId: string } }) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center justify-between gap-2">
-              <span className="line-clamp-1">{project?.NOME}</span>
+              <span className="line-clamp-1">{project.NOME}</span>
             </CardTitle>
             <div className="flex gap-2">
-              <Button variant="ghost" size="icon" disabled>
-                <Share2 className="size-5" />
-              </Button>
+              {role !== 'Membro' && (
+                <Popover open={formShareOpen} onOpenChange={setFormShareOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Share2 className="size-5" />
+                    </Button>
+                  </PopoverTrigger>
+                  <ShareProject
+                    open={formShareOpen}
+                    projectId={projectId}
+                    currentMembers={members}
+                    onClose={() => setFormShareOpen(false)}
+                  />
+                </Popover>
+              )}
               <div>
-                <ProjectProperties projectId={projectId} />
+                <ProjectProperties
+                  projectId={project.ID}
+                  projectOwner={project.USU_INCLUSAO}
+                />
               </div>
             </div>
           </div>
-          {project?.DESCRICAO && (
+          {project.DESCRICAO && (
             <CardDescription className="line-clamp-1 max-w-6xl">
               {project.DESCRICAO}
             </CardDescription>
@@ -137,13 +184,13 @@ export default function Project({ params }: { params: { projectId: string } }) {
             <CircleDashed className="size-4" />
             <span>Status:</span>
             <span>
-              <Status status={project?.STATUS} />
+              <Status status={project.STATUS} />
             </span>
           </div>
           <div className="flex items-center gap-1">
             <PlayCircle className="size-4 rotate-90" />
             <span>Prioridade:</span>
-            <Priority priority={project?.PRIORIDADE} />
+            <Priority priority={project.PRIORIDADE} />
           </div>
           {/* <div className="flex items-center gap-1">
             <UserRoundCog className="size-4" />
@@ -153,13 +200,13 @@ export default function Project({ params }: { params: { projectId: string } }) {
           <div className="flex items-center gap-1">
             <UsersRound className="size-4" />
             <span>Equipes:</span>
-            <span className="line-clamp-1 w-32">{project?.EQUIPES}</span>
+            <span className="line-clamp-1 w-32">{teamsNames}</span>
           </div>
           <div className="flex items-center gap-1">
             <UserRound className="size-4" />
             <span>Membros:</span>
             <span>
-              <UsersAvatar members={project?.MEMBROS} />
+              <UsersAvatar members={members} />
             </span>
           </div>
           {/* <div className="flex items-center gap-1">
@@ -168,11 +215,11 @@ export default function Project({ params }: { params: { projectId: string } }) {
             <Progress value={progress} className="h-1 w-32" />
             <span>{progress.toFixed(0)}%</span>
           </div> */}
-          <div className="flex items-center gap-1">
+          {/* <div className="flex items-center gap-1">
             <CalendarCheck className="size-4" />
             <span>Finalizado em:</span>
             <span>07/05/2024</span>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
       <Card>
@@ -201,7 +248,7 @@ export default function Project({ params }: { params: { projectId: string } }) {
             </TabsContent>
             <TabsContent value="table" className="px-5">
             </TabsContent> */}
-          <DataTable columns={DataTableColumns().columns} data={tasks} />
+          <DataTable columns={columns} data={tasks} />
         </CardContent>
       </Card>
     </div>

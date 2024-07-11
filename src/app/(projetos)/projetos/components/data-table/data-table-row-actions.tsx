@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
@@ -9,10 +9,6 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { archiveProject } from '@/app/api/arquivados/archive-project';
-import {
-  getMemberByChapa,
-  GetMemberByChapaResponse
-} from '@/app/api/departments/get-member-by-chapa';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,33 +41,38 @@ export function DataTableRowActions<TData>({
   const queryClient = useQueryClient();
 
   const { data: session } = useSession();
+  const user = session?.user.CODUSUARIO ?? '';
+  const codDepartment = session?.user.CODSETOR ?? '';
   const chapa = session?.user.CHAPA ?? '';
-
-  const { data: member } = useQuery<GetMemberByChapaResponse>({
-    queryKey: ['member', chapa],
-    queryFn: () => getMemberByChapa({ chapa }),
-    enabled: !!chapa
-  });
+  const role = session?.user.FUNCAO ?? '';
 
   const { mutateAsync: archiveProjectFn } = useMutation({
     mutationFn: archiveProject,
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['projects'] });
+        queryClient.invalidateQueries({
+          queryKey: ['projects-by-department', codDepartment]
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['projects-by-team', chapa]
+        });
+      }, 1000);
     }
   });
 
-  const managerUser =
-    member?.FUNCAO === 'Administrador' || member?.FUNCAO === 'Coordenador';
+  const [isUpdateProjectFormOpen, setIsUpdateProjectFormOpen] = useState(false);
 
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const updateConditions =
+    role === 'Administrador' ||
+    role === 'Gerente' ||
+    user === row.getValue('Criado por');
 
-  async function handleSubmit(projectId: string) {
+  async function handleSubmit(projectId: number) {
     try {
       await archiveProjectFn({
         projectId: projectId,
-        usuAtualizacao: session?.user.CODUSUARIO
-          ? session.user.CODUSUARIO
-          : 'MM_WEB'
+        usuAtualizacao: session?.user.CODUSUARIO ?? 'MM_WEB'
       });
 
       toast.success('O projeto foi arquivado!');
@@ -88,23 +89,26 @@ export function DataTableRowActions<TData>({
           className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
         >
           <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Abrir menu</span>
+          <span className="sr-only">Opções</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
         <Link href={`projetos/${row.getValue('ID')}`}>
           <DropdownMenuItem>Abrir</DropdownMenuItem>
         </Link>
-        {managerUser && (
+        {updateConditions && (
           <>
-            <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+            <Dialog
+              open={isUpdateProjectFormOpen}
+              onOpenChange={setIsUpdateProjectFormOpen}
+            >
               <DialogTrigger asChild>
                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                   Editar
                 </DropdownMenuItem>
               </DialogTrigger>
               <UpdateProjectForm
-                open={isDetailsOpen}
+                open={isUpdateProjectFormOpen}
                 projectId={row.getValue('ID')}
               />
             </Dialog>

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
@@ -22,17 +23,23 @@ export function DeleteTaskDialog({ taskId }: deleteTaskDialogProps) {
   const queryClient = useQueryClient();
   const { data: session } = useSession();
 
+  const pathname = usePathname();
+
   const { mutateAsync: deleteTaskFn } = useMutation({
     mutationFn: deleteTask,
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      const segments = pathname.split('/');
+      const projectId = parseInt(segments[segments.length - 1]);
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] });
     }
   });
 
   const { mutateAsync: restoreTaskFn } = useMutation({
     mutationFn: restoreTask,
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      const segments = pathname.split('/');
+      const projectId = parseInt(segments[segments.length - 1]);
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] });
     }
   });
 
@@ -40,9 +47,7 @@ export function DeleteTaskDialog({ taskId }: deleteTaskDialogProps) {
     try {
       await restoreTaskFn({
         taskId: taskId,
-        usuAtualizacao: session?.user.CODUSUARIO
-          ? session?.user.CODUSUARIO
-          : 'MM_WEB'
+        usuAtualizacao: session?.user.CODUSUARIO ?? 'MM_WEB'
       });
 
       toast.success('Tarefa restaurada.');

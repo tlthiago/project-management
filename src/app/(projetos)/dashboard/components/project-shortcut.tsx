@@ -6,7 +6,7 @@ import Status from '@/components/status';
 interface ProjectShortcutProps {
   id: number;
   name: string;
-  teams: string;
+  teams: string[];
   status: string;
   priority: string;
 }
@@ -24,7 +24,9 @@ export default function ProjectShortcut({
         <div className="col-span-2">
           <div className="line-clamp-1 font-semibold">{name}</div>
           <div className="line-clamp-1 text-xs text-muted-foreground">
-            {teams}
+            {teams.map((team, index) => (
+              <div key={index}>{team}</div>
+            ))}
           </div>
         </div>
         <div className="flex justify-between gap-px text-sm">

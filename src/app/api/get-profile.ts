@@ -1,13 +1,15 @@
 import { api } from '@/lib/axios';
 
 interface GetProfileResponse {
-  codUsuario: string;
-  seqUsuario: number;
-  grupos: string[];
-  nome: string;
-  nivel: number;
-  nroEmpresa: number;
-  loginId: string;
+  CODUSUARIO: string;
+  SEQUSUARIO: number;
+  NOME: string;
+  NIVEL: number;
+  NROEMPRESA: number;
+  CPF: string;
+  CHAPA: string;
+  CODSETOR: string;
+  SETOR: string;
 }
 
 export async function getProfile() {

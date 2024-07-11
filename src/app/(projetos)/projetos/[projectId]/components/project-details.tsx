@@ -15,8 +15,18 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UsersAvatar } from '@/components/users-avatar';
 
+interface Member {
+  CHAPA: string;
+  NOME: string;
+}
+
+interface Team {
+  ID: number;
+  NOME: string;
+}
+
 interface ProjectDetailsProps {
-  projectId: string;
+  projectId: number;
   open: boolean;
 }
 
@@ -24,7 +34,7 @@ export function ProjectDetails({ projectId, open }: ProjectDetailsProps) {
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
     queryFn: () => getProjectById({ projectId }),
-    enabled: open
+    enabled: !!open && !!projectId
   });
 
   const dataInicioString: string | null = project?.DATA_INICIO || null;
@@ -37,6 +47,19 @@ export function ProjectDetails({ projectId, open }: ProjectDetailsProps) {
     dataInicio = new Date(dataInicioString);
     dataFim = new Date(dataFimString);
   }
+
+  const teams = project?.EQUIPES.map((team: Team) => ({
+    ID: team.ID,
+    NOME: team.NOME
+  }));
+
+  const members: Member[] =
+    project?.EQUIPES.flatMap((team) =>
+      team.MEMBROS.map((member) => ({
+        CHAPA: member.CHAPA,
+        NOME: member.NOME
+      }))
+    ) || [];
 
   return (
     <DialogContent>
@@ -76,7 +99,7 @@ export function ProjectDetails({ projectId, open }: ProjectDetailsProps) {
           <TableRow>
             <TableCell className="text-muted-foreground">Equipes</TableCell>
             <TableCell className="text-right">
-              <span>{project?.EQUIPES}</span>
+              {teams?.map((team) => <div key={team.ID}>{team.NOME}</div>)}
             </TableCell>
           </TableRow>
 
@@ -85,12 +108,11 @@ export function ProjectDetails({ projectId, open }: ProjectDetailsProps) {
               Responsáveis
             </TableCell>
             <TableCell className="flex justify-end gap-1">
-              <UsersAvatar members={project?.MEMBROS} />
+              <UsersAvatar members={members} />
             </TableCell>
           </TableRow>
         </TableBody>
       </Table>
-
       <Tabs defaultValue="description">
         <div className="bg-muted">
           <TabsList>

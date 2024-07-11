@@ -1,23 +1,31 @@
 import { api } from '@/lib/axios';
 
 export interface GetTeamsByDepartmentBody {
-  department: string;
+  codDepartment: string;
+}
+
+export interface Member {
+  CHAPA: string;
+  NOME: string;
 }
 
 export interface GetTeamsByDepartmentResponse {
   ID: number;
   NOME: string;
-  SETOR: string;
-  MEMBROS: string;
-  CHAPAS: string[];
+  CODDEPARTAMENTO: string;
+  DEPARTAMENTO: string;
+  MEMBROS: Member[];
 }
 
 export async function getTeamsByDepartment({
-  department
+  codDepartment
 }: GetTeamsByDepartmentBody) {
-  const response = await api.post<GetTeamsByDepartmentResponse[]>('/teams', {
-    department
-  });
+  const response = await api.post<GetTeamsByDepartmentResponse[]>(
+    '/teams-by-department',
+    {
+      codDepartment
+    }
+  );
 
   return response.data;
 }

@@ -4,7 +4,18 @@ export interface GetProjectsByChapaParams {
   chapa: string;
 }
 
-export interface GetProjectsByChapaResponse {
+interface Member {
+  CHAPA: string;
+  NOME: string;
+}
+
+interface Team {
+  ID: number;
+  NOME: string;
+  MEMBROS: Member[];
+}
+
+interface GetProjectsByChapaResponse {
   ID: number;
   NOME: string;
   DATA_INICIO: string;
@@ -16,10 +27,7 @@ export interface GetProjectsByChapaResponse {
   USU_INCLUSAO: string;
   DATA_INCLUSAO: string;
   ATRASADO: string;
-  EQUIPES_ID: string;
-  EQUIPES: string;
-  CHAPAS: string;
-  MEMBROS: string;
+  EQUIPES: Team[];
 }
 
 export async function getProjectsByChapa({ chapa }: GetProjectsByChapaParams) {

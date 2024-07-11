@@ -6,15 +6,16 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ArrowDown, ArrowRight, ArrowUp, CalendarDays } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
 import {
-  getMembersByDepartment,
-  GetMembersByDepartmentResponse
-} from '@/app/api/departments/get-members-by-department';
+  getTeamByLeader,
+  GetTeamByLeaderResponse
+} from '@/app/api/departments/get-team-by-leader';
+import { getTeams, GetTeamsResponse } from '@/app/api/departments/get-teams';
 import {
   getTeamsByDepartment,
   GetTeamsByDepartmentResponse
@@ -55,18 +56,35 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
+interface Member {
+  CHAPA: string;
+  NOME: string;
+}
+
+interface Team {
+  ID: number;
+  NOME: string;
+  MEMBROS: Member[];
+}
+
 const formSchema = z
   .object({
     nome: z
       .string()
-      .min(1, { message: 'O nome do projeto deve ser informado.' }),
+      .min(1, { message: 'O nome do projeto deve ser informado.' })
+      .max(100, {
+        message: 'O nome do projeto deve ter no máximo 100 caracteres.'
+      }),
     datas: z
       .object({
         from: z.coerce.date().optional(),
         to: z.coerce.date().optional()
       })
       .optional(),
-    descricao: z.string().optional(),
+    descricao: z
+      .string()
+      .max(4000, { message: 'A descrição deve ter no máximo 4000 caracteres.' })
+      .optional(),
     equipes: z
       .array(z.string())
       .min(1, { message: 'Selecione pelo menos uma equipe.' }),
@@ -84,80 +102,45 @@ const formSchema = z
     }
   });
 
-export function CreateProjectForm() {
+interface CreateProjectFormProps {
+  open: boolean;
+}
+
+export function CreateProjectForm({ open }: CreateProjectFormProps) {
   const { data: session } = useSession();
-  const department = session?.user.SETOR ?? '';
+  const codDepartment = session?.user.CODSETOR ?? '';
   const chapa = session?.user.CHAPA ?? '';
+  const role = session?.user.FUNCAO ?? '';
 
-  const { data: teams = [] } = useQuery<GetTeamsByDepartmentResponse[]>({
-    queryKey: ['teams', department],
-    queryFn: () => getTeamsByDepartment({ department })
+  const { data: allTeams = [] } = useQuery<GetTeamsResponse[]>({
+    queryKey: ['teams'],
+    queryFn: () => getTeams(),
+    enabled: open && !!role && role === 'Administrador'
   });
 
-  const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
-    queryKey: ['members', department],
-    queryFn: () => getMembersByDepartment({ department })
+  const { data: departmentTeams = [] } = useQuery<
+    GetTeamsByDepartmentResponse[]
+  >({
+    queryKey: ['teams-by-department', codDepartment],
+    queryFn: () => getTeamsByDepartment({ codDepartment }),
+    enabled: open && !!role && role === 'Gerente'
   });
 
-  const loggedMemberData = members.find((member) => {
-    return member.CHAPA === chapa;
+  const { data: leaderTeam } = useQuery<GetTeamByLeaderResponse>({
+    queryKey: ['team-by-leader', chapa],
+    queryFn: () => getTeamByLeader({ chapa }),
+    enabled: open && !!role && role === 'Coordenador'
   });
 
-  const teamsList: string[] = teams.map((team) => team.NOME);
+  let teams: Team[] = [];
 
-  const [team, setTeam] = useState<string[]>([]);
-  const [teamsId, setTeamsId] = useState<number[]>([]);
-  const [membersList, setMembersList] = useState<string[]>([]);
-  const [member, setMember] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (loggedMemberData?.FUNCAO === 'Coordenador') {
-      setTeam([loggedMemberData.EQUIPE]);
-      handleTeamsChange([loggedMemberData.EQUIPE]);
-      form.setValue('equipes', [loggedMemberData.EQUIPE]);
-    }
-  }, [loggedMemberData]);
-
-  const handleTeamsChange = (teamValue: string[]) => {
-    const filteredMembers: string[] = [];
-    const selectedTeamsId: number[] = [];
-
-    teams.map((team) => {
-      teamValue.map((selectedTeam) => {
-        if (selectedTeam === team.NOME) {
-          selectedTeamsId.push(team.ID);
-          const teamMembers: string[] = team.MEMBROS.split(', ');
-          filteredMembers.push(...teamMembers);
-        }
-      });
-    });
-
-    const removedTeam = team.filter((teamName) => {
-      return !teamValue.includes(teamName);
-    });
-
-    if (removedTeam.length > 0) {
-      const updatedMembers = member.filter((member) =>
-        filteredMembers.includes(member)
-      );
-      setMember(updatedMembers);
-    }
-
-    setMembersList(filteredMembers);
-    setTeamsId(selectedTeamsId);
-
-    // form.setValue('equipes', teamValue);
-  };
-
-  const membersChapas: string[] = [];
-
-  member.map((selectedMember) => {
-    members.map((member) => {
-      if (selectedMember === member.NOME) {
-        membersChapas.push(member.CHAPA);
-      }
-    });
-  });
+  if (role === 'Administrador') {
+    teams = allTeams;
+  } else if (role === 'Gerente') {
+    teams = departmentTeams;
+  } else if (role === 'Coordenador' && leaderTeam) {
+    teams = [leaderTeam];
+  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -174,11 +157,33 @@ export function CreateProjectForm() {
     }
   });
 
+  const teamsList: Team[] = teams.map((team) => ({
+    ID: team.ID,
+    NOME: team.NOME,
+    MEMBROS: team.MEMBROS
+  }));
+
+  const teamsValue = form.watch('equipes');
+
+  const filteredMembers = teamsList
+    .filter((team) => teamsValue.includes(team.ID.toString()))
+    .flatMap((team) => team.MEMBROS);
+
   useEffect(() => {
-    const teamValue = form.watch('equipes');
-    setTeam(teamValue);
-    handleTeamsChange(teamValue);
-  }, [form.watch('equipes')]);
+    const currentResponsaveis = form.getValues('responsaveis');
+
+    const updatedResponsaveis = currentResponsaveis.filter((responsavel) =>
+      filteredMembers.some((member: Member) => member.CHAPA === responsavel)
+    );
+
+    form.setValue('responsaveis', updatedResponsaveis);
+  }, [form, teamsList, teamsValue, filteredMembers]);
+
+  useEffect(() => {
+    if (role === 'Coordenador' && leaderTeam) {
+      form.setValue('equipes', [leaderTeam.ID.toString()]);
+    }
+  }, [role, leaderTeam, form]);
 
   const queryClient = useQueryClient();
 
@@ -186,22 +191,25 @@ export function CreateProjectForm() {
     mutationFn: createProject,
     onSuccess() {
       form.reset();
-      setTeam([]);
-      setMember([]);
-      queryClient.invalidateQueries({ queryKey: ['projects', department] });
-      queryClient.invalidateQueries({
-        queryKey: ['coordinator-projects', chapa]
-      });
+      if (role === 'Coordenador' && teamsList) {
+        form.setValue('equipes', [teamsList[0].ID.toString()]);
+      }
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['projects'] });
+        queryClient.invalidateQueries({
+          queryKey: ['projects-by-department', codDepartment]
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['projects-by-team', chapa]
+        });
+      }, 1000);
     }
   });
 
   async function onSubmit(projectData: z.infer<typeof formSchema>) {
-    projectData.equipes =
-      loggedMemberData?.FUNCAO === 'Coordenador'
-        ? [loggedMemberData.EQUIPE]
-        : team;
+    // console.log(projectData);
 
-    console.log(projectData);
+    const equipes = projectData.equipes.map((equipe) => parseInt(equipe, 10));
 
     try {
       await createProjectFn({
@@ -215,11 +223,11 @@ export function CreateProjectForm() {
           ? format(projectData.datas.to, 'yyyy-MM-dd', { locale: ptBR })
           : undefined,
         descricao: projectData.descricao ?? undefined,
-        departamento: department,
+        equipesId: equipes,
+        chapas: projectData.responsaveis,
         prioridade: projectData.prioridade,
-        usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB',
-        equipesId: teamsId,
-        chapas: membersChapas
+        codDepartamento: codDepartment,
+        usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB'
       });
 
       toast.success('Projeto criado com sucesso!');
@@ -336,18 +344,18 @@ export function CreateProjectForm() {
                 </FormLabel>
                 <FormControl>
                   <MultiSelect
-                    options={teamsList.map((teamName, index) => ({
-                      value: teamName,
-                      label: teamName,
-                      key: index
+                    options={teamsList.map((team: Team) => ({
+                      value: team.ID.toString(),
+                      label: team.NOME,
+                      key: team.ID
                     }))}
-                    selected={team}
-                    onChange={(selectedTeams) => {
-                      field.onChange(selectedTeams);
-                    }}
-                    className="max-w-[462px]"
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    popoverSide="top"
                     placeholder="Selecione a(s) equipe(s)"
-                    disabled={loggedMemberData?.FUNCAO === 'Coordenador'}
+                    disabled={role === 'Coordenador'}
+                    modalPopover={true}
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
@@ -365,23 +373,21 @@ export function CreateProjectForm() {
                 </FormLabel>
                 <FormControl>
                   <MultiSelect
-                    options={membersList.map((memberName, index) => ({
-                      value: memberName,
-                      label: memberName,
-                      key: index
+                    options={filteredMembers.map((member: Member) => ({
+                      value: member.CHAPA,
+                      label: member.NOME,
+                      key: member.CHAPA
                     }))}
-                    selected={member}
-                    onChange={(members) => {
-                      field.onChange(members);
-                      setMember(members);
-                    }}
-                    className="w-96"
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
                     placeholder={
-                      team.length === 0
+                      teamsValue.length === 0
                         ? 'Selecione a(s) equipe(s)'
                         : 'Selecione os responsáveis'
                     }
-                    disabled={team.length === 0}
+                    disabled={teamsValue.length === 0}
+                    modalPopover={true}
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />

@@ -33,14 +33,14 @@ export function DataTableToolbar<TData>({
 
   const [createTaskForm, setCreateTaskForm] = useState(false);
 
-  const [projectId, setProjectId] = useState('');
+  const [projectId, setProjectId] = useState(0);
   const pathname = usePathname();
 
   useEffect(() => {
     const segments = pathname.split('/');
-    const projectId = segments[segments.length - 1];
+    const projectId = parseInt(segments[segments.length - 1]);
     setProjectId(projectId);
-  }, []);
+  }, [pathname]);
 
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],

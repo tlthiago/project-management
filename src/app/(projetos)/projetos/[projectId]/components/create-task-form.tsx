@@ -6,15 +6,10 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ArrowDown, ArrowRight, ArrowUp, CalendarDays } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
-import {
-  getMembersByDepartment,
-  GetMembersByDepartmentResponse
-} from '@/app/api/departments/get-members-by-department';
 import {
   getProjectById,
   GetProjectByIdResponse
@@ -56,8 +51,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
 interface createTaskFormProps {
-  projectId: string;
+  projectId: number;
   open: boolean;
+}
+
+interface Member {
+  CHAPA: string;
+  NOME: string;
 }
 
 export const taskSchema = z
@@ -91,7 +91,6 @@ export const taskSchema = z
 
 export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
   const { data: session } = useSession();
-  const department = session?.user.SETOR ?? '';
 
   const { data: project } = useQuery<GetProjectByIdResponse>({
     queryKey: ['project', projectId],
@@ -99,24 +98,13 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
     enabled: !!open
   });
 
-  const { data: members = [] } = useQuery<GetMembersByDepartmentResponse[]>({
-    queryKey: ['members', department],
-    queryFn: () => getMembersByDepartment({ department }),
-    enabled: !!open
-  });
-
-  const membersList: string[] = project?.MEMBROS.split(', ') || [];
-  const [member, setMember] = useState<string[]>([]);
-
-  const membersChapas: string[] = [];
-
-  member.map((selectedMember) => {
-    members.map((member) => {
-      if (selectedMember === member.NOME) {
-        membersChapas.push(member.CHAPA);
-      }
-    });
-  });
+  const members =
+    project?.EQUIPES.flatMap((team) =>
+      team.MEMBROS.flatMap((member: Member) => ({
+        CHAPA: member.CHAPA,
+        NOME: member.NOME
+      }))
+    ) || [];
 
   const form = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
@@ -132,33 +120,21 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
     }
   });
 
-  // useEffect(() => {
-  //   const selectedMembers = form.watch('responsaveis');
-
-  //   const membersChapas: string[] = [];
-
-  //   members.forEach((member) => {
-  //     if (selectedMembers.includes(member.NOME)) {
-  //       membersChapas.push(member.CHAPA);
-  //     }
-  //   });
-
-  //   console.log(selectedMembers);
-  //   console.log(membersChapas);
-  // }, [form.watch('responsaveis')]);
-
   const queryClient = useQueryClient();
 
   const { mutateAsync: createTaskFn } = useMutation({
     mutationFn: createTask,
     onSuccess() {
       form.reset();
-      setMember([]);
-      queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+      }, 1000);
     }
   });
 
   async function onSubmit(taskData: z.infer<typeof taskSchema>) {
+    // console.log(taskData);
+
     try {
       await createTaskFn({
         projectId: projectId,
@@ -170,7 +146,7 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
           ? format(taskData.datas.to, 'yyyy-MM-dd', { locale: ptBR })
           : undefined,
         descricao: taskData.descricao ?? undefined,
-        chapas: membersChapas,
+        chapas: taskData.responsaveis,
         prioridade: taskData.prioridade,
         usuInclusao: session?.user.CODUSUARIO ?? 'A_MMWEB'
       });
@@ -285,20 +261,19 @@ export function CreateTaskForm({ projectId, open }: createTaskFormProps) {
                 </FormLabel>
                 <FormControl>
                   <MultiSelect
-                    options={membersList.map((memberName, index) => ({
-                      value: memberName,
-                      label: memberName,
-                      key: index
+                    options={members.map((member) => ({
+                      value: member.CHAPA,
+                      label: member.NOME,
+                      key: member.CHAPA
                     }))}
-                    selected={member}
-                    onChange={(members) => {
-                      field.onChange(members);
-                      setMember(members);
-                    }}
-                    className="w-96"
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
                     placeholder={
-                      member.length === 0 ? 'Selecione os responsáveis' : ''
+                      field.value.length === 0
+                        ? 'Selecione os responsáveis'
+                        : ''
                     }
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />

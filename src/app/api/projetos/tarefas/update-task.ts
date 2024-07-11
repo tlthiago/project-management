@@ -5,7 +5,7 @@ interface MemberData {
 }
 
 export interface UpdateTaskBody {
-  taskId: string;
+  taskId: number;
   nome?: string;
   dataInicio?: string | null;
   dataFim?: string | null;
